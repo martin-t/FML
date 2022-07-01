@@ -1,3 +1,7 @@
+[![CI](https://github.com/martin-t/FML/workflows/CI/badge.svg)](https://github.com/martin-t/FML/actions)
+[![Audit](https://github.com/martin-t/FML/workflows/audit/badge.svg)](https://rustsec.org/)
+[![Dependency status](https://deps.rs/repo/github/martin-t/FML/status.svg)](https://deps.rs/repo/github/martin-t/FML)
+
 # FML language and runtime
 
 FML is an imperative, object-oriented toy language based on Feeny. FML has
