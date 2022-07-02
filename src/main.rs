@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, BufReader, BufRead, Write, BufWriter};
 
-use clap::Parser;
+use clap::{Args, Parser};
 use anyhow::{Result, bail, anyhow};
 
 use crate::parser::AST;
@@ -43,7 +43,7 @@ impl Action {
     }
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 #[clap(about = "Run an FML program")]
 struct RunAction {
     #[clap(name="FILE", parse(from_os_str))]
@@ -54,14 +54,14 @@ struct RunAction {
     pub heap_log: Option<PathBuf>,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 #[clap(about = "Print FML bytecode in human-readable form")]
 struct BytecodeDisassemblyAction {
     #[clap(name="FILE", parse(from_os_str))]
     pub input: Option<PathBuf>,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 #[clap(about = "Interpret FML bytecode")]
 struct BytecodeInterpreterAction {
     #[clap(name="FILE", parse(from_os_str))]
@@ -72,7 +72,7 @@ struct BytecodeInterpreterAction {
     pub heap_log: Option<PathBuf>,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 #[clap(about = "Compiles an FML AST into bytecode")]
 struct CompilerAction {
     #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
@@ -90,7 +90,7 @@ struct CompilerAction {
     pub input_format: Option<ASTSerializer>,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Args, Debug)]
 #[clap(about = "Parses FML source code and outputs an AST")]
 struct ParserAction {
     #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
