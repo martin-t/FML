@@ -11,8 +11,6 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, BufReader, BufRead, Write, BufWriter};
 
-// FIXME Should we use Parser, Args or Subcommand for actions?
-// FIXME about vs help
 use clap::Parser;
 use anyhow::{Result, bail, anyhow};
 
