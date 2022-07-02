@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 
 use super::program::Code;
 
-use anyhow::*;
+use anyhow::Result;
 
 pub trait SerializableWithContext {
     fn serialize<W: Write> (&self, sink: &mut W, code: &Code) -> Result<()>;

@@ -14,7 +14,7 @@ use std::io::{Read, BufReader, BufRead, Write, BufWriter};
 use clap::Clap;
 use clap::crate_version;
 use clap::crate_authors;
-use anyhow::*;
+use anyhow::{Result, bail, anyhow};
 
 use crate::parser::AST;
 use crate::fml::TopLevelParser;
