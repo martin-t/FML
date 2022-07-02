@@ -11,9 +11,9 @@ use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, BufReader, BufRead, Write, BufWriter};
 
-use clap::Clap;
-use clap::crate_version;
-use clap::crate_authors;
+// FIXME Should we use Parser, Args or Subcommand for actions?
+// FIXME about vs help
+use clap::Parser;
 use anyhow::{Result, bail, anyhow};
 
 use crate::parser::AST;
@@ -23,8 +23,8 @@ use crate::bytecode::program::Program;
 use crate::bytecode::serializable::Serializable;
 use crate::bytecode::interpreter::evaluate_with_memory_config;
 
-#[derive(Clap, Debug)]
-#[clap(version = crate_version!(), author = crate_authors!())]
+#[derive(Parser, Debug)]
+#[clap(version, author)]
 enum Action {
     Parse(ParserAction),
     Compile(CompilerAction),
@@ -45,36 +45,36 @@ impl Action {
     }
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(about = "Run an FML program")]
 struct RunAction {
     #[clap(name="FILE", parse(from_os_str))]
     pub input: Option<PathBuf>,
-    #[clap(long="heap-size", name="MBs", about = "Maximum heap size in megabytes", default_value = "0")]
+    #[clap(long="heap-size", name="MBs", help = "Maximum heap size in megabytes", default_value = "0")]
     pub heap_size: usize,
-    #[clap(long="heap-log", name="LOG_FILE", about = "Path to heap log, if none, the log is not produced", parse(from_os_str), parse(from_os_str))]
+    #[clap(long="heap-log", name="LOG_FILE", help = "Path to heap log, if none, the log is not produced", parse(from_os_str), parse(from_os_str))]
     pub heap_log: Option<PathBuf>,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(about = "Print FML bytecode in human-readable form")]
 struct BytecodeDisassemblyAction {
     #[clap(name="FILE", parse(from_os_str))]
     pub input: Option<PathBuf>,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(about = "Interpret FML bytecode")]
 struct BytecodeInterpreterAction {
     #[clap(name="FILE", parse(from_os_str))]
     pub input: Option<PathBuf>,
-    #[clap(long="heap-size", name="MBs", about = "Maximum heap size in megabytes", default_value = "0")]
+    #[clap(long="heap-size", name="MBs", help = "Maximum heap size in megabytes", default_value = "0")]
     pub heap_size: usize,
-    #[clap(long="heap-log", name="LOG_FILE", about = "Path to heap log, if none, the log is not produced", parse(from_os_str))]
+    #[clap(long="heap-log", name="LOG_FILE", help = "Path to heap log, if none, the log is not produced", parse(from_os_str))]
     pub heap_log: Option<PathBuf>,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(about = "Compiles an FML AST into bytecode")]
 struct CompilerAction {
     #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
@@ -84,15 +84,15 @@ struct CompilerAction {
     pub input: Option<PathBuf>,
 
     #[clap(long = "output-format", alias = "bc", name = "AST_FORMAT",
-    about = "The output format for the bytecode: bytes or string")]
+    help = "The output format for the bytecode: bytes or string")]
     pub output_format: Option<BCSerializer>,
 
     #[clap(long = "input-format", alias = "ast", name = "BC_FORMAT",
-    about = "The output format of the AST: JSON, LISP, YAML")]
+    help = "The output format of the AST: JSON, LISP, YAML")]
     pub input_format: Option<ASTSerializer>,
 }
 
-#[derive(Clap, Debug)]
+#[derive(Parser, Debug)]
 #[clap(about = "Parses FML source code and outputs an AST")]
 struct ParserAction {
     #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
@@ -102,7 +102,7 @@ struct ParserAction {
     pub input: Option<PathBuf>,
 
     #[clap(long = "format", alias = "ast", name = "FORMAT",
-    about = "The output format of the AST: JSON, LISP, YAML, or Rust")]
+    help = "The output format of the AST: JSON, LISP, YAML, or Rust")]
     pub format: Option<ASTSerializer>,
 }
 
