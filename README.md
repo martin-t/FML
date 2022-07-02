@@ -766,7 +766,12 @@ Add this to your VSCode config (or something similar for your editor):
 }
 ```
 
-Explanation: Normally, rust-analyzer runs `cargo check` on save which locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build. This will make rust-analyzer make use a separate target directory so that it'll never block a build at the expense of slightly more disk space (but not double since most files don't seem to be shared between cargo and RA). Alternatively, you could disable saving when losing focus, disable running check on save or use the terminal inside VSCode to build the project.
+Explanation: Normally, rust-analyzer runs `cargo check` (or `cargo clippy`) on save which locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build. This will make rust-analyzer make use a separate target directory so that it blocks the build less often at the expense of slightly more disk space.
+
+  - Note 1: There can still be occassional blocking - probably when something touches `Cargo.lock`.
+  - Note 2: Even normally cargo and RA seem unable to share most build files - they each generate their own in the same dir - so this should not double the disk space used.
+
+Alternatively, you could disable saving when losing focus, disable running check on save or use the terminal inside VSCode to build the project.
 
 ### On linux, use the `mold` linker
 
