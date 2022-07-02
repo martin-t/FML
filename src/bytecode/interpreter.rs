@@ -3,8 +3,7 @@ use std::fmt::Write;
 use crate::bytecode::bytecode::OpCode;
 use crate::bytecode::heap::*;
 
-use anyhow::*;
-use anyhow::Context;
+use anyhow::{Context, Result, bail, ensure};
 use std::iter::repeat;
 
 use crate::bail_if;

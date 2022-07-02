@@ -9,7 +9,7 @@ use crate::bytecode::program::*;
 
 use crate::bail_if;
 
-use anyhow::*;
+use anyhow::Result;
 
 pub struct ProgramGenerator {
     pub constant_pool: ConstantPool,

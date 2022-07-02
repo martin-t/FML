@@ -2,7 +2,7 @@ use crate::bytecode::program::*;
 use crate::bytecode::heap::*;
 use std::collections::{HashMap, HashSet};
 
-use anyhow::*;
+use anyhow::{Result, Context, bail, anyhow, ensure};
 use std::io::Write as IOWrite;
 
 // TODO anyhow has ensure which will replace bailf_if

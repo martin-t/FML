@@ -6,7 +6,7 @@ use super::bytecode::OpCode;
 use super::serializable;
 use super::serializable::*;
 
-use anyhow::*;
+use anyhow::{Result, Context, Error, anyhow};
 
 use super::serializable::Serializable;
 use std::iter::repeat;

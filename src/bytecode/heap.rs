@@ -1,4 +1,4 @@
-use anyhow::*;
+use anyhow::{Result, Context, anyhow, bail};
 use indexmap::IndexMap;
 
 use crate::bytecode::state::OperandStack;

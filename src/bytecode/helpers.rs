@@ -1,4 +1,4 @@
-use anyhow::*;
+use anyhow::Result;
 
 #[macro_export]
 macro_rules! bail_if {
