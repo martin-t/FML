@@ -9,6 +9,7 @@ mod parser;
 #[cfg(test)]
 mod tests;
 
+use std::fmt::{self, Debug, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
@@ -16,11 +17,11 @@ use std::path::PathBuf;
 use anyhow::{anyhow, bail, Result};
 use clap::{Args, Parser};
 
-use crate::fml::TopLevelParser;
-use crate::parser::AST;
 use crate::bytecode::interpreter::evaluate_with_memory_config;
 use crate::bytecode::program::Program;
 use crate::bytecode::serializable::Serializable;
+use crate::fml::TopLevelParser;
+use crate::parser::AST;
 
 #[derive(Parser, Debug)]
 #[clap(version, author)]
@@ -507,8 +508,8 @@ impl BufRead for NamedSource {
     }
 }
 
-impl std::fmt::Debug for NamedSource {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Debug for NamedSource {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str("<")?;
         match &self.name {
             Stream::File(file) => f.write_str(&file),
@@ -568,8 +569,8 @@ impl Write for NamedSink {
     }
 }
 
-impl std::fmt::Debug for NamedSink {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Debug for NamedSink {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str(">")?;
         match &self.name {
             Stream::File(file) => f.write_str(&file),
