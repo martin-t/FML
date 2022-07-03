@@ -753,8 +753,8 @@ You can make the project compile significantly faster and iterate quicker:
 
 ### Use nightly, lld and -Zshare-generics
 
-- Run this in project root: `ln -s rust-toolchain-example.toml rust-toolchain.toml; cd .cargo; ln -s config-example.toml config.toml; cd -`
-- This gives the biggest speedup (e.g. 5x in some projects)
+* Run this in project root: `ln -s rust-toolchain-example.toml rust-toolchain.toml; cd .cargo; ln -s config-example.toml config.toml; cd -`
+* This gives the biggest speedup (e.g. 5x in some projects)
 
 ### Prevent rust-analyzer from locking the `target` directory
 
@@ -763,17 +763,21 @@ Add this to your VSCode config (or something similar for your editor):
 ```json
 "rust-analyzer.server.extraEnv": {
     "CARGO_TARGET_DIR": "target-ra"
-}
+},
+"rust-analyzer.files.excludeDirs": [
+  "target-ra/"
+]
 ```
 
-Explanation: Normally, rust-analyzer runs `cargo check` (or `cargo clippy`) on save which locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build. This will make rust-analyzer make use a separate target directory so that it blocks the build less often at the expense of slightly more disk space.
+Explanation: Normally, rust-analyzer runs `cargo check` (or `cargo clippy`) on save which locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build. This will make rust-analyzer make use a separate target directory so that it blocks the build less often at the expense of more disk space.
 
-  - Note 1: There can still be occassional blocking - probably when something touches `Cargo.lock`.
-  - Note 2: Even normally cargo and RA seem unable to share most build files - they each generate their own in the same dir - so this should not double the disk space used.
+* There can still be occassional blocking - probably when something touches `Cargo.lock`.
+* The amount of space used seems somewhat less than double of the normal shared `target`.
+* Excluding `target-ra` is not necessary but if it contains generated code, sometimes RA reports warnings in it as well. Likely an RA bug.
 
 Alternatively, you could disable saving when losing focus, disable running check on save or use the terminal inside VSCode to build the project.
 
 ### On linux, use the `mold` linker
 
-- `~/your/path/to/mold -run cargo build`
-- This gives only a small speedup (e.g. 10% in some projects)
+* `~/your/path/to/mold -run cargo build`
+* This gives only a small speedup (e.g. 10% in some projects)
