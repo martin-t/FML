@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate lalrpop_util;
 
-lalrpop_mod!(pub fml); // load module synthesized by LALRPOP
+// FIXME report lalrpop issue: clippy::all should apply to whole mod
+
+lalrpop_mod!(#[allow(clippy::all)] pub fml); // load module synthesized by LALRPOP
 
 mod bytecode;
 mod parser;
