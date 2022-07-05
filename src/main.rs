@@ -26,21 +26,21 @@ use crate::parser::AST;
 #[derive(Parser, Debug)]
 #[clap(version, author)]
 enum Action {
-    Parse(ParserAction),
-    Compile(CompilerAction),
-    Execute(BytecodeInterpreterAction),
-    Disassemble(BytecodeDisassemblyAction),
     Run(RunAction),
+    Disassemble(BytecodeDisassemblerAction),
+    Execute(BytecodeInterpreterAction),
+    Compile(CompilerAction),
+    Parse(ParserAction),
 }
 
 impl Action {
     pub fn execute(&self) {
         match self {
-            Self::Parse(action) => action.parse(),
-            Self::Compile(action) => action.compile(),
-            Self::Execute(action) => action.interpret(),
             Self::Run(action) => action.run(),
             Self::Disassemble(action) => action.debug(),
+            Self::Execute(action) => action.interpret(),
+            Self::Compile(action) => action.compile(),
+            Self::Parse(action) => action.parse(),
         }
     }
 }
@@ -69,7 +69,7 @@ struct RunAction {
 
 #[derive(Args, Debug)]
 #[clap(about = "Print FML bytecode in human-readable form")]
-struct BytecodeDisassemblyAction {
+struct BytecodeDisassemblerAction {
     #[clap(name = "FILE", parse(from_os_str))]
     pub input: Option<PathBuf>,
 }
@@ -212,7 +212,7 @@ impl BytecodeInterpreterAction {
     }
 }
 
-impl BytecodeDisassemblyAction {
+impl BytecodeDisassemblerAction {
     pub fn debug(&self) {
         let mut source = self
             .selected_input()
@@ -458,6 +458,7 @@ impl NamedSource {
             None => NamedSource::console(),
         }
     }
+    
     fn console() -> Result<NamedSource> {
         let named_source = NamedSource {
             name: Stream::Console,
@@ -465,6 +466,7 @@ impl NamedSource {
         };
         Ok(named_source)
     }
+
     fn from_file(path: &PathBuf) -> Result<Self> {
         if let Some(name) = path.as_os_str().to_str() {
             File::open(path)
@@ -478,11 +480,13 @@ impl NamedSource {
             bail!("Cannot convert path into UTF string: {:?}", path)
         }
     }
+
     fn into_string(mut self) -> Result<String> {
         let mut string = String::new();
         self.source.read_to_string(&mut string)?;
         Ok(string)
     }
+
     fn extension(&self) -> Option<String> {
         match &self.name {
             Stream::File(file) => PathBuf::from(file)
@@ -503,6 +507,7 @@ impl BufRead for NamedSource {
     fn fill_buf(&mut self) -> std::result::Result<&[u8], std::io::Error> {
         self.source.fill_buf()
     }
+
     fn consume(&mut self, amt: usize) {
         self.source.consume(amt)
     }
@@ -523,6 +528,7 @@ struct NamedSink {
     name: Stream,
     sink: Box<dyn Write>,
 }
+
 impl NamedSink {
     fn from(maybe_file: Option<PathBuf>) -> Result<NamedSink> {
         match maybe_file {
@@ -530,6 +536,7 @@ impl NamedSink {
             None => NamedSink::console(),
         }
     }
+
     fn console() -> Result<Self> {
         let named_sink = NamedSink {
             name: Stream::Console,
@@ -537,6 +544,7 @@ impl NamedSink {
         };
         Ok(named_sink)
     }
+
     fn from_file(path: &PathBuf) -> Result<Self> {
         if let Some(name) = path.as_os_str().to_str() {
             File::create(path)
@@ -560,10 +568,12 @@ impl NamedSink {
         }
     }
 }
+
 impl Write for NamedSink {
     fn write(&mut self, buf: &[u8]) -> std::result::Result<usize, std::io::Error> {
         self.sink.write(buf)
     }
+
     fn flush(&mut self) -> std::result::Result<(), std::io::Error> {
         self.sink.flush()
     }
