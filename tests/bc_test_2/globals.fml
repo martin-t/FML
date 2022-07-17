@@ -3,3 +3,5 @@ let y = true;
 let z = null;
 
 print("x=~ y=~ z=~\n", z, y, x);
+
+// > x=null y=true z=1

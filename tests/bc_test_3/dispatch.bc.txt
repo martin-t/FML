@@ -127,14 +127,14 @@ Code:
 82: call slot #25 1
 83: drop
 84: get local ::0
-85: lit #32
+85: lit #34
 86: get local ::0
 87: lit #34
 88: call slot #8 2
 89: printf #33 3
 90: drop
 91: get local ::0
-92: lit #32
+92: lit #34
 93: get local ::0
 94: lit #34
 95: call slot #10 2
@@ -147,5 +147,5 @@ Code:
 // > [!43]
 // > [!43]
 // > [!56]
-// > object(..=object(..=object(value=43))) == 13 => true
-// > object(..=object(..=object(value=43))) != 13 => false
+// > object(..=object(..=object(value=43))) == 43 => true
+// > object(..=object(..=object(value=43))) != 43 => false

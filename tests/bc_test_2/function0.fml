@@ -1,2 +1,4 @@
 function zero () -> 0;
 print("~\n", zero())
+
+// > 0

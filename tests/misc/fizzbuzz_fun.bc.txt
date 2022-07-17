@@ -1,0 +1,96 @@
+Constant Pool:
+0: "λ:"
+1: "if:consequent:0"
+2: "if:end:0"
+3: "<="
+4: "~ not considered\n"
+5: "~"
+6: "if:consequent:1"
+7: "if:end:1"
+8: "=="
+9: "%"
+10: 3
+11: 0
+12: null
+13: " fizz"
+14: "if:consequent:2"
+15: "if:end:2"
+16: 5
+17: " buzz"
+18: "\n"
+19: "fizzbuzz"
+20: "+"
+21: 1
+22: method #19 args:2 locals:0 0000-0045
+23: 15
+24: method #0 args:0 locals:0 0046-0048
+Entry: #24
+Globals:
+0: #22
+Code:
+0: get local ::0
+1: get local ::1
+2: call slot #3 2
+3: branch #1
+4: get local ::0
+5: printf #4 1
+6: goto #2
+7: label #1
+8: get local ::0
+9: printf #5 1
+10: drop
+11: get local ::0
+12: lit #10
+13: call slot #9 2
+14: lit #11
+15: call slot #8 2
+16: branch #6
+17: lit #12
+18: drop
+19: goto #7
+20: label #6
+21: printf #13 0
+22: drop
+23: label #7
+24: get local ::0
+25: lit #16
+26: call slot #9 2
+27: lit #11
+28: call slot #8 2
+29: branch #14
+30: lit #12
+31: drop
+32: goto #15
+33: label #14
+34: printf #17 0
+35: drop
+36: label #15
+37: printf #18 0
+38: drop
+39: get local ::0
+40: lit #21
+41: call slot #20 2
+42: get local ::1
+43: call #19 2
+44: label #2
+45: return
+46: lit #21
+47: lit #23
+48: call #19 2
+
+// > 1
+// > 2
+// > 3 fizz
+// > 4
+// > 5 buzz
+// > 6 fizz
+// > 7
+// > 8
+// > 9 fizz
+// > 10 buzz
+// > 11
+// > 12 fizz
+// > 13
+// > 14
+// > 15 fizz buzz
+// > 16 not considered

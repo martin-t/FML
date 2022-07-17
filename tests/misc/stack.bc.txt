@@ -1,0 +1,329 @@
+Constant Pool:
+0: "λ:"
+1: "if:consequent:0"
+2: "if:end:0"
+3: ">"
+4: 0
+5: 1
+6: null
+7: "size"
+8: slot #7
+9: "pointer"
+10: slot #9
+11: "values"
+12: slot #11
+13: "stack"
+14: "get"
+15: "peek"
+16: method #15 args:1 locals:0 0000-0005
+17: "if:consequent:1"
+18: "if:end:1"
+19: "=="
+20: "__expand"
+21: "set"
+22: "+"
+23: "push"
+24: method #23 args:2 locals:0 0006-0035
+25: "if:consequent:2"
+26: "if:end:2"
+27: "-"
+28: "Error: attempting to pop from an empty stack.\n"
+29: "pop"
+30: method #29 args:1 locals:1 0036-0067
+31: "["
+32: "loop:body:3"
+33: "loop:condition:3"
+34: "if:consequent:4"
+35: "if:end:4"
+36: "!="
+37: ", "
+38: "if:consequent:5"
+39: "if:end:5"
+40: "*"
+41: "~"
+42: "<"
+43: "]\n"
+44: "print_values"
+45: method #44 args:1 locals:1 0068-0118
+46: 2
+47: "loop:body:6"
+48: "loop:condition:6"
+49: method #20 args:1 locals:3 0119-0165
+50: class #8,#10,#12,#16,#24,#30,#45,#49
+51: method #13 args:1 locals:1 0166-0184
+52: 4
+53: "s"
+54: slot #53
+55: 7
+56: "len"
+57: slot #56
+58: "loop:body:7"
+59: "loop:condition:7"
+60: "push ~ => "
+61: "loop:body:8"
+62: "loop:condition:8"
+63: "pop ~ => "
+64: method #0 args:0 locals:2 0185-0239
+Entry: #64
+Globals:
+0: #51
+1: #54
+2: #57
+Code:
+0: get local ::0
+1: get slot #13
+2: get local ::0
+3: get slot #9
+4: call slot #14 2
+5: return
+6: get local ::0
+7: get slot #9
+8: get local ::0
+9: get slot #7
+10: call slot #19 2
+11: branch #17
+12: lit #6
+13: drop
+14: goto #18
+15: label #17
+16: get local ::0
+17: call slot #20 1
+18: drop
+19: label #18
+20: get local ::0
+21: get slot #11
+22: get local ::0
+23: get slot #9
+24: get local ::1
+25: call slot #21 3
+26: drop
+27: get local ::0
+28: get local ::0
+29: get slot #9
+30: lit #5
+31: call slot #22 2
+32: set slot #9
+33: drop
+34: get local ::1
+35: return
+36: get local ::0
+37: get slot #9
+38: lit #4
+39: call slot #19 2
+40: branch #25
+41: get local ::0
+42: get local ::0
+43: get slot #9
+44: lit #5
+45: call slot #27 2
+46: set slot #9
+47: drop
+48: get local ::0
+49: get slot #11
+50: get local ::0
+51: get slot #9
+52: call slot #14 2
+53: set local ::1
+54: drop
+55: get local ::0
+56: get slot #11
+57: get local ::0
+58: get slot #9
+59: lit #6
+60: call slot #21 3
+61: drop
+62: get local ::1
+63: goto #26
+64: label #25
+65: printf #28 0
+66: label #26
+67: return
+68: lit #4
+69: set local ::1
+70: drop
+71: printf #31 0
+72: drop
+73: goto #33
+74: label #32
+75: get local ::1
+76: lit #4
+77: call slot #36 2
+78: branch #34
+79: lit #6
+80: drop
+81: goto #35
+82: label #34
+83: printf #37 0
+84: drop
+85: label #35
+86: get local ::1
+87: get local ::0
+88: get slot #9
+89: lit #5
+90: call slot #27 2
+91: call slot #19 2
+92: branch #38
+93: lit #6
+94: drop
+95: goto #39
+96: label #38
+97: printf #40 0
+98: drop
+99: label #39
+100: get local ::0
+101: get slot #11
+102: get local ::1
+103: call slot #14 2
+104: printf #41 1
+105: drop
+106: get local ::1
+107: lit #5
+108: call slot #22 2
+109: set local ::1
+110: drop
+111: label #33
+112: get local ::1
+113: get local ::0
+114: get slot #7
+115: call slot #42 2
+116: branch #32
+117: printf #43 0
+118: return
+119: get local ::0
+120: get slot #11
+121: set local ::1
+122: drop
+123: get local ::0
+124: get slot #7
+125: set local ::2
+126: drop
+127: get local ::0
+128: lit #46
+129: get local ::0
+130: get slot #7
+131: call slot #40 2
+132: set slot #7
+133: drop
+134: get local ::0
+135: get local ::0
+136: get slot #7
+137: lit #6
+138: array
+139: set slot #11
+140: drop
+141: lit #4
+142: set local ::3
+143: drop
+144: goto #48
+145: label #47
+146: get local ::0
+147: get slot #11
+148: get local ::3
+149: get local ::1
+150: get local ::3
+151: call slot #14 2
+152: call slot #21 3
+153: drop
+154: get local ::3
+155: lit #5
+156: call slot #22 2
+157: set local ::3
+158: drop
+159: label #48
+160: get local ::3
+161: get local ::2
+162: call slot #42 2
+163: branch #47
+164: lit #6
+165: return
+166: get local ::0
+167: lit #4
+168: call slot #3 2
+169: branch #1
+170: lit #5
+171: goto #2
+172: label #1
+173: get local ::0
+174: label #2
+175: set local ::1
+176: drop
+177: lit #6
+178: get local ::1
+179: lit #4
+180: get local ::1
+181: lit #6
+182: array
+183: object #50
+184: return
+185: lit #52
+186: call #13 1
+187: set global #53
+188: drop
+189: lit #55
+190: set global #56
+191: drop
+192: lit #4
+193: set local ::0
+194: drop
+195: goto #59
+196: label #58
+197: get global #53
+198: get local ::0
+199: call slot #23 2
+200: printf #60 1
+201: drop
+202: get global #53
+203: call slot #44 1
+204: drop
+205: get local ::0
+206: lit #5
+207: call slot #22 2
+208: set local ::0
+209: drop
+210: label #59
+211: get local ::0
+212: get global #56
+213: call slot #42 2
+214: branch #58
+215: lit #4
+216: set local ::1
+217: drop
+218: goto #62
+219: label #61
+220: get global #53
+221: call slot #29 1
+222: printf #63 1
+223: drop
+224: get global #53
+225: call slot #44 1
+226: drop
+227: get local ::1
+228: lit #5
+229: call slot #22 2
+230: set local ::1
+231: drop
+232: label #62
+233: get local ::1
+234: get global #56
+235: lit #5
+236: call slot #22 2
+237: call slot #42 2
+238: branch #61
+239: lit #6
+
+// > push 0 => [*0, null, null, null]
+// > push 1 => [0, *1, null, null]
+// > push 2 => [0, 1, *2, null]
+// > push 3 => [0, 1, 2, *3]
+// > push 4 => [0, 1, 2, 3, *4, null, null, null]
+// > push 5 => [0, 1, 2, 3, 4, *5, null, null]
+// > push 6 => [0, 1, 2, 3, 4, 5, *6, null]
+// > pop 6 => [0, 1, 2, 3, 4, *5, null, null]
+// > pop 5 => [0, 1, 2, 3, *4, null, null, null]
+// > pop 4 => [0, 1, 2, *3, null, null, null, null]
+// > pop 3 => [0, 1, *2, null, null, null, null, null]
+// > pop 2 => [0, *1, null, null, null, null, null, null]
+// > pop 1 => [*0, null, null, null, null, null, null, null]
+// > pop 0 => [null, null, null, null, null, null, null, null]
+// > Error: attempting to pop from an empty stack.
+// > pop null => [null, null, null, null, null, null, null, null]

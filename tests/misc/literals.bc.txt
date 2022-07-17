@@ -1,0 +1,34 @@
+Constant Pool:
+0: "λ:"
+1: "~\n"
+2: null
+3: "~ ~\n"
+4: false
+5: true
+6: "~ ~ ~ ~ ~\n"
+7: -42
+8: -1
+9: 0
+10: 1
+11: 42
+12: method #0 args:0 locals:0 0000-0012
+Entry: #12
+Globals:
+Code:
+0: lit #2
+1: printf #1 1
+2: drop
+3: lit #4
+4: lit #5
+5: printf #3 2
+6: drop
+7: lit #7
+8: lit #8
+9: lit #9
+10: lit #10
+11: lit #11
+12: printf #6 5
+
+// > null
+// > false true
+// > -42 -1 0 1 42

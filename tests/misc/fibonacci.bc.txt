@@ -1,0 +1,111 @@
+Constant Pool:
+0: "λ:"
+1: "if:consequent:0"
+2: "if:end:0"
+3: "<"
+4: 0
+5: "if:consequent:1"
+6: "if:end:1"
+7: "=="
+8: "if:consequent:2"
+9: "if:end:2"
+10: "|"
+11: 1
+12: 2
+13: "+"
+14: "fibonacci"
+15: "-"
+16: "Error: value must be a Natural number.\n"
+17: method #14 args:1 locals:0 0000-0037
+18: -1
+19: "i"
+20: slot #19
+21: "loop:body:3"
+22: "loop:condition:3"
+23: "~ => ~\n"
+24: 16
+25: null
+26: method #0 args:0 locals:0 0038-0058
+Entry: #26
+Globals:
+0: #17
+1: #20
+Code:
+0: get local ::0
+1: lit #4
+2: call slot #3 2
+3: branch #1
+4: get local ::0
+5: lit #4
+6: call slot #7 2
+7: branch #5
+8: get local ::0
+9: lit #11
+10: call slot #7 2
+11: get local ::0
+12: lit #12
+13: call slot #7 2
+14: call slot #10 2
+15: branch #8
+16: get local ::0
+17: lit #11
+18: call slot #15 2
+19: call #14 1
+20: get local ::0
+21: lit #12
+22: call slot #15 2
+23: call #14 1
+24: call slot #13 2
+25: goto #9
+26: label #8
+27: lit #11
+28: label #9
+29: goto #6
+30: label #5
+31: lit #4
+32: label #6
+33: goto #2
+34: label #1
+35: printf #16 0
+36: label #2
+37: return
+38: lit #18
+39: set global #19
+40: drop
+41: goto #22
+42: label #21
+43: get global #19
+44: get global #19
+45: call #14 1
+46: printf #23 2
+47: drop
+48: get global #19
+49: lit #11
+50: call slot #13 2
+51: set global #19
+52: drop
+53: label #22
+54: get global #19
+55: lit #24
+56: call slot #3 2
+57: branch #21
+58: lit #25
+
+// > Error: value must be a Natural number.
+// > -1 => null
+// > 0 => 0
+// > 1 => 1
+// > 2 => 1
+// > 3 => 2
+// > 4 => 3
+// > 5 => 5
+// > 6 => 8
+// > 7 => 13
+// > 8 => 21
+// > 9 => 34
+// > 10 => 55
+// > 11 => 89
+// > 12 => 144
+// > 13 => 233
+// > 14 => 377
+// > 15 => 610

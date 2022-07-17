@@ -1,0 +1,283 @@
+Constant Pool:
+0: "λ:"
+1: 0
+2: "+"
+3: "-"
+4: 1
+5: null
+6: "loop:body:0"
+7: "loop:condition:0"
+8: "set"
+9: "<"
+10: "simple_sequence"
+11: method #10 args:2 locals:3 0000-0035
+12: "collection"
+13: slot #12
+14: "size"
+15: slot #14
+16: "pointer"
+17: slot #16
+18: "reset"
+19: method #18 args:1 locals:0 0036-0039
+20: "has_next"
+21: method #20 args:1 locals:0 0040-0045
+22: "if:consequent:1"
+23: "if:end:1"
+24: "get"
+25: "next"
+26: method #25 args:1 locals:1 0046-0068
+27: "loop:body:2"
+28: "loop:condition:2"
+29: "apply"
+30: "for_each"
+31: method #30 args:2 locals:0 0069-0086
+32: "loop:body:3"
+33: "loop:condition:3"
+34: "map"
+35: method #34 args:2 locals:1 0087-0114
+36: class #13,#15,#17,#19,#21,#26,#31,#35
+37: "array_iterator"
+38: method #37 args:2 locals:0 0115-0120
+39: "~: ~\n"
+40: method #29 args:3 locals:0 0121-0124
+41: class #40
+42: "print_lambda"
+43: slot #42
+44: method #29 args:3 locals:0 0125-0128
+45: class #44
+46: "increment_lambda"
+47: slot #46
+48: 10
+49: "collection_length"
+50: slot #49
+51: "collection: ~\n"
+52: "iterator"
+53: slot #52
+54: "loop:body:4"
+55: "loop:condition:4"
+56: "gimme more: ~\n"
+57: "gimme too much: ~\n"
+58: "incremented_collection"
+59: slot #58
+60: "incremented collection: ~\n"
+61: method #0 args:0 locals:0 0129-0184
+Entry: #61
+Globals:
+0: #11
+1: #38
+2: #43
+3: #47
+4: #50
+5: #13
+6: #53
+7: #59
+Code:
+0: lit #1
+1: set local ::2
+2: drop
+3: get local ::1
+4: get local ::0
+5: call slot #3 2
+6: lit #4
+7: call slot #2 2
+8: set local ::3
+9: drop
+10: get local ::3
+11: lit #5
+12: array
+13: set local ::4
+14: drop
+15: goto #7
+16: label #6
+17: get local ::4
+18: get local ::2
+19: get local ::2
+20: get local ::0
+21: call slot #2 2
+22: call slot #8 3
+23: drop
+24: get local ::2
+25: lit #4
+26: call slot #2 2
+27: set local ::2
+28: drop
+29: label #7
+30: get local ::2
+31: get local ::3
+32: call slot #9 2
+33: branch #6
+34: get local ::4
+35: return
+36: get local ::0
+37: lit #1
+38: set slot #16
+39: return
+40: get local ::0
+41: get slot #16
+42: get local ::0
+43: get slot #14
+44: call slot #9 2
+45: return
+46: get local ::0
+47: call slot #20 1
+48: branch #22
+49: lit #5
+50: goto #23
+51: label #22
+52: get local ::0
+53: get slot #12
+54: get local ::0
+55: get slot #16
+56: call slot #24 2
+57: set local ::1
+58: drop
+59: get local ::0
+60: get local ::0
+61: get slot #16
+62: lit #4
+63: call slot #2 2
+64: set slot #16
+65: drop
+66: get local ::1
+67: label #23
+68: return
+69: get local ::0
+70: call slot #18 1
+71: drop
+72: goto #28
+73: label #27
+74: get local ::1
+75: get local ::0
+76: get slot #16
+77: get local ::0
+78: call slot #25 1
+79: call slot #29 3
+80: drop
+81: label #28
+82: get local ::0
+83: call slot #20 1
+84: branch #27
+85: lit #5
+86: return
+87: get local ::0
+88: call slot #18 1
+89: drop
+90: get local ::0
+91: get slot #14
+92: lit #5
+93: array
+94: set local ::2
+95: drop
+96: goto #33
+97: label #32
+98: get local ::2
+99: get local ::0
+100: get slot #16
+101: get local ::1
+102: get local ::0
+103: get slot #16
+104: get local ::0
+105: call slot #25 1
+106: call slot #29 3
+107: call slot #8 3
+108: drop
+109: label #33
+110: get local ::0
+111: call slot #20 1
+112: branch #32
+113: get local ::2
+114: return
+115: lit #5
+116: get local ::0
+117: get local ::1
+118: lit #1
+119: object #36
+120: return
+121: get local ::1
+122: get local ::2
+123: printf #39 2
+124: return
+125: get local ::2
+126: lit #4
+127: call slot #2 2
+128: return
+129: lit #5
+130: object #41
+131: set global #42
+132: drop
+133: lit #5
+134: object #45
+135: set global #46
+136: drop
+137: lit #48
+138: set global #49
+139: drop
+140: lit #48
+141: lit #48
+142: get global #49
+143: call slot #2 2
+144: lit #4
+145: call slot #3 2
+146: call #10 2
+147: set global #12
+148: drop
+149: get global #12
+150: printf #51 1
+151: drop
+152: get global #12
+153: get global #49
+154: call #37 2
+155: set global #52
+156: drop
+157: goto #55
+158: label #54
+159: get global #52
+160: call slot #25 1
+161: printf #56 1
+162: drop
+163: label #55
+164: get global #52
+165: call slot #20 1
+166: branch #54
+167: get global #52
+168: call slot #25 1
+169: printf #57 1
+170: drop
+171: get global #52
+172: call slot #18 1
+173: drop
+174: get global #52
+175: get global #42
+176: call slot #30 2
+177: drop
+178: get global #52
+179: get global #46
+180: call slot #34 2
+181: set global #58
+182: drop
+183: get global #58
+184: printf #60 1
+
+// > collection: [10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+// > gimme more: 10
+// > gimme more: 11
+// > gimme more: 12
+// > gimme more: 13
+// > gimme more: 14
+// > gimme more: 15
+// > gimme more: 16
+// > gimme more: 17
+// > gimme more: 18
+// > gimme more: 19
+// > gimme too much: null
+// > 0: 10
+// > 1: 11
+// > 2: 12
+// > 3: 13
+// > 4: 14
+// > 5: 15
+// > 6: 16
+// > 7: 17
+// > 8: 18
+// > 9: 19
+// > incremented collection: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]

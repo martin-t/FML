@@ -12,3 +12,10 @@ end;
 
 print("~\n", decide(true));
 print("~\n", decide(false))
+
+// > decide(true)
+// > invert(true)
+// > decide(false)
+// > false
+// > decide(false)
+// > false

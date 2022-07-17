@@ -1,2 +1,4 @@
 while false do print("nothing\n");
 print("something\n")
+
+// > something

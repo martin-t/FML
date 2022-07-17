@@ -1,2 +1,4 @@
 function one (x) -> x;
 print("~\n", one(1))
+
+// > 1

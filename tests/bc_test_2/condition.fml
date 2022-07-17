@@ -1,5 +1,10 @@
-let x = 1;
-let y = true;
-let z = null;
+if true
+then print("correct\n")
+else print("incorrect\n");
 
-print("x=~ y=~ z=~\n", z, y, x);
+if false
+then print("incorrect\n")
+else print("correct\n");
+
+// > correct
+// > correct

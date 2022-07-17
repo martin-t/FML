@@ -1,0 +1,259 @@
+Constant Pool:
+0: "λ:"
+1: "if:consequent:0"
+2: "if:end:0"
+3: true
+4: "true things are not true\n"
+5: "true things are true\n"
+6: "if:consequent:1"
+7: "if:end:1"
+8: false
+9: "false things are not true\n"
+10: "false things are true\n"
+11: "if:consequent:2"
+12: "if:end:2"
+13: null
+14: "null is not true\n"
+15: "null is true\n"
+16: "if:consequent:3"
+17: "if:end:3"
+18: 0
+19: "zero is not true\n"
+20: "zero is true\n"
+21: "if:consequent:4"
+22: "if:end:4"
+23: 1
+24: "one is not true\n"
+25: "one is true\n"
+26: "x"
+27: slot #26
+28: "if:consequent:5"
+29: "if:end:5"
+30: "x is not true\n"
+31: "x is true\n"
+32: "y"
+33: slot #32
+34: "if:consequent:6"
+35: "if:end:6"
+36: "y is not true\n"
+37: "y is true\n"
+38: "if:consequent:7"
+39: "if:end:7"
+40: "true-false block is not true\n"
+41: "true-false block is true\n"
+42: "if:consequent:8"
+43: "if:end:8"
+44: "false-true block is not true\n"
+45: "false-true block is true\n"
+46: "z"
+47: slot #46
+48: "if:consequent:9"
+49: "if:end:9"
+50: "z is not true\n"
+51: "z is true\n"
+52: "if:consequent:10"
+53: "if:end:10"
+54: "now z is not true\n"
+55: "now z is true\n"
+56: "if:consequent:11"
+57: "if:end:11"
+58: "consequent"
+59: slot #58
+60: "consequent is ~\n"
+61: "if:consequent:12"
+62: "if:end:12"
+63: "alternative"
+64: slot #63
+65: "alternative is ~\n"
+66: "if:consequent:13"
+67: "if:end:13"
+68: "consequent is always ~\n"
+69: "if:consequent:14"
+70: "if:end:14"
+71: "alternative is sometimes ~\n"
+72: method #0 args:0 locals:0 0000-0160
+Entry: #72
+Globals:
+0: #27
+1: #33
+2: #47
+3: #59
+4: #64
+Code:
+0: lit #3
+1: branch #1
+2: printf #4 0
+3: drop
+4: goto #2
+5: label #1
+6: printf #5 0
+7: drop
+8: label #2
+9: lit #8
+10: branch #6
+11: printf #9 0
+12: drop
+13: goto #7
+14: label #6
+15: printf #10 0
+16: drop
+17: label #7
+18: lit #13
+19: branch #11
+20: printf #14 0
+21: drop
+22: goto #12
+23: label #11
+24: printf #15 0
+25: drop
+26: label #12
+27: lit #18
+28: branch #16
+29: printf #19 0
+30: drop
+31: goto #17
+32: label #16
+33: printf #20 0
+34: drop
+35: label #17
+36: lit #23
+37: branch #21
+38: printf #24 0
+39: drop
+40: goto #22
+41: label #21
+42: printf #25 0
+43: drop
+44: label #22
+45: lit #3
+46: set global #26
+47: drop
+48: get global #26
+49: branch #28
+50: printf #30 0
+51: drop
+52: goto #29
+53: label #28
+54: printf #31 0
+55: drop
+56: label #29
+57: lit #8
+58: set global #32
+59: drop
+60: get global #32
+61: branch #34
+62: printf #36 0
+63: drop
+64: goto #35
+65: label #34
+66: printf #37 0
+67: drop
+68: label #35
+69: lit #3
+70: drop
+71: lit #8
+72: branch #38
+73: printf #40 0
+74: drop
+75: goto #39
+76: label #38
+77: printf #41 0
+78: drop
+79: label #39
+80: lit #8
+81: drop
+82: lit #3
+83: branch #42
+84: printf #44 0
+85: drop
+86: goto #43
+87: label #42
+88: printf #45 0
+89: drop
+90: label #43
+91: lit #8
+92: set global #46
+93: drop
+94: get global #46
+95: branch #48
+96: printf #50 0
+97: drop
+98: lit #3
+99: goto #49
+100: label #48
+101: printf #51 0
+102: label #49
+103: set global #46
+104: drop
+105: get global #46
+106: branch #52
+107: printf #54 0
+108: drop
+109: goto #53
+110: label #52
+111: printf #55 0
+112: drop
+113: label #53
+114: lit #3
+115: branch #56
+116: lit #8
+117: goto #57
+118: label #56
+119: lit #3
+120: label #57
+121: set global #58
+122: drop
+123: get global #58
+124: printf #60 1
+125: drop
+126: lit #8
+127: branch #61
+128: lit #8
+129: goto #62
+130: label #61
+131: lit #3
+132: label #62
+133: set global #63
+134: drop
+135: get global #63
+136: printf #65 1
+137: drop
+138: lit #3
+139: branch #66
+140: lit #13
+141: goto #67
+142: label #66
+143: lit #3
+144: label #67
+145: set global #58
+146: drop
+147: get global #58
+148: printf #68 1
+149: drop
+150: lit #8
+151: branch #69
+152: lit #13
+153: goto #70
+154: label #69
+155: lit #3
+156: label #70
+157: set global #63
+158: drop
+159: get global #63
+160: printf #71 1
+
+// > true things are true
+// > false things are not true
+// > null is not true
+// > zero is true
+// > one is true
+// > x is true
+// > y is not true
+// > true-false block is not true
+// > false-true block is true
+// > z is not true
+// > now z is true
+// > consequent is true
+// > alternative is false
+// > consequent is always true
+// > alternative is sometimes null

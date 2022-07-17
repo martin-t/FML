@@ -1,6 +1,6 @@
 Constant Pool:
 0: "λ:"
-1: "Hello world!"
+1: "Hello world!\n"
 2: method #0 args:0 locals:0 0000-0000
 Entry: #2
 Globals:

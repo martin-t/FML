@@ -1,0 +1,95 @@
+Constant Pool:
+0: "λ:"
+1: 1
+2: "i"
+3: slot #2
+4: "loop:body:0"
+5: "loop:condition:0"
+6: "~"
+7: "if:consequent:1"
+8: "if:end:1"
+9: "=="
+10: "%"
+11: 3
+12: 0
+13: null
+14: " fizz"
+15: "if:consequent:2"
+16: "if:end:2"
+17: 5
+18: " buzz"
+19: "\n"
+20: "+"
+21: "<="
+22: 15
+23: "~ not considered\n"
+24: method #0 args:0 locals:0 0000-0047
+Entry: #24
+Globals:
+0: #3
+Code:
+0: lit #1
+1: set global #2
+2: drop
+3: goto #5
+4: label #4
+5: get global #2
+6: printf #6 1
+7: drop
+8: get global #2
+9: lit #11
+10: call slot #10 2
+11: lit #12
+12: call slot #9 2
+13: branch #7
+14: lit #13
+15: drop
+16: goto #8
+17: label #7
+18: printf #14 0
+19: drop
+20: label #8
+21: get global #2
+22: lit #17
+23: call slot #10 2
+24: lit #12
+25: call slot #9 2
+26: branch #15
+27: lit #13
+28: drop
+29: goto #16
+30: label #15
+31: printf #18 0
+32: drop
+33: label #16
+34: printf #19 0
+35: drop
+36: get global #2
+37: lit #1
+38: call slot #20 2
+39: set global #2
+40: drop
+41: label #5
+42: get global #2
+43: lit #22
+44: call slot #21 2
+45: branch #4
+46: get global #2
+47: printf #23 1
+
+// > 1
+// > 2
+// > 3 fizz
+// > 4
+// > 5 buzz
+// > 6 fizz
+// > 7
+// > 8
+// > 9 fizz
+// > 10 buzz
+// > 11
+// > 12 fizz
+// > 13
+// > 14
+// > 15 fizz buzz
+// > 16 not considered

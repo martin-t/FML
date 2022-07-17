@@ -10,7 +10,7 @@ Constant Pool:
 8: "mul"
 9: "~.div(~) => ~\n"
 10: "div"
-11: "~.mod(%) ~ => ~\n"
+11: "~.mod(~) => ~\n"
 12: "mod"
 13: "~.le(~) => ~\n"
 14: "le"
@@ -124,7 +124,7 @@ Code:
 85: lit #25
 86: lit #2
 87: lit #25
-88: call slot #22 2
+88: call slot #24 2
 89: printf #23 3
 90: drop
 91: lit #2
@@ -138,7 +138,7 @@ Code:
 99: lit #26
 100: lit #2
 101: lit #26
-102: call slot #22 2
+102: call slot #24 2
 103: printf #23 3
 104: drop
 105: lit #2
@@ -234,7 +234,7 @@ Code:
 195: lit #25
 196: lit #26
 197: lit #25
-198: call slot #22 2
+198: call slot #24 2
 199: printf #23 3
 200: drop
 201: lit #26
@@ -302,7 +302,7 @@ Code:
 263: lit #25
 264: lit #25
 265: lit #25
-266: call slot #22 2
+266: call slot #24 2
 267: printf #23 3
 268: drop
 269: lit #25
@@ -349,7 +349,7 @@ Code:
 // > 1.sub(-2) => 3
 // > 1.mul(-2) => -2
 // > 1.div(-2) => 0
-// > 1.mod(%) -2 => 1
+// > 1.mod(-2) => 1
 // > 1.le(-2) => false
 // > 1.lt(-2) => false
 // > 1.ge(-2) => true
@@ -357,9 +357,9 @@ Code:
 // > 1.eq(-2) => false
 // > 1.neq(-2) => true
 // > 1.eq(null) => false
-// > 1.neq(null) => false
+// > 1.neq(null) => true
 // > 1.eq(true) => false
-// > 1.neq(true) => false
+// > 1.neq(true) => true
 // > 1.eq(object()) => false
 // > 1.neq(object()) => true
 // > 1.eq([1]) => false
@@ -371,7 +371,7 @@ Code:
 // > true.eq(-2) => false
 // > true.neq(-2) => true
 // > true.eq(null) => false
-// > true.neq(null) => false
+// > true.neq(null) => true
 // > true.eq(object()) => false
 // > true.neq(object()) => true
 // > true.eq([true]) => false
@@ -379,7 +379,7 @@ Code:
 // > null.eq(-2) => false
 // > null.neq(-2) => true
 // > null.eq(null) => true
-// > null.neq(null) => true
+// > null.neq(null) => false
 // > null.eq(object()) => false
 // > null.neq(object()) => true
 // > null.eq([null]) => false

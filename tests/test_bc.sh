@@ -1,8 +1,12 @@
 #!/bin/bash
+
+# Build as a separate step so it prints the output and it doesn't look like the tests are stuck
+./build
+
 i=0
 n=$(find tests -name '*.bc' | wc -l)
 
-for test in tests/*.bc
+for test in tests/*/*.bc
 do
   i=$((i + 1))
   filename="$(dirname "$test")/$(basename "$test" .bc)"
@@ -19,9 +23,9 @@ do
     echo -n " "
   done
 
-  ./fml.sh execute "$test" 1> "$outfile" 2> "$outfile"
+  ./fml execute "$test" 1> "$outfile" 2> "$outfile"
 
-  diff <(grep -e '// >' < "$txtfile" | sed 's/\/\/ > \?//') "$outfile" > "$difffile"
+  diff <(grep -e '// > ' < "$txtfile" | sed 's/\/\/ > \?//') "$outfile" > "$difffile"
   #grep -e '// >' < "$test" | sed 's/\/\/ > \?//' > "$expectedfile"
   #diff "$expectedfile" "$outfile" > "$difffile"
   if test "$?" -eq 0

@@ -1,0 +1,366 @@
+Constant Pool:
+0: "λ:"
+1: 0
+2: "+"
+3: "-"
+4: 1
+5: null
+6: "loop:body:0"
+7: "loop:condition:0"
+8: "set"
+9: "<"
+10: "simple_sequence"
+11: method #10 args:2 locals:3 0000-0035
+12: "simple sequence 3:10 = ~\n"
+13: 3
+14: 10
+15: "simple sequence 4:4  = ~\n"
+16: 4
+17: "simple sequence -1:1 = ~\n"
+18: -1
+19: "loop:body:1"
+20: "loop:condition:1"
+21: "too_clever_by_half_sequence"
+22: method #21 args:2 locals:6 0036-0085
+23: "too clever by half sequence 3:10 = ~\n"
+24: "too clever by half sequence 4:4  = ~\n"
+25: "too clever by half sequence -1:1 = ~\n"
+26: "loop:body:2"
+27: "loop:condition:2"
+28: "if:consequent:3"
+29: "if:end:3"
+30: "=="
+31: "get"
+32: "*"
+33: "populate_sieve"
+34: method #33 args:3 locals:1 0086-0127
+35: "loop:body:4"
+36: "loop:condition:4"
+37: "if:consequent:5"
+38: "if:end:5"
+39: "loop:body:6"
+40: "loop:condition:6"
+41: "find_values_equal_to_index"
+42: method #41 args:2 locals:7 0128-0218
+43: 13
+44: "loop:body:7"
+45: "loop:condition:7"
+46: "after interval ~ -> ~\n"
+47: "primes from 1:~ = ~\n"
+48: method #0 args:0 locals:3 0219-0287
+Entry: #48
+Globals:
+0: #11
+1: #22
+2: #34
+3: #42
+Code:
+0: lit #1
+1: set local ::2
+2: drop
+3: get local ::1
+4: get local ::0
+5: call slot #3 2
+6: lit #4
+7: call slot #2 2
+8: set local ::3
+9: drop
+10: get local ::3
+11: lit #5
+12: array
+13: set local ::4
+14: drop
+15: goto #7
+16: label #6
+17: get local ::4
+18: get local ::2
+19: get local ::2
+20: get local ::0
+21: call slot #2 2
+22: call slot #8 3
+23: drop
+24: get local ::2
+25: lit #4
+26: call slot #2 2
+27: set local ::2
+28: drop
+29: label #7
+30: get local ::2
+31: get local ::3
+32: call slot #9 2
+33: branch #6
+34: get local ::4
+35: return
+36: lit #1
+37: set local ::2
+38: drop
+39: get local ::1
+40: get local ::0
+41: call slot #3 2
+42: lit #4
+43: call slot #2 2
+44: set local ::3
+45: drop
+46: get local ::3
+47: set local ::4
+48: drop
+49: get local ::4
+50: lit #5
+51: array
+52: set local ::5
+53: drop
+54: lit #1
+55: set local ::6
+56: drop
+57: goto #20
+58: label #19
+59: get local ::5
+60: get local ::6
+61: get local ::2
+62: get local ::0
+63: call slot #2 2
+64: set local ::7
+65: drop
+66: get local ::2
+67: lit #4
+68: call slot #2 2
+69: set local ::2
+70: drop
+71: get local ::7
+72: call slot #8 3
+73: drop
+74: get local ::6
+75: lit #4
+76: call slot #2 2
+77: set local ::6
+78: drop
+79: label #20
+80: get local ::6
+81: get local ::4
+82: call slot #9 2
+83: branch #19
+84: get local ::5
+85: return
+86: get local ::2
+87: lit #4
+88: call slot #3 2
+89: set local ::3
+90: drop
+91: goto #27
+92: label #26
+93: lit #5
+94: get local ::0
+95: get local ::3
+96: call slot #31 2
+97: call slot #30 2
+98: branch #28
+99: get local ::0
+100: get local ::3
+101: get local ::0
+102: get local ::3
+103: call slot #31 2
+104: get local ::2
+105: call slot #32 2
+106: call slot #8 3
+107: drop
+108: goto #29
+109: label #28
+110: get local ::0
+111: get local ::3
+112: get local ::2
+113: call slot #8 3
+114: drop
+115: label #29
+116: get local ::3
+117: get local ::2
+118: call slot #2 2
+119: set local ::3
+120: drop
+121: label #27
+122: get local ::3
+123: get local ::1
+124: call slot #9 2
+125: branch #26
+126: lit #5
+127: return
+128: lit #1
+129: set local ::2
+130: drop
+131: get local ::1
+132: lit #5
+133: array
+134: set local ::3
+135: drop
+136: lit #1
+137: set local ::4
+138: drop
+139: goto #36
+140: label #35
+141: get local ::2
+142: lit #4
+143: call slot #2 2
+144: get local ::0
+145: get local ::2
+146: call slot #31 2
+147: call slot #30 2
+148: branch #37
+149: lit #5
+150: drop
+151: goto #38
+152: label #37
+153: get local ::3
+154: get local ::4
+155: get local ::0
+156: get local ::2
+157: call slot #31 2
+158: call slot #8 3
+159: drop
+160: get local ::4
+161: lit #4
+162: call slot #2 2
+163: set local ::4
+164: drop
+165: label #38
+166: get local ::2
+167: lit #4
+168: call slot #2 2
+169: set local ::2
+170: drop
+171: label #36
+172: get local ::2
+173: get local ::1
+174: call slot #9 2
+175: branch #35
+176: lit #1
+177: set local ::2
+178: drop
+179: get local ::4
+180: set local ::5
+181: drop
+182: get local ::5
+183: lit #5
+184: array
+185: set local ::6
+186: drop
+187: lit #1
+188: set local ::7
+189: drop
+190: goto #40
+191: label #39
+192: get local ::6
+193: get local ::7
+194: get local ::3
+195: get local ::2
+196: call slot #31 2
+197: set local ::8
+198: drop
+199: get local ::2
+200: lit #4
+201: call slot #2 2
+202: set local ::2
+203: drop
+204: get local ::8
+205: call slot #8 3
+206: drop
+207: get local ::7
+208: lit #4
+209: call slot #2 2
+210: set local ::7
+211: drop
+212: label #40
+213: get local ::7
+214: get local ::5
+215: call slot #9 2
+216: branch #39
+217: get local ::6
+218: return
+219: lit #13
+220: lit #14
+221: call #10 2
+222: printf #12 1
+223: drop
+224: lit #16
+225: lit #16
+226: call #10 2
+227: printf #15 1
+228: drop
+229: lit #18
+230: lit #4
+231: call #10 2
+232: printf #17 1
+233: drop
+234: lit #13
+235: lit #14
+236: call #21 2
+237: printf #23 1
+238: drop
+239: lit #16
+240: lit #16
+241: call #21 2
+242: printf #24 1
+243: drop
+244: lit #18
+245: lit #4
+246: call #21 2
+247: printf #25 1
+248: drop
+249: lit #43
+250: set local ::0
+251: drop
+252: get local ::0
+253: lit #5
+254: array
+255: set local ::1
+256: drop
+257: lit #4
+258: set local ::2
+259: drop
+260: goto #45
+261: label #44
+262: get local ::1
+263: get local ::0
+264: get local ::2
+265: call #33 3
+266: drop
+267: get local ::2
+268: get local ::1
+269: printf #46 2
+270: drop
+271: get local ::2
+272: lit #4
+273: call slot #2 2
+274: set local ::2
+275: drop
+276: label #45
+277: get local ::2
+278: get local ::0
+279: lit #4
+280: call slot #2 2
+281: call slot #9 2
+282: branch #44
+283: get local ::0
+284: get local ::1
+285: get local ::0
+286: call #41 2
+287: printf #47 2
+
+// > simple sequence 3:10 = [3, 4, 5, 6, 7, 8, 9, 10]
+// > simple sequence 4:4  = [4]
+// > simple sequence -1:1 = [-1, 0, 1]
+// > too clever by half sequence 3:10 = [3, 4, 5, 6, 7, 8, 9, 10]
+// > too clever by half sequence 4:4  = [4]
+// > too clever by half sequence -1:1 = [-1, 0, 1]
+// > after interval 1 -> [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+// > after interval 2 -> [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]
+// > after interval 3 -> [1, 2, 3, 2, 1, 6, 1, 2, 3, 2, 1, 6, 1]
+// > after interval 4 -> [1, 2, 3, 8, 1, 6, 1, 8, 3, 2, 1, 24, 1]
+// > after interval 5 -> [1, 2, 3, 8, 5, 6, 1, 8, 3, 10, 1, 24, 1]
+// > after interval 6 -> [1, 2, 3, 8, 5, 36, 1, 8, 3, 10, 1, 144, 1]
+// > after interval 7 -> [1, 2, 3, 8, 5, 36, 7, 8, 3, 10, 1, 144, 1]
+// > after interval 8 -> [1, 2, 3, 8, 5, 36, 7, 64, 3, 10, 1, 144, 1]
+// > after interval 9 -> [1, 2, 3, 8, 5, 36, 7, 64, 27, 10, 1, 144, 1]
+// > after interval 10 -> [1, 2, 3, 8, 5, 36, 7, 64, 27, 100, 1, 144, 1]
+// > after interval 11 -> [1, 2, 3, 8, 5, 36, 7, 64, 27, 100, 11, 144, 1]
+// > after interval 12 -> [1, 2, 3, 8, 5, 36, 7, 64, 27, 100, 11, 1728, 1]
+// > after interval 13 -> [1, 2, 3, 8, 5, 36, 7, 64, 27, 100, 11, 1728, 13]
+// > primes from 1:13 = [1, 2, 3, 5, 7, 11, 13]

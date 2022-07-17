@@ -9,7 +9,7 @@ Constant Pool:
 7: -3
 8: "~\n"
 9: null
-10: "~ ~"
+10: "~ ~\n"
 11: true
 12: false
 13: method #0 args:0 locals:0 0000-0015
