@@ -37,7 +37,9 @@ jobs:
       # Use build instead of check since it needs to be built for tests anyway
       - run: cargo build --verbose --all-features
       - run: cargo test --verbose --all-features
-      # FIXME test.sh
+      # TODO regenerate tests, check nothing changed
+      - run: tests/test_ast.sh
+      - run: tests/test_bc.sh
 
   format:
     runs-on: ubuntu-latest
