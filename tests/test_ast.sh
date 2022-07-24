@@ -27,13 +27,14 @@ do
   ./fml run     "$test" 1> "$outfile" 2> "$outfile"
   echo "$?"
 
-  diff <(grep -e '// > ' < "$test"    | sed 's| *\/\/ > \?||') "$outfile" > "$difffile"
+  diff <(grep -e '// > ' < "$test"    | sed 's/ *\/\/ > //g') "$outfile" > "$difffile"
   if test "$?" -eq 0
   then
     echo -e "\e[32mpassed\e[0m"
   else
     ret=1
     echo -e "\e[31mfailed\e[0m [details \"$difffile\"]"
+    # FIXME remove extra prints
     cat "$outfile"
     cat "$difffile"
   fi
