@@ -23,11 +23,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #rust: [stable, nightly]
-        rust: [nightly]
+        rust: [stable, nightly]
         # For reference: https://github.com/actions/virtual-environments#available-environments
-        #os: [ubuntu-latest, windows-latest, macos-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
@@ -39,7 +37,7 @@ jobs:
       # Use build instead of check since it needs to be built for tests anyway
       - run: cargo build --verbose --all-features
       - run: cargo test --verbose --all-features
-      # TODO regenerate tests, check nothing changed
+      # TODO regenerate BC test files, check nothing changed
       - run: tests/test_ast.sh
       - run: tests/test_bc.sh
 
