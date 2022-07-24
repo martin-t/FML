@@ -8,7 +8,8 @@
 # - it's not guaranteed to be the same everywhere
 # - it's easier to forget to recompile
 # - it makes it harder to switch between debug and release
-rlwrap target/debug/fml "$@"
+# - Not available on linux and macOS CI, installing it complicates the config
+#rlwrap target/debug/fml "$@"
 
 # Option 2 is removing rlwrap.
 # People can still use rlwrap around ./fml if they want to.
@@ -16,3 +17,6 @@ rlwrap target/debug/fml "$@"
 # - cargo really slows everything down when calling ./fml many times
 #   (like when running and especially generating tests)
 #cargo run --quiet -- "$@"
+
+# Option 3 - simply call the binary
+target/debug/fml "$@"
