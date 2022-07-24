@@ -7,6 +7,7 @@ mod bytecode;
 mod parser;
 
 #[cfg(test)]
+#[rustfmt::skip]
 mod tests;
 
 use std::fmt::{self, Debug, Formatter};
