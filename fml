@@ -13,5 +13,6 @@ rlwrap target/debug/fml "$@"
 # Option 2 is removing rlwrap.
 # People can still use rlwrap around ./fml if they want to.
 # Downsides:
-# - cargo really slows everything down when calling ./fml many times (like when generating tests)
+# - cargo really slows everything down when calling ./fml many times
+#   (like when running and especially generating tests)
 #cargo run --quiet -- "$@"

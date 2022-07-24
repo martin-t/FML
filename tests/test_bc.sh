@@ -5,6 +5,7 @@
 
 i=0
 n=$(find tests -name '*.bc' | wc -l)
+ret=0
 
 for test in tests/*/*.bc
 do
@@ -25,13 +26,14 @@ do
 
   ./fml execute "$test" 1> "$outfile" 2> "$outfile"
 
-  diff <(grep -e '// > ' < "$txtfile" | sed 's/\/\/ > \?//') "$outfile" > "$difffile"
-  #grep -e '// >' < "$test" | sed 's/\/\/ > \?//' > "$expectedfile"
-  #diff "$expectedfile" "$outfile" > "$difffile"
+  diff <(grep -e '// > ' < "$txtfile" | sed 's| *\/\/ > \?||') "$outfile" > "$difffile"
   if test "$?" -eq 0
   then
     echo -e "\e[32mpassed\e[0m"
   else
+    ret=1
     echo -e "\e[31mfailed\e[0m [details \"$difffile\"]"
   fi
 done
+
+exit $ret

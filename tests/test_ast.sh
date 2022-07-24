@@ -5,6 +5,7 @@
 
 i=0
 n=$(find tests -name '*.fml' | wc -l)
+ret=0
 
 for test in tests/*/*.fml
 do
@@ -12,7 +13,7 @@ do
   filename="$(dirname "$test")/$(basename "$test" .fml)"
   outfile="$filename.out"
   difffile="$filename.diff"
-  expectedfile="$filename.expected"
+
 
   message=$(echo -n "Executing test [$i/$n]: \"$test\"... ")
   echo -n "$message"
@@ -23,15 +24,16 @@ do
     echo -n " "
   done
 
-  ./fml run "$test" 1> "$outfile" 2> "$outfile"
+  ./fml run     "$test" 1> "$outfile" 2> "$outfile"
 
-  diff <(grep -e '// > ' < "$test" | sed 's| *\/\/ > \?||') "$outfile" > "$difffile"
-  #grep -e '// >' < "$test" | sed 's/\/\/ > \?//' > "$expectedfile"
-  #diff "$expectedfile" "$outfile" > "$difffile"
+  diff <(grep -e '// > ' < "$test"    | sed 's| *\/\/ > \?||') "$outfile" > "$difffile"
   if test "$?" -eq 0
   then
     echo -e "\e[32mpassed\e[0m"
   else
+    ret=1
     echo -e "\e[31mfailed\e[0m [details \"$difffile\"]"
   fi
 done
+
+exit $ret
