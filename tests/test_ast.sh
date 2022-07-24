@@ -25,6 +25,7 @@ do
   done
 
   ./fml run     "$test" 1> "$outfile" 2> "$outfile"
+  echo "$?"
 
   diff <(grep -e '// > ' < "$test"    | sed 's| *\/\/ > \?||') "$outfile" > "$difffile"
   if test "$?" -eq 0
@@ -33,6 +34,8 @@ do
   else
     ret=1
     echo -e "\e[31mfailed\e[0m [details \"$difffile\"]"
+    cat "$outfile"
+    cat "$difffile"
   fi
 done
 
