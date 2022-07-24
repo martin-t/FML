@@ -1,10 +1,20 @@
+use std::env::current_dir;
+
 extern crate lalrpop;
 
-// use lalrpop::Configuration;
-// use std::path::Path;
-
 fn main() {
-    lalrpop::process_root().unwrap();
-    //let parse_dir = Path::new("src");
-    //Configuration::new().process_dir(parse_dir).unwrap()
+    lalrpop::Configuration::new()
+        // By default build.rs causes the binary to recompile each time *any* file in the whole project changes.
+        // This wastes time when only touching stuff like .fml files. `emit_rerun_directives` prevents that.
+        .emit_rerun_directives(true)
+        // Automatically find the .lalrpop file in the project dir.
+        // AFAIK there's no benefit to specifying the path manually.
+        // OTOH when i tried, i realized i'd ned to also manually specify the output dir
+        // because, unintuitively, process_dir does some extra stuff compared to process_file.
+        // Also note that `process_dir("src")` causes the output to be generated in `out/src/fml.rs`
+        // instead of `out/fml.rs` which means it won't be found by `lalrpop_mod!`.
+        // Even worse, if the original still exists, it'll find that so your changes won't have any effect,
+        // have fun debugging that.
+        .process_current_dir()
+        .unwrap();
 }
