@@ -1,5 +1,3 @@
-use std::env::current_dir;
-
 extern crate lalrpop;
 
 fn main() {
@@ -15,6 +13,7 @@ fn main() {
         // instead of `out/fml.rs` which means it won't be found by `lalrpop_mod!`.
         // Even worse, if the original still exists, it'll find that so your changes won't have any effect,
         // have fun debugging that.
+        // More info: https://github.com/lalrpop/lalrpop/issues/677
         .process_current_dir()
         .unwrap();
 }
