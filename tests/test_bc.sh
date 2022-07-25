@@ -26,7 +26,7 @@ do
 
   ./fml execute "$test" 1> "$outfile" 2> "$outfile"
 
-  diff <(grep -e '// > ' < "$txtfile" | sed 's/ *\/\/ > //') "$outfile" > "$difffile" # FIXME same as AST
+  diff <(grep -e '// > ' < "$txtfile" | sed 's| *\/\/ > ||') "$outfile" > "$difffile" # FIXME same as AST
   if test "$?" -eq 0
   then
     echo -e "\e[32mpassed\e[0m"
