@@ -7,7 +7,7 @@ mod bytecode;
 mod parser;
 
 #[cfg(test)]
-#[rustfmt::skip]
+#[rustfmt::skip] // LATER Would be nice to format but it's too much code that needs manual fixes
 mod tests;
 
 use std::fmt::{self, Debug, Formatter};

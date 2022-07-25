@@ -1,4 +1,4 @@
-use std::io::{Write, Read};
+use std::io::{Read, Write};
 
 use super::serializable;
 use super::serializable::*;
@@ -30,7 +30,11 @@ pub enum OpCode {
      * [ProgramObject::Integer]: ../objects/enum.ProgramObject.html#variant.Integer
      * [ProgramObject::Null]: ../objects/enum.ProgramObject.html#variant.Null
      */
-    Literal { index: /*Integer|Null|Boolean*/ ConstantPoolIndex }, // rename to constant
+    // LATER a type safe way to ConstantPoolIndex to the right constant type?
+    Literal {
+        /// Integer|Null|Boolean
+        index: ConstantPoolIndex,
+    },
 
     /**
      * ## Push the value of local variable onto stack
@@ -43,7 +47,6 @@ pub enum OpCode {
      * [LocalFrame]: ../interpreter/struct.LocalFrame.html
      * [OperandStack]: ../interpreter/struct.OperandStack.html
      */
-     // FIXME writing out all those links in each variant is not sustainable...
     GetLocal { index: LocalFrameIndex },
 
     /**
@@ -64,7 +67,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x0C`.
      */
-    GetGlobal { name: /*String*/ ConstantPoolIndex },
+    GetGlobal {
+        /// String
+        name: ConstantPoolIndex,
+    },
 
     /**
      * ## Set the value of global variable to the top value from stack
@@ -74,7 +80,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x0B`.
      */
-    SetGlobal { name: /*String*/ ConstantPoolIndex },
+    SetGlobal {
+        /// String
+        name: ConstantPoolIndex,
+    },
 
     /**
      * ## Create a new (runtime) object
@@ -95,7 +104,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x04`.
      */
-    Object { class: /*ProgramObject::Class*/ ConstantPoolIndex },
+    Object {
+        /// ProgramObject::Class
+        class: ConstantPoolIndex,
+    },
 
     /**
      * ## Create a new array (runtime) object
@@ -140,7 +152,7 @@ pub enum OpCode {
      * ## Call a member method
      *
      * Pops `arguments` values from the `OperandStack` for the arguments to the call. The last popped
-      *`RuntimeObject` from the `OperandStack` will be used as the method call's receiver.
+     *`RuntimeObject` from the `OperandStack` will be used as the method call's receiver.
      * Afterwards, a `ProgramObject::String` object representing the name of the method to call is
      * retrieved from the `ConstantPool` from the index specified by `name`.
      *
@@ -159,7 +171,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x07`.
      */
-    CallMethod { name: ConstantPoolIndex, arguments: Arity },
+    CallMethod {
+        name: ConstantPoolIndex,
+        arguments: Arity,
+    },
 
     /**
      * ## Call a global function
@@ -177,7 +192,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x08`.
      */
-    CallFunction { name: ConstantPoolIndex, arguments: Arity },
+    CallFunction {
+        name: ConstantPoolIndex,
+        arguments: Arity,
+    },
 
     /**
      * ## Define a new label here
@@ -187,7 +205,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x00`.
      */
-    Label { name: /*String*/ ConstantPoolIndex },
+    Label {
+        /// String
+        name: ConstantPoolIndex,
+    },
 
     /**
      * ## Print a formatted string
@@ -202,7 +223,11 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x02`.
      */
-    Print { format: /*String*/ ConstantPoolIndex, arguments: Arity },
+    Print {
+        /// String
+        format: ConstantPoolIndex,
+        arguments: Arity,
+    },
 
     /**
      * ## Jump to a label
@@ -212,7 +237,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x0E`.
      */
-    Jump { label: /*String*/ ConstantPoolIndex },
+    Jump {
+        /// String
+        label: ConstantPoolIndex,
+    },
 
     /**
      * ## Conditionally jump to a label
@@ -223,7 +251,10 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x0D`.
      */
-    Branch { label: /*String*/ ConstantPoolIndex },
+    Branch {
+        /// String
+        label: ConstantPoolIndex,
+    },
 
     /**
      * ## Return from the current function or method
@@ -249,45 +280,46 @@ pub enum OpCode {
     Drop,
 }
 
-
-
 impl Serializable for OpCode {
-
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u8(sink, self.to_hex())?;
 
         use OpCode::*;
         match self {
-            Label { name } => { name.serialize(sink) },
-            Literal { index } => { index.serialize(sink) },
+            Label { name } => name.serialize(sink),
+            Literal { index } => index.serialize(sink),
             Print { format, arguments } => {
                 format.serialize(sink)?;
                 arguments.serialize(sink)
-            },
-            Array => { Ok(()) },
-            Object { class } => { class.serialize(sink) },
-            GetField { name } => { name.serialize(sink) },
-            SetField { name } => { name.serialize(sink) },
+            }
+            Array => Ok(()),
+            Object { class } => class.serialize(sink),
+            GetField { name } => name.serialize(sink),
+            SetField { name } => name.serialize(sink),
             CallMethod { name, arguments } => {
                 name.serialize(sink)?;
                 arguments.serialize(sink)
-            },
-            CallFunction { name: function, arguments } => {
+            }
+            CallFunction {
+                name: function,
+                arguments,
+            } => {
                 function.serialize(sink)?;
                 arguments.serialize(sink)
-            },
-            SetLocal { index } => { index.serialize(sink) },
-            GetLocal { index } => { index.serialize(sink) },
-            SetGlobal { name } => { name.serialize(sink) },
-            GetGlobal { name } => { name.serialize(sink) },
-            Branch { label } => { label.serialize(sink) },
-            Jump { label } => { label.serialize(sink) },
-            Return => { Ok(()) },
-            Drop => { Ok(()) },
+            }
+            SetLocal { index } => index.serialize(sink),
+            GetLocal { index } => index.serialize(sink),
+            SetGlobal { name } => name.serialize(sink),
+            GetGlobal { name } => name.serialize(sink),
+            Branch { label } => label.serialize(sink),
+            Jump { label } => label.serialize(sink),
+            Return => Ok(()),
+            Drop => Ok(()),
             // Skip => { Ok(()) },
         }
     }
 
+    #[rustfmt::skip]
     fn from_bytes<R: Read>(input: &mut R) -> Self {
         let tag = serializable::read_u8(input);
 
@@ -299,8 +331,8 @@ impl Serializable for OpCode {
                                    arguments: Arity::from_bytes(input)              },
             0x03 => Array        {                                                  },
             0x04 => Object       { class:     ConstantPoolIndex::from_bytes(input)  },
-            0x05 => GetField { name:      ConstantPoolIndex::from_bytes(input)  },
-            0x06 => SetField { name:      ConstantPoolIndex::from_bytes(input)  },
+            0x05 => GetField     { name:      ConstantPoolIndex::from_bytes(input)  },
+            0x06 => SetField     { name:      ConstantPoolIndex::from_bytes(input)  },
             0x07 => CallMethod   { name:      ConstantPoolIndex::from_bytes(input),
                                    arguments: Arity::from_bytes(input)              },
             0x08 => CallFunction { name:  ConstantPoolIndex::from_bytes(input),
@@ -319,26 +351,27 @@ impl Serializable for OpCode {
 }
 
 impl OpCode {
+    #[rustfmt::skip]
     pub fn to_hex(&self) -> u8 {
         use OpCode::*;
         match self {
-            Label        { name: _                   } => 0x00,
-            Literal      { index: _                  } => 0x01,
-            Print        { format: _,   arguments: _ } => 0x02,
-            Array        {                           } => 0x03,
-            Object       { class: _                  } => 0x04,
-            GetField { name: _                   } => 0x05,
-            SetField { name: _                   } => 0x06,
-            CallMethod   { name: _,     arguments: _ } => 0x07,
-            CallFunction { name: _, arguments: _ } => 0x08,
-            SetLocal     { index: _                  } => 0x09,
-            GetLocal     { index: _                  } => 0x0A,
-            SetGlobal    { name: _                   } => 0x0B,
-            GetGlobal    { name: _                   } => 0x0C,
-            Branch       { label: _                  } => 0x0D,
-            Jump         { label: _                  } => 0x0E,
-            Return                                     => 0x0F,
-            Drop                                       => 0x10,
+            Label        { .. } => 0x00,
+            Literal      { .. } => 0x01,
+            Print        { .. } => 0x02,
+            Array        { .. } => 0x03,
+            Object       { .. } => 0x04,
+            GetField     { .. } => 0x05,
+            SetField     { .. } => 0x06,
+            CallMethod   { .. } => 0x07,
+            CallFunction { .. } => 0x08,
+            SetLocal     { .. } => 0x09,
+            GetLocal     { .. } => 0x0A,
+            SetGlobal    { .. } => 0x0B,
+            GetGlobal    { .. } => 0x0C,
+            Branch       { .. } => 0x0D,
+            Jump         { .. } => 0x0E,
+            Return              => 0x0F,
+            Drop                => 0x10,
             // Skip => 0xFF,
         }
     }
@@ -352,7 +385,10 @@ impl OpCode {
         opcodes
     }
 
-    pub fn write_opcode_vector<W: Write>(sink: &mut W, vector: &Vec<&OpCode>) -> anyhow::Result<()> {
+    pub fn write_opcode_vector<W: Write>(
+        sink: &mut W,
+        vector: &Vec<&OpCode>,
+    ) -> anyhow::Result<()> {
         serializable::write_usize_as_u32(sink, vector.len())?;
         for opcode in vector {
             opcode.serialize(sink)?;
@@ -364,40 +400,23 @@ impl OpCode {
 impl std::fmt::Display for OpCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            OpCode::Literal { index } =>
-                write!(f, "lit {}", index),
-            OpCode::GetLocal { index } =>
-                write!(f, "get local {}", index),
-            OpCode::SetLocal { index } =>
-                write!(f, "set local {}", index),
-            OpCode::GetGlobal { name } =>
-                write!(f, "get global {}", name),
-            OpCode::SetGlobal { name } =>
-                write!(f, "set global {}", name),
-            OpCode::Object { class } =>
-                write!(f, "object {}", class),
-            OpCode::Array =>
-                write!(f, "array"),
-            OpCode::GetField { name } =>
-                write!(f, "get slot {}", name),
-            OpCode::SetField { name } =>
-                write!(f, "set slot {}", name),
-            OpCode::CallMethod { name, arguments } =>
-                write!(f, "call slot {} {}", name, arguments),
-            OpCode::CallFunction { name, arguments } =>
-                write!(f, "call {} {}", name, arguments),
-            OpCode::Print { format, arguments } =>
-                write!(f, "printf {} {}", format, arguments),
-            OpCode::Label { name } =>
-                write!(f, "label {}", name),
-            OpCode::Jump { label } =>
-                write!(f, "goto {}", label),
-            OpCode::Branch { label } =>
-                write!(f, "branch {}", label),
-            OpCode::Return =>
-                write!(f, "return"),
-            OpCode::Drop =>
-                write!(f, "drop"),
+            OpCode::Literal { index } => write!(f, "lit {}", index),
+            OpCode::GetLocal { index } => write!(f, "get local {}", index),
+            OpCode::SetLocal { index } => write!(f, "set local {}", index),
+            OpCode::GetGlobal { name } => write!(f, "get global {}", name),
+            OpCode::SetGlobal { name } => write!(f, "set global {}", name),
+            OpCode::Object { class } => write!(f, "object {}", class),
+            OpCode::Array => write!(f, "array"),
+            OpCode::GetField { name } => write!(f, "get slot {}", name),
+            OpCode::SetField { name } => write!(f, "set slot {}", name),
+            OpCode::CallMethod { name, arguments } => write!(f, "call slot {} {}", name, arguments),
+            OpCode::CallFunction { name, arguments } => write!(f, "call {} {}", name, arguments),
+            OpCode::Print { format, arguments } => write!(f, "printf {} {}", format, arguments),
+            OpCode::Label { name } => write!(f, "label {}", name),
+            OpCode::Jump { label } => write!(f, "goto {}", label),
+            OpCode::Branch { label } => write!(f, "branch {}", label),
+            OpCode::Return => write!(f, "return"),
+            OpCode::Drop => write!(f, "drop"),
         }
     }
 }
