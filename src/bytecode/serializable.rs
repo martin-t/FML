@@ -77,40 +77,40 @@ pub fn read_u32_vector<R: Read>(reader: &mut R) -> Vec<u32> {
 
 // Reads u16 and converts it to usize, for compatibility between Rust types and Feeny bytecode.
 pub fn read_u16_as_usize<R: Read>(reader: &mut R) -> usize {
-    read_u16(reader) as usize
+    read_u16(reader).into()
 }
 
 // Reads u32 and converts it to usize, for compatibility between Rust types and Feeny bytecode.
 pub fn read_u32_as_usize<R: Read>(reader: &mut R) -> usize {
-    read_u32(reader) as usize
+    read_u32(reader).try_into().expect("Couldn't read u32 as usize")
 }
 
 pub fn write_u8<W: Write>(writer: &mut W, value: u8) -> Result<()> {
-    writer.write(&[value])?;//.expect(&format!("Problem writing u8 to data sink: {}", value)?;
+    writer.write_all(&[value])?;
     Ok(())
 }
 
 pub fn write_bool<W: Write>(writer: &mut W, value: bool) -> Result<()> {
     let byte = if value { 1 } else { 0 };
-    writer.write(&[byte])?;//.expect(&format!("Problem writing bool to data sink: {}", value))?;
+    writer.write_all(&[byte])?;
     Ok(())
 }
 
 pub fn write_u16<W: Write>(writer: &mut W, value: u16) -> Result<()> {
     let buf = value.to_le_bytes();
-    writer.write(&buf)?;//.expect(&format!("Problem writing u16 to data sink: {}", value))?;
+    writer.write_all(&buf)?;
     Ok(())
 }
 
 pub fn write_u32<W: Write>(writer: &mut W, value: u32) -> Result<()> {
     let buf = value.to_le_bytes();
-    writer.write(&buf)?;//.expect(&format!("Problem writing u32 to data sink: {}", value));
+    writer.write_all(&buf)?;
     Ok(())
 }
 
 pub fn write_i32<W: Write>(writer: &mut W, value: i32) -> Result<()> {
     let buf = value.to_le_bytes();
-    writer.write(&buf)?;//.expect(&format!("Problem writing i32 to data sink: {}", value));
+    writer.write_all(&buf)?;
     Ok(())
 }
 
@@ -118,9 +118,8 @@ pub fn write_utf8<R: Write>(writer: &mut R, string: &str) -> Result<()> {
     let byte_vector: Vec<u8> = string.bytes().collect();
     let bytes = byte_vector.as_slice();
     write_usize_as_u32(writer, bytes.len())?;
-    writer.write(bytes)?;
+    writer.write_all(bytes)?;
     Ok(())
-        //.expect(&format!("Problem writing UTF-8 string to data sink: {}", string));
 }
 
 pub fn write_u16_vector<R: Write>(writer: &mut R, vector: &Vec<u16>) -> Result<()> {
@@ -141,11 +140,11 @@ pub fn write_u32_vector<R: Write>(writer: &mut R, vector: &Vec<u32>) -> Result<(
 }
 
 pub fn write_usize_as_u16<R: Write>(writer: &mut R, value: usize) -> Result<()> {
-    assert!(value <= 65_535usize); // Max u16 value.
-    write_u16(writer, value as u16)
+    let value = u16::try_from(value).expect("Couldn't convert usize to u16");
+    write_u16(writer, value)
 }
 
 pub fn write_usize_as_u32<R: Write>(writer: &mut R, value: usize) -> Result<()> {
-    assert!(value <= 4_294_967_295usize); // Max u16 value.
-    write_u32(writer, value as u32)
+    let value = u32::try_from(value).expect("Couldn't convert usize to u32");
+    write_u32(writer, value)
 }
