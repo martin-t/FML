@@ -38,8 +38,8 @@ jobs:
       - run: cargo build --verbose --all-features
       - run: cargo test --verbose --all-features
       # TODO regenerate BC test files, check nothing changed
-      - run: tests/test_ast.sh
-      - run: tests/test_bc.sh
+      - run: tests/test_run.sh
+      - run: tests/test_execute.sh
 
   format:
     runs-on: ubuntu-latest
