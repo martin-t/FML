@@ -6,12 +6,10 @@ use super::bytecode::OpCode;
 use super::serializable;
 use super::serializable::*;
 
-use anyhow::{Result, Context, Error, anyhow};
+use anyhow::{Result, Context, Error, anyhow, ensure};
 
 use super::serializable::Serializable;
 use std::iter::repeat;
-
-use crate::bail_if;
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Program {
@@ -52,7 +50,7 @@ pub struct Globals(Vec<ConstantPoolIndex>);
 impl Globals {
     pub fn new() -> Self { Globals(Vec::new()) }
     pub fn register(&mut self, name_index: ConstantPoolIndex) -> Result<()> {
-        bail_if!(self.0.contains(&name_index),
+        ensure!(!self.0.contains(&name_index),
                  "Cannot register global `{}`, index is already registered as a global.",
                  name_index);
         self.0.push(name_index);
@@ -83,7 +81,7 @@ pub struct Entry(Option<ConstantPoolIndex>);
 impl Entry {
     pub fn new() -> Self { Entry(None) }
     pub fn get(&self) -> Result<ConstantPoolIndex> {
-        bail_if!(self.0.is_none(), "Entry point was read, but it was not set yet.", /*bad macro*/);
+        ensure!(self.0.is_some(), "Entry point was read, but it was not set yet.");
         Ok(self.0.unwrap())
     }
     pub fn set(&mut self, index: ConstantPoolIndex) {
@@ -500,7 +498,7 @@ impl Code {
 
         //println!("start: {}, end: {}", start, end);
 
-        bail_if!(end > self.0.len(),
+        ensure!(end <= self.0.len(),
                  "Address range exceeds code size: {} + {} >= {}.",
                  start, range.length, self.0.len());
 

@@ -3,15 +3,13 @@
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 
+use anyhow::{Result, ensure};
+
 use crate::parser::*;
 
 use super::bytecode::OpCode;
 use super::program::Program;
 use crate::bytecode::program::*;
-
-use crate::bail_if;
-
-use anyhow::Result;
 
 pub struct ProgramGenerator {
     pub constant_pool: ConstantPool,
@@ -55,7 +53,7 @@ impl LabelGenerator {
     pub fn new() -> Self { LabelGenerator { names: HashSet::new(), groups: 0 } }
     pub(crate) fn generate_name_within_group<S>(&self, prefix: S, group: usize) -> Result<String> where S: Into<String> {
         let name = format!("{}:{}", prefix.into(), group);
-        bail_if!(self.names.contains(&name), "Label `{}` already exists.", name);
+        ensure!(!self.names.contains(&name), "Label `{}` already exists.", name);
         Ok(name)
     }
     pub fn generate_name<S>(&mut self, prefix: S) -> Result<String> where S: Into<String> {

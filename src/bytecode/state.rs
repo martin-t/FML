@@ -5,8 +5,6 @@ use std::collections::{HashMap, HashSet};
 use anyhow::{Result, Context, bail, anyhow, ensure};
 use std::io::Write as IOWrite;
 
-// TODO anyhow has ensure which will replace bailf_if
-
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Copy)]
 pub struct InstructionPointer(Option<Address>);
 impl InstructionPointer {
@@ -146,13 +144,13 @@ impl GlobalFunctions {
     #[allow(dead_code)]
     pub fn update(&mut self, name: String, index: ConstantPoolIndex) -> Result<()> {
         let result = self.0.insert(name.clone(), index);
-        bail_if!(result.is_none(), "No such function `{}`.", name);
+        ensure!(result.is_some(), "No such function `{}`.", name);
         Ok(())
     }
     #[allow(dead_code)]
     pub fn define(&mut self, name: String, index: ConstantPoolIndex) -> Result<()> {
         let result = self.0.insert(name.clone(), index);
-        bail_if!(result.is_some(), "Cannot define function `{}`: already defined.", name);
+        ensure!(result.is_none(), "Cannot define function `{}`: already defined.", name);
         Ok(())
     }
     pub fn from(methods: Vec<(String, ConstantPoolIndex)>) -> Result<Self> {
@@ -181,13 +179,13 @@ impl GlobalFrame {
     #[allow(dead_code)]
     pub fn update(&mut self, name: String, pointer: Pointer) -> Result<()> {
         let result = self.0.insert(name.clone(), pointer);
-        bail_if!(result.is_none(), "No such global `{}`.", name);
+        ensure!(result.is_some(), "No such global `{}`.", name);
         Ok(())
     }
     #[allow(dead_code)]
     pub fn define(&mut self, name: String, pointer: Pointer) -> Result<()> {
         let result = self.0.insert(name.clone(), pointer);
-        bail_if!(result.is_some(), "Cannot define global `{}`: already defined.", name);
+        ensure!(result.is_none(), "Cannot define global `{}`: already defined.", name);
         Ok(())
     }
     pub fn from(names: Vec<String>, initial: Pointer) -> Result<Self> {

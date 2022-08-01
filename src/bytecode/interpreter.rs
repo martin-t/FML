@@ -6,7 +6,6 @@ use crate::bytecode::heap::*;
 use anyhow::{Context, Result, bail, ensure};
 use std::iter::repeat;
 
-use crate::bail_if;
 use crate::veccat;
 
 use crate::bytecode::program::*;
@@ -179,7 +178,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
     let size = state.operand_stack.pop()?;
 
     let n = size.as_i32()?;
-    bail_if!(n < 0, "Negative value `{}` cannot be used to specify the size of an array.", n);
+    ensure!(n >= 0, "Negative value `{}` cannot be used to specify the size of an array.", n);
 
     let elements = repeat(initializer).take(n as usize).collect();
     let array = HeapObject::from_pointers(elements);
@@ -223,13 +222,11 @@ pub fn eval_set_field(program: &Program, state: &mut State, index: &ConstantPool
 
 #[inline(always)]
 pub fn eval_call_method(program: &Program, state: &mut State, index: &ConstantPoolIndex, arguments: &Arity) -> Result<()> {
-    bail_if!(arguments.to_usize() == 0, "All method calls require at least {} parameter (receiver)", 1);
+    ensure!(arguments.to_usize() > 0, "All method calls require at least 1 parameter (receiver)");
 
     let program_object = program.constant_pool.get(index)?;
     let method_name = program_object.as_str()?;
 
-    ensure!(arguments.to_usize() > 0,
-            "Method arity is zero, which does not account for a receiver object.");
     let argument_pointers = state.operand_stack.pop_sequence(arguments.to_usize() - 1)?;
     let receiver_pointer = state.operand_stack.pop()?;
 
@@ -269,7 +266,7 @@ fn dispatch_method(program: &Program, state: &mut State, receiver_pointer: Point
 }
 
 fn dispatch_null_method(method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
-    bail_if!(argument_pointers.len() != 1,
+    ensure!(argument_pointers.len() == 1,
              "Invalid number of arguments for method `{}` in object `null`", method_name);
 
     let argument = argument_pointers.last().unwrap();
@@ -285,7 +282,7 @@ fn dispatch_null_method(method_name: &str, argument_pointers: Vec<Pointer>) -> R
 }
 
 fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
-    bail_if!(argument_pointers.len() != 1,
+    ensure!(argument_pointers.len() == 1,
              "Invalid number of arguments for method `{}` in object `{}`", method_name, receiver);
 
     let argument_pointer = argument_pointers.last().unwrap();
@@ -333,7 +330,7 @@ fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers:
 }
 
 fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
-    bail_if!(argument_pointers.len() != 1,
+    ensure!(argument_pointers.len() == 1,
              "Invalid number of arguments for method `{}` in object `{}`", method_name, receiver);
 
     let argument_pointer = argument_pointers.last().unwrap();
@@ -372,7 +369,7 @@ fn dispatch_array_method(array: &mut ArrayInstance, method_name: &str, argument_
 }
 
 fn dispatch_array_get_method(array: &mut ArrayInstance, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
-    bail_if!(argument_pointers.len() != 1,
+    ensure!(argument_pointers.len() == 1,
              "Invalid number of arguments for method `{}` in array `{}`, expecting 1",
              method_name, array);
 
@@ -382,7 +379,7 @@ fn dispatch_array_get_method(array: &mut ArrayInstance, method_name: &str, argum
 }
 
 fn dispatch_array_set_method(array: &mut ArrayInstance, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
-    bail_if!(argument_pointers.len() != 2,
+    ensure!(argument_pointers.len() == 2,
              "Invalid number of arguments for method `{}` in array `{}`, expecting 2",
              method_name, array);
 
@@ -423,7 +420,7 @@ fn eval_call_object_method(program: &Program, state: &mut State,
     let locals = method.get_method_locals()?;
     let address = method.get_method_start_address()?;
 
-    bail_if!(argument_pointers.len() != parameters.to_usize() - 1,
+    ensure!(argument_pointers.len() == parameters.to_usize() - 1,
              "Method `{}` requires {} arguments, but {} were supplied",
              method_name, parameters, argument_pointers.len());
 
@@ -447,7 +444,7 @@ pub fn eval_call_function(program: &Program, state: &mut State, index: &Constant
     let locals = function.get_method_locals()?;
     let address = function.get_method_start_address()?;
 
-    bail_if!(arguments != parameters,
+    ensure!(arguments == parameters,
              "Function `{}` requires {} arguments, but {} were supplied",
              name, parameters, arguments);
 
@@ -486,7 +483,7 @@ pub fn eval_print<W>(program: &Program, state: &mut State, output: &mut W, index
             (_,    chr ) => { output.write_char(chr)?                       },
         }
     }
-    bail_if!(!argument_pointers.is_empty(),
+    ensure!(argument_pointers.is_empty(),
              "{} unused arguments for format `{}`", argument_pointers.len(), format);
 
     state.operand_stack.push(Pointer::Null);

@@ -1,4 +1,4 @@
-use anyhow::{Result, Context, anyhow, bail};
+use anyhow::{Result, Context, anyhow, bail, ensure};
 use indexmap::IndexMap;
 
 use crate::bytecode::state::OperandStack;
@@ -186,14 +186,14 @@ impl ArrayInstance {
     }
     pub fn get_element(&self, index: usize) -> Result<&Pointer> {
         let length = self.0.len();
-        bail_if!(index >= length,
+        ensure!(index < length,
                  "Index out of range {} for array `{}` with length {}",
                  index, self, length);
         Ok(&self.0[index])
     }
     pub fn set_element(&mut self, index: usize, value_pointer: Pointer) -> Result<&Pointer> {
         let length = self.0.len();
-        bail_if!(index >= length,
+        ensure!(index < length,
                  "Index out of range {} for array `{}` with length {}",
                  index, self, length);
         self.0[index] = value_pointer;
