@@ -1,4 +1,4 @@
-#![allow(clippy::redundant_closure)] // Sometimes it's clearer to be explicit
+#![allow(clippy::redundant_closure)] // Sometimes it's clearer to name the value explicitly
 
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
