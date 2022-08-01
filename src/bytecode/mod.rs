@@ -1,5 +1,6 @@
 use crate::parser::AST;
 
+#[allow(clippy::module_inception)]
 pub(crate) mod bytecode;
 pub(crate) mod compiler;
 pub(crate) mod debug;

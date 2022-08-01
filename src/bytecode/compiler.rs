@@ -1,3 +1,5 @@
+#![allow(clippy::redundant_closure)] // Sometimes it's clearer to be explicit
+
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 
@@ -58,7 +60,7 @@ impl LabelGenerator {
     }
     pub fn generate_name<S>(&mut self, prefix: S) -> Result<String> where S: Into<String> {
         let name = self.generate_name_within_group(prefix, self.groups)?;
-        self.groups = self.groups + 1;
+        self.groups += 1;
         Ok(name)
     }
     #[allow(dead_code)]
@@ -68,7 +70,7 @@ impl LabelGenerator {
     }
     pub fn create_group(&mut self) -> LabelGroup<'_> {
         let group = self.groups;
-        self.groups = self.groups + 1;
+        self.groups += 1;
         LabelGroup { labels: self, group }
     }
 }
@@ -100,7 +102,7 @@ pub fn compile(ast: &AST) -> Result<Program> {
 
 type Scope = usize;
 
-#[derive(PartialEq,Debug,Clone)]
+#[derive(PartialEq,Eq,Debug,Clone)]
 pub enum Frame {
     Local(Environment),
     Top,
@@ -121,7 +123,7 @@ impl Frame {
     }
 }
 
-#[derive(PartialEq,Debug,Clone)]
+#[derive(PartialEq,Eq,Debug,Clone)]
 pub struct Environment {
     locals: HashMap<(Scope, String), LocalFrameIndex>,
     scopes: Vec<Scope>,
@@ -199,7 +201,7 @@ impl Environment {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     fn in_outermost_scope(&self) -> bool {
@@ -262,14 +264,12 @@ impl Compiled for AST {
                 match current_frame {
                     Frame::Local(environment) => {
                         let index = environment.register_new_local(name)
-                            .expect(&format!("Cannot register new variable {}", &name))
-                            .clone();
+                            .unwrap_or_else(|_| panic!("Cannot register new variable {}", &name));
                         active_buffer.emit(OpCode::SetLocal { index });
                     },
                     Frame::Top if !global_environment.in_outermost_scope() => {
                         let index = global_environment.register_new_local(name)
-                            .expect(&format!("Cannot register new variable {}", &name))
-                            .clone();
+                            .unwrap_or_else(|_| panic!("Cannot register new variable {}", &name));
                         active_buffer.emit(OpCode::SetLocal { index });
                     },
                     _ => {
@@ -277,7 +277,7 @@ impl Compiled for AST {
                         let slot_index =
                             program.constant_pool.register(ProgramObject::Slot { name: name_index });
                         program.globals.register(slot_index)
-                            .expect(&format!("Cannot register new global {}", name));
+                            .unwrap_or_else(|_| panic!("Cannot register new global {}", name));
                         active_buffer.emit(OpCode::SetGlobal { name: name_index });
                     },
                 }
@@ -287,11 +287,11 @@ impl Compiled for AST {
             AST::AccessVariable { name: Identifier(name) } => {
                 match current_frame {
                     Frame::Local(environment) if environment.has_local(name) => {
-                        let index = environment.register_local(name).clone();
+                        let index = environment.register_local(name);
                         active_buffer.emit(OpCode::GetLocal { index });
                     },
                     Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
-                        let index = global_environment.register_local(name).clone();
+                        let index = global_environment.register_local(name);
                         active_buffer.emit(OpCode::GetLocal { index });
                     },
                     _ => {
@@ -304,12 +304,12 @@ impl Compiled for AST {
             AST::AssignVariable { name: Identifier(name), value } => {
                 match current_frame {
                     Frame::Local(environment) if environment.has_local(name) => {
-                        let index = environment.register_local(name).clone(); // FIXME error if does not exists
+                        let index = environment.register_local(name); // FIXME error if does not exists
                         value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;    // FIXME scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
                     },
                     Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
-                        let index = global_environment.register_local(name).clone(); // FIXME error if does not exists
+                        let index = global_environment.register_local(name); // FIXME error if does not exists
                         value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;    // FIXME scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
                     },
@@ -494,10 +494,10 @@ impl Compiled for AST {
 
 
                 let mut child_environment = Environment::new();
-                for parameter in parameters.into_iter() { // TODO Environment::from
+                for parameter in parameters { // TODO Environment::from
                     child_environment.register_local(parameter.as_str());
                 }
-                let mut child_frame = &mut Frame::Local(child_environment);
+                let mut child_frame = Frame::Local(child_environment);
 
                 (**body).compile_into(program, &mut function_buffer, global_environment, &mut child_frame, true)?;
 
@@ -662,10 +662,10 @@ fn compile_function_definition(name: &str,
     if receiver {
         child_environment.register_local("this");
     }
-    for parameter in parameters.into_iter() { // TODO Environment::from
+    for parameter in parameters { // TODO Environment::from
         child_environment.register_local(parameter.as_str());
     }
-    let mut child_frame = &mut Frame::Local(child_environment);
+    let mut child_frame = Frame::Local(child_environment);
 
     body.compile_into(program, &mut function_buffer, global_environment, &mut child_frame, true)?;
 

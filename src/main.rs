@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate lalrpop_util;
 
-lalrpop_mod!(pub fml); // load module synthesized by LALRPOP
+// Load module synthesized by LALRPOP
+// The generated code triggers some clippy lints so ignore those: https://github.com/lalrpop/lalrpop/issues/614
+lalrpop_mod!(#[allow(clippy::all)] pub fml);
 
 mod bytecode;
 mod parser;
@@ -200,7 +202,7 @@ impl BytecodeInterpreterAction {
             .selected_input()
             .expect("Cannot open an input for the bytecode interpreter.");
 
-        let program = BCSerializer::BYTES
+        let program = BCSerializer::Bytes
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
@@ -219,7 +221,7 @@ impl BytecodeDisassemblerAction {
             .selected_input()
             .expect("Cannot open an input for the bytecode interpreter.");
 
-        let program = BCSerializer::BYTES
+        let program = BCSerializer::Bytes
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
@@ -261,7 +263,7 @@ impl CompilerAction {
     }
 
     pub fn selected_output_format(&self) -> BCSerializer {
-        self.output_format.unwrap_or(BCSerializer::BYTES)
+        self.output_format.unwrap_or(BCSerializer::Bytes)
     }
 
     pub fn selected_input_format(&self) -> Option<ASTSerializer> {
@@ -271,8 +273,7 @@ impl CompilerAction {
             self.selected_input()
                 .unwrap()
                 .extension()
-                .map(|s| ASTSerializer::from_extension(s.as_str()))
-                .flatten()
+                .and_then(|s| ASTSerializer::from_extension(s.as_str()))
         }
     }
 
@@ -309,13 +310,10 @@ impl ParserAction {
         self.format.unwrap_or_else(|| {
             self.output
                 .as_ref()
-                .map(|path| path.extension())
-                .flatten()
-                .map(|extension| extension.to_str().map(|s| s.to_owned()))
-                .flatten()
-                .map(|extension| ASTSerializer::from_extension(extension.as_str()))
-                .flatten()
-                .unwrap_or(ASTSerializer::INTERNAL)
+                .and_then(|path| path.extension())
+                .and_then(|extension| extension.to_str().map(|s| s.to_owned()))
+                .and_then(|extension| ASTSerializer::from_extension(extension.as_str()))
+                .unwrap_or(ASTSerializer::Internal)
         })
     }
 
@@ -327,15 +325,15 @@ impl ParserAction {
 
 #[derive(Debug, PartialOrd, PartialEq, Ord, Eq, Copy, Clone, Hash)]
 enum BCSerializer {
-    BYTES,
-    STRING,
+    Bytes,
+    String,
 }
 
 impl BCSerializer {
     pub fn serialize(&self, program: &Program, sink: &mut NamedSink) -> Result<()> {
         match self {
-            BCSerializer::BYTES => program.serialize(sink),
-            BCSerializer::STRING => unimplemented!(),
+            BCSerializer::Bytes => program.serialize(sink),
+            BCSerializer::String => unimplemented!(),
         }
     }
 
@@ -345,8 +343,8 @@ impl BCSerializer {
 
     pub fn extension(&self) -> &'static str {
         match self {
-            BCSerializer::BYTES => "bc",
-            BCSerializer::STRING => "bc.txt",
+            BCSerializer::Bytes => "bc",
+            BCSerializer::String => "bc.txt",
         }
     }
 }
@@ -356,8 +354,8 @@ impl std::str::FromStr for BCSerializer {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "bytes" | "bc" | "bytecode" => Ok(Self::BYTES),
-            "string" | "str" | "pp" | "pretty" | "print" => Ok(Self::STRING),
+            "bytes" | "bc" | "bytecode" => Ok(Self::Bytes),
+            "string" | "str" | "pp" | "pretty" | "print" => Ok(Self::String),
             format => Err(anyhow::anyhow!(
                 "Unknown BC serialization format: {}",
                 format
@@ -368,28 +366,28 @@ impl std::str::FromStr for BCSerializer {
 
 #[derive(Debug, PartialOrd, PartialEq, Ord, Eq, Copy, Clone, Hash)]
 enum ASTSerializer {
-    LISP,
-    JSON,
-    YAML,
-    INTERNAL,
+    Lisp,
+    Json,
+    Yaml,
+    Internal,
 }
 impl ASTSerializer {
     pub fn serialize(&self, ast: &AST) -> Result<String> {
         let string = match self {
-            ASTSerializer::LISP => serde_lexpr::to_string(&ast)?,
-            ASTSerializer::JSON => serde_json::to_string(&ast)?,
-            ASTSerializer::YAML => serde_yaml::to_string(&ast)?,
-            ASTSerializer::INTERNAL => format!("{:?}", ast),
+            ASTSerializer::Lisp => serde_lexpr::to_string(&ast)?,
+            ASTSerializer::Json => serde_json::to_string(&ast)?,
+            ASTSerializer::Yaml => serde_yaml::to_string(&ast)?,
+            ASTSerializer::Internal => format!("{:?}", ast),
         };
         Ok(format!("{}\n", string))
     }
 
     pub fn deserialize(&self, source: &str) -> Result<AST> {
         match self {
-            ASTSerializer::LISP => Ok(serde_lexpr::from_str(source)?),
-            ASTSerializer::JSON => Ok(serde_json::from_str(source)?),
-            ASTSerializer::YAML => Ok(serde_yaml::from_str(source)?),
-            ASTSerializer::INTERNAL => {
+            ASTSerializer::Lisp => Ok(serde_lexpr::from_str(source)?),
+            ASTSerializer::Json => Ok(serde_json::from_str(source)?),
+            ASTSerializer::Yaml => Ok(serde_yaml::from_str(source)?),
+            ASTSerializer::Internal => {
                 bail!("No deserializer implemented for Rust/INTERNAL format")
             }
         }
@@ -397,18 +395,18 @@ impl ASTSerializer {
 
     pub fn extension(&self) -> &'static str {
         match self {
-            ASTSerializer::LISP => "lisp",
-            ASTSerializer::JSON => "json",
-            ASTSerializer::YAML => "yaml",
-            ASTSerializer::INTERNAL => "internal",
+            ASTSerializer::Lisp => "lisp",
+            ASTSerializer::Json => "json",
+            ASTSerializer::Yaml => "yaml",
+            ASTSerializer::Internal => "internal",
         }
     }
 
     pub fn from_extension(extension: &str) -> Option<Self> {
         match extension.to_lowercase().as_str() {
-            "lisp" => Some(ASTSerializer::LISP),
-            "json" => Some(ASTSerializer::JSON),
-            "yaml" => Some(ASTSerializer::YAML),
+            "lisp" => Some(ASTSerializer::Lisp),
+            "json" => Some(ASTSerializer::Json),
+            "yaml" => Some(ASTSerializer::Yaml),
             _ => None,
         }
     }
@@ -418,10 +416,10 @@ impl std::str::FromStr for ASTSerializer {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "json" => Ok(Self::JSON),
-            "lisp" | "sexp" | "sexpr" => Ok(Self::LISP),
-            "yaml" => Ok(Self::YAML),
-            "rust" | "internal" | "debug" => Ok(Self::INTERNAL),
+            "json" => Ok(Self::Json),
+            "lisp" | "sexp" | "sexpr" => Ok(Self::Lisp),
+            "yaml" => Ok(Self::Yaml),
+            "rust" | "internal" | "debug" => Ok(Self::Internal),
             format => Err(anyhow::anyhow!(
                 "Unknown AST serialization format: {}",
                 format
@@ -518,7 +516,7 @@ impl Debug for NamedSource {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str("<")?;
         match &self.name {
-            Stream::File(file) => f.write_str(&file),
+            Stream::File(file) => f.write_str(file),
             Stream::Console => f.write_str("stdin"),
         }?;
         Ok(())
@@ -584,7 +582,7 @@ impl Debug for NamedSink {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str(">")?;
         match &self.name {
-            Stream::File(file) => f.write_str(&file),
+            Stream::File(file) => f.write_str(file),
             Stream::Console => f.write_str("stout"),
         }?;
         Ok(())

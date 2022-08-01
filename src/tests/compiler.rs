@@ -794,6 +794,7 @@ use crate::bytecode::compiler::*;
     assert_eq!(current_frame, expected_current_frame);
 }
 
+#[allow(clippy::identity_op)]
 #[test] fn object_with_methods_and_fields () {
     let ast = AST::Object {
         extends: Box::new(AST::Boolean(true)),

@@ -27,7 +27,7 @@ impl From<Address> for InstructionPointer {
     fn from(address: Address) -> Self { InstructionPointer(Some(address)) }
 }
 impl From<&Address> for InstructionPointer {
-    fn from(address: &Address) -> Self { InstructionPointer(Some(address.clone())) }
+    fn from(address: &Address) -> Self { InstructionPointer(Some(*address)) }
 }
 impl From<u32> for InstructionPointer {
     fn from(n: u32) -> Self { InstructionPointer(Some(Address::from_u32(n))) }
@@ -36,18 +36,18 @@ impl From<usize> for InstructionPointer {
     fn from(n: usize) -> Self { InstructionPointer(Some(Address::from_usize(n))) }
 }
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
 pub struct OperandStack(Vec<Pointer>);
 impl OperandStack {
-    pub fn new() -> Self { OperandStack(Vec::new()) }
+    pub fn new() -> Self { Self::default() }
     pub fn push(&mut self, pointer: Pointer) {
         self.0.push(pointer)
     }
     pub fn pop(&mut self) -> Result<Pointer> {
-        self.0.pop().with_context(|| format!("Cannot pop from an empty operand stack."))
+        self.0.pop().with_context(|| "Cannot pop from an empty operand stack.")
     }
     pub fn peek(&self) -> Result<&Pointer> {
-        self.0.last().with_context(|| format!("Cannot peek from an empty operand stack."))
+        self.0.last().with_context(|| "Cannot peek from an empty operand stack.")
     }
     #[allow(dead_code)]
     pub fn pop_sequence(&mut self, n: usize) -> Result<Vec<Pointer>> {
@@ -72,7 +72,7 @@ impl Frame {
         Frame { locals: Vec::new(), return_address: None }
     }
     pub fn with_capacity(return_address: Option<Address>, size: usize, initial: Pointer) -> Self {
-        Frame { locals: (0..size).map(|_| initial.clone()).collect(), return_address }
+        Frame { locals: (0..size).map(|_| initial).collect(), return_address }
     }
     pub fn from(return_address: Option<Address>, locals: Vec<Pointer>) -> Self {
         Frame { locals, return_address }
@@ -104,18 +104,18 @@ impl FrameStack {
             frames: Vec::new()}
     }
     pub fn pop(&mut self) -> Result<Frame> {
-        self.frames.pop().with_context(|| format!("Attempting to pop frame from empty stack."))
+        self.frames.pop().with_context(|| "Attempting to pop frame from empty stack.")
     }
     pub fn push(&mut self, frame: Frame) {
         self.frames.push(frame)
     }
     pub fn get_locals(&self) -> Result<&Frame> {
         self.frames.last()
-            .with_context(|| format!("Attempting to access frame from empty stack."))
+            .with_context(|| "Attempting to access frame from empty stack.")
     }
     pub fn get_locals_mut(&mut self) -> Result<&mut Frame> {
         self.frames.last_mut()
-            .with_context(|| format!("Attempting to access frame from empty stack."))
+            .with_context(|| "Attempting to access frame from empty stack.")
     }
 }
 
@@ -195,7 +195,7 @@ impl GlobalFrame {
         let globals = names.into_iter()
             .map(|name| {
                 if unique.insert(name.clone()) {
-                    Ok((name, initial.clone()))
+                    Ok((name, initial))
                 } else {
                     Err(anyhow!("Global is a duplicate: {}", name))
                 }
@@ -234,9 +234,9 @@ impl State {
     pub fn from(program: &Program) -> Result<Self> {                                                // TODO error handling is a right mess here.
 
         let entry_index = program.entry.get()
-            .with_context(|| format!("Cannot find entry method."))?;
+            .with_context(|| "Cannot find entry method.")?;
         let entry_method = program.constant_pool.get(&entry_index)
-            .with_context(|| format!("Cannot find entry method."))?;
+            .with_context(|| "Cannot find entry method.")?;
         let entry_address = entry_method.get_method_start_address()?;
         let entry_length = entry_method.get_method_length()?;
         let entry_locals = entry_method.get_method_locals()?;
@@ -272,7 +272,7 @@ impl State {
             let name_index = method.get_method_name()?;
             let name_object = program.constant_pool.get(name_index)?;
             let name = name_object.as_str()?;
-            Ok((name.to_owned(), index.clone()))
+            Ok((name.to_owned(), *index))
         }
 
         let functions = global_objects.iter()

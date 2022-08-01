@@ -215,7 +215,7 @@ pub fn eval_set_field(program: &Program, state: &mut State, index: &ConstantPool
     let object = state.heap.dereference_mut(&heap_pointer)?;
 
     let object_instance = object.as_object_instance_mut()?;
-    object_instance.set_field(name, value_pointer.clone())?;
+    object_instance.set_field(name, value_pointer)?;
     state.operand_stack.push(value_pointer);
     state.instruction_pointer.bump(program);
     Ok(())
@@ -399,11 +399,11 @@ fn dispatch_object_method(program: &Program, state: &mut State,
     let heap_reference = receiver_pointer.into_heap_reference()?; // Should never fail.
     let heap_object = state.heap.dereference_mut(&heap_reference)?; // Should never fail.
     let object_instance = heap_object.as_object_instance_mut()?; // Should never fail.
-    let parent_pointer = object_instance.parent.clone();
+    let parent_pointer = object_instance.parent;
 
     let method_option = object_instance.methods
-            .get(&method_name.to_string())
-            .map(|method| method.clone());
+            .get(method_name)
+            .cloned();
 
     match method_option {
         Some(method) =>

@@ -31,7 +31,7 @@ macro_rules! heap_log {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Heap{ max_size: usize, size: usize, log: Option<File>, memory: Vec<HeapObject> }
 
 impl Eq for Heap {}
@@ -52,13 +52,13 @@ impl Heap {
         create_dir_all(dir).unwrap();
 
         let mut file = File::create(path).unwrap();
-        write!(file, "timestamp,event,heap\n").unwrap();
+        writeln!(file, "timestamp,event,heap").unwrap();
 
         heap_log!(START -> Some(&mut file));
         self.log = Some(file)
     }
     pub fn new() -> Self {
-        Heap { max_size: 0, log: None, memory: Vec::new(), size: 0 }
+        Heap::default()
     }
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
@@ -168,7 +168,7 @@ impl std::fmt::Display for HeapObject {
 }
 
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
 pub struct ArrayInstance(Vec<Pointer>);
 
 impl ArrayInstance {
@@ -222,7 +222,7 @@ impl std::fmt::Display for ArrayInstance {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone, Default)]
 pub struct ObjectInstance {
     pub parent: Pointer,
     pub fields: IndexMap<String, Pointer>, // TODO make private
@@ -232,11 +232,7 @@ pub struct ObjectInstance {
 impl ObjectInstance {
     #[allow(dead_code)]
     pub fn new() -> Self {
-        ObjectInstance  {
-            parent: Pointer::Null,
-            fields: IndexMap::new(),
-            methods: IndexMap::new(),
-        }
+        ObjectInstance::default()
     }
     pub fn get_field(&self, name: &str) -> Result<&Pointer> {
         self.fields.get(name)
@@ -263,10 +259,10 @@ impl ObjectInstance {
             .collect::<Result<Vec<String>>>()?;
 
         match parent {
-            Some(parent) if fields.len() > 0 =>
-                Ok(format!("object(..={}, {})", parent, fields.join(", "))),
-            Some(parent)  =>
+            Some(parent) if fields.is_empty() =>
                 Ok(format!("object(..={})", parent)),
+            Some(parent)  =>
+                Ok(format!("object(..={}, {})", parent, fields.join(", "))),
             None => Ok(format!("object({})", fields.join(", "))),
         }
     }
@@ -304,7 +300,7 @@ impl From<usize> for HeapIndex {
 impl From<&Pointer> for HeapIndex {
     fn from(p: &Pointer) -> Self {
         match p {
-            Pointer::Reference(p) => p.clone(),
+            Pointer::Reference(p) => *p,
             Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
             Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
             Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
@@ -315,7 +311,7 @@ impl From<&Pointer> for HeapIndex {
 impl From<Pointer> for HeapIndex {
     fn from(p: Pointer) -> Self {
         match p {
-            Pointer::Reference(p) => p.clone(),
+            Pointer::Reference(p) => p,
             Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
             Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
             Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
@@ -333,8 +329,9 @@ impl std::fmt::Display for HeapIndex {
     }
 }
 
-#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd, Default)]
 pub enum Pointer {
+    #[default]
     Null,
     Integer(i32),
     Boolean(bool),
@@ -365,10 +362,7 @@ impl Pointer {
     }
     #[allow(dead_code)]
     pub fn is_heap_reference(&self) -> bool {
-        match self {
-            Pointer::Reference(_) => true,
-            _ => false,
-        }
+        matches!(self, Pointer::Reference(_))
     }
     #[allow(dead_code)]
     pub fn as_heap_reference(&self) -> Option<&HeapIndex> {
@@ -385,10 +379,7 @@ impl Pointer {
     }
 
     pub fn is_null(&self) -> bool {
-        match self {
-            Pointer::Null => true,
-            _ => false,
-        }
+        matches!(self, Pointer::Null)
     }
     #[allow(dead_code)]
     pub fn as_null(&self) -> Option<()> {
@@ -399,10 +390,7 @@ impl Pointer {
     }
     #[allow(dead_code)]
     pub fn is_i32(&self) -> bool {
-        match self {
-            Pointer::Integer(_) => true,
-            _ => false,
-        }
+        matches!(self, Pointer::Integer(_))
     }
     pub fn as_i32(&self) -> Result<i32> {
         match self {
@@ -418,10 +406,7 @@ impl Pointer {
     }
     #[allow(dead_code)]
     pub fn is_bool(&self) -> bool {
-        match self {
-            Pointer::Boolean(_) => true,
-            _ => false,
-        }
+        matches!(self, Pointer::Boolean(_))
     }
     #[allow(dead_code)]
     pub fn as_bool(&self) -> Option<bool> {
@@ -450,18 +435,18 @@ impl Pointer {
     }
 }
 
-impl Into<bool> for Pointer {
-    fn into(self) -> bool {
-        match self {
+impl From<Pointer> for bool {
+    fn from(val: Pointer) -> Self {
+        match val {
             Pointer::Boolean(b) => b,
             p => panic!("Cannot cast `{}` into a boolean pointer.", p),
         }
     }
 }
 
-impl Into<i32> for Pointer {
-    fn into(self) -> i32 {
-        match self {
+impl From<Pointer> for i32 {
+    fn from(val: Pointer) -> Self {
+        match val {
             Pointer::Integer(i) => i,
             p => panic!("Cannot cast `{}` into an integer pointer.", p),
         }
@@ -492,7 +477,7 @@ impl From<ProgramObject> for Pointer {
 
 impl From<&HeapIndex> for Pointer {
     fn from(p: &HeapIndex) -> Self {
-        Pointer::Reference(p.clone())
+        Pointer::Reference(*p)
     }
 }
 

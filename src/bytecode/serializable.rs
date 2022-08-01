@@ -1,3 +1,5 @@
+#![allow(clippy::needless_range_loop)]
+
 use std::io::{Read, Write};
 
 use super::program::Code;
@@ -52,7 +54,7 @@ pub fn read_utf8<R: Read>(reader: &mut R) -> String {
     for i in 0..length {
         bytes[i] = read_u8(reader);
     }
-    String::from_utf8(bytes).expect(&format!("Problem reading UTF-8 string of size {} \
+    String::from_utf8(bytes).unwrap_or_else(|_| panic!("Problem reading UTF-8 string of size {} \
                                               from data sink", length))
 }
 

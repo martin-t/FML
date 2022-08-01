@@ -352,7 +352,7 @@ impl Serializable for OpCode {
 
 impl OpCode {
     #[rustfmt::skip]
-    pub fn to_hex(&self) -> u8 {
+    pub fn to_hex(self) -> u8 {
         use OpCode::*;
         match self {
             Label        { .. } => 0x00,

@@ -1102,6 +1102,7 @@ macro_rules! indexmap {
     assert_eq!(state.heap, expected_heap, "test memory");
 }
 
+#[allow(clippy::identity_op)]
 #[test] fn call_method_zero() {
     let code = Code::from(vec!(
         OpCode::Return,
@@ -1309,8 +1310,8 @@ fn call_method_on_pointers(receiver: Pointer, argument: Pointer, operation: &str
     let mut output: String = String::new();
 
     state.instruction_pointer.set(Some(Address::from_usize(0)));
-    state.operand_stack.push(Pointer::from(receiver));
-    state.operand_stack.push(Pointer::from(argument));
+    state.operand_stack.push(receiver);
+    state.operand_stack.push(argument);
 
     step_with(&program, &mut state, &mut output).unwrap();
 

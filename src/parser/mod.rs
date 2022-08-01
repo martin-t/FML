@@ -2,6 +2,7 @@ use std::fmt::Debug;
 use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 
+#[allow(clippy::vec_box)] // LATER perf
 #[derive(PartialEq,Debug,Serialize,Deserialize,Clone)]
 pub enum AST {
     Integer(i32),
@@ -185,7 +186,7 @@ impl Identifier {
     pub fn as_str(&self) -> &str { &self.0 }
 }
 
-#[derive(PartialEq,Debug,Copy,Clone,Serialize,Deserialize)]
+#[derive(PartialEq,Eq,Debug,Copy,Clone,Serialize,Deserialize)]
 pub enum Operator {
     Multiplication,
     Division,
