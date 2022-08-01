@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use crate::bytecode::bytecode::OpCode;
+use crate::bytecode::opcodes::OpCode;
 use crate::bytecode::heap::*;
 
 use anyhow::{Context, Result, bail, ensure};

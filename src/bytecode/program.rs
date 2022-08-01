@@ -1,7 +1,7 @@
 use std::io::{Write, Read};
 use std::collections::HashMap;
 
-use super::bytecode::OpCode;
+use super::opcodes::OpCode;
 
 use super::serializable;
 use super::serializable::*;

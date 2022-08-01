@@ -1,6 +1,6 @@
 use crate::parser::*;
 
-use crate::bytecode::bytecode::*;
+use crate::bytecode::opcodes::*;
 use crate::bytecode::program::*;
 
 use crate::bytecode::compiler::*;

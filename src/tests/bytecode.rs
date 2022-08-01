@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use crate::bytecode::bytecode::*;
+use crate::bytecode::opcodes::*;
 use crate::bytecode::serializable::*;
 use crate::bytecode::program::*;
 

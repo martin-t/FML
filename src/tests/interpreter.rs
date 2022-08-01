@@ -1,7 +1,7 @@
 #[allow(unused_imports)]
 use std::collections::HashMap;
 
-use crate::bytecode::bytecode::*;
+use crate::bytecode::opcodes::*;
 use crate::bytecode::program::*;
 use crate::bytecode::interpreter::*;
 use crate::bytecode::heap::*;

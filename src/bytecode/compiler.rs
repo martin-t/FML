@@ -7,7 +7,7 @@ use anyhow::{Result, ensure};
 
 use crate::parser::*;
 
-use super::bytecode::OpCode;
+use super::opcodes::OpCode;
 use super::program::Program;
 use crate::bytecode::program::*;
 

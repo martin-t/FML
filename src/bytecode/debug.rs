@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use super::bytecode::OpCode;
+use super::opcodes::OpCode;
 use super::program::{Program, Code};
 use crate::bytecode::program::*;
 
