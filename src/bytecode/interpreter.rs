@@ -316,6 +316,7 @@ fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers:
         ("eq", _) => Pointer::from(false),
         ("neq", _) => Pointer::from(true),
 
+        // FIXME some are missing?
         (method, argument) if method == "+" || method == "-" || method == "*" || method == "/" 
         || method == "%" || method == "<=" || method == ">=" || method == "<" || method == ">" 
         || method == "add" || method == "sub" || method == "mul" || method == "div" 
@@ -324,7 +325,7 @@ fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers:
                   method, receiver, argument)
         }
 
-        _ => bail!("Call method error: no method `{}` in object `{}`", method_name, receiver),
+        (method, argument) => bail!("Call method error: no method `{}` in object `{}` (argment is `{}`)",  method, receiver, argument),
     };
     Ok(result)
 }
@@ -355,7 +356,7 @@ fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers
                   method, receiver, argument)
         }
 
-        _ => bail!("Call method error: no method `{}` in object `{}`",  method_name, receiver),
+        (method, argument) => bail!("Call method error: no method `{}` in object `{}` (argment is `{}`)",  method, receiver, argument),
     };
     Ok(result)
 }
@@ -364,6 +365,7 @@ fn dispatch_array_method(array: &mut ArrayInstance, method_name: &str, argument_
     match method_name {
         "get" => dispatch_array_get_method(array, method_name, argument_pointers),
         "set" => dispatch_array_set_method(array, method_name, argument_pointers),
+        // LATER Would be nice to print arguments as well
         _ => bail!("Call method error: no method `{}` in array `{}`",  method_name, array),
     }
 }
@@ -405,8 +407,10 @@ fn dispatch_object_method(program: &Program, state: &mut State,
     match method_option {
         Some(method) =>
             eval_call_object_method(program, state, method, method_name, receiver_pointer, argument_pointers),
-        None if object_instance.parent.is_null() =>
-            bail!("Call method error: no method `{}` in object `{}`", method_name, object_instance),
+        None if object_instance.parent.is_null() => {
+            // LATER Would be nice to print arguments as well
+            bail!("Call method error: no method `{}` in object `{}`", method_name, object_instance);
+        }
         None =>
             dispatch_method(program, state, parent_pointer, method_name, argument_pointers)
     }

@@ -253,6 +253,7 @@ pub enum ProgramObject {
      *
      * Serialized with tag `0x03`.
      */
+    // LATER Consider splitting off into Method struct to avoid fallible functions like `get_method_*`
     Method {
         name: ConstantPoolIndex,
         parameters: Arity,
@@ -298,31 +299,31 @@ impl ProgramObject {
         matches!(self, ProgramObject::Method { .. })
     }
     pub fn get_method_parameters(&self) -> anyhow::Result<&Arity> {
-        match self {                                                                                // FIXME there's gotta be a way to do this cleaner. perhaps locally defined function?
+        match self {
             ProgramObject::Method { parameters, .. } => Ok(parameters),
             pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
         }
     }
     pub fn get_method_name(&self) -> anyhow::Result<&ConstantPoolIndex> {
-        match self {                                                                                // FIXME there's gotta be a way to do this cleaner. perhaps locally defined function?
+        match self {
             ProgramObject::Method { name, .. } => Ok(name),
             pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
         }
     }
     pub fn get_method_locals(&self) -> anyhow::Result<&Size> {
-        match self {                                                                                // FIXME there's gotta be a way to do this cleaner. perhaps locally defined function?
+        match self {
             ProgramObject::Method { locals, .. } => Ok(locals),
             pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
         }
     }
     pub fn get_method_start_address(&self) -> anyhow::Result<&Address> {
-        match self {                                                                                // FIXME there's gotta be a way to do this cleaner. perhaps locally defined function?
+        match self {
             ProgramObject::Method { code, .. } => Ok(code.start()),
             pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
         }
     }
     pub fn get_method_length(&self) -> anyhow::Result<usize> {
-        match self {                                                                                // FIXME there's gotta be a way to do this cleaner. perhaps locally defined function?
+        match self {
             ProgramObject::Method { code, .. } => Ok(code.length),
             pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
         }
@@ -416,8 +417,7 @@ impl SerializableWithContext for ProgramObject {
         }
     }
 }
-// FIXME error message should include parameter list:
-// Call method error: no method `*` in object `2`', src/main.rs:158:14
+
 impl ProgramObject {
 
     #[allow(dead_code)]
