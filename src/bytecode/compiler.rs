@@ -3,7 +3,7 @@
 use std::collections::{HashMap, HashSet};
 use std::ops::Deref;
 
-use anyhow::{Result, ensure};
+use anyhow::{ensure, Result};
 
 use crate::parser::*;
 
@@ -29,6 +29,7 @@ impl ProgramGenerator {
             entry: Entry::new(),
         }
     }
+
     pub fn materialize(self) -> Result<Program> {
         let label_names = self.completed_code.labels();
         let label_constants = self.constant_pool.get_all(label_names)?.into_iter();
@@ -46,42 +47,79 @@ impl ProgramGenerator {
 }
 
 pub struct LabelGenerator {
-    names: HashSet<String>, groups: usize
+    names: HashSet<String>,
+    groups: usize,
 }
 
 impl LabelGenerator {
-    pub fn new() -> Self { LabelGenerator { names: HashSet::new(), groups: 0 } }
-    pub(crate) fn generate_name_within_group<S>(&self, prefix: S, group: usize) -> Result<String> where S: Into<String> {
+    pub fn new() -> Self {
+        LabelGenerator {
+            names: HashSet::new(),
+            groups: 0,
+        }
+    }
+
+    pub(crate) fn generate_name_within_group<S>(&self, prefix: S, group: usize) -> Result<String>
+    where
+        S: Into<String>,
+    {
         let name = format!("{}:{}", prefix.into(), group);
-        ensure!(!self.names.contains(&name), "Label `{}` already exists.", name);
+        ensure!(
+            !self.names.contains(&name),
+            "Label `{}` already exists.",
+            name
+        );
         Ok(name)
     }
-    pub fn generate_name<S>(&mut self, prefix: S) -> Result<String> where S: Into<String> {
+
+    pub fn generate_name<S>(&mut self, prefix: S) -> Result<String>
+    where
+        S: Into<String>,
+    {
         let name = self.generate_name_within_group(prefix, self.groups)?;
         self.groups += 1;
         Ok(name)
     }
+
     #[allow(dead_code)]
-    pub fn generate<S>(&mut self, prefix: S) -> Result<ProgramObject> where S: Into<String> {
+    pub fn generate<S>(&mut self, prefix: S) -> Result<ProgramObject>
+    where
+        S: Into<String>,
+    {
         self.generate_name(prefix)
             .map(|name| ProgramObject::String(name))
     }
+
     pub fn create_group(&mut self) -> LabelGroup<'_> {
         let group = self.groups;
         self.groups += 1;
-        LabelGroup { labels: self, group }
+        LabelGroup {
+            labels: self,
+            group,
+        }
     }
 }
 
-pub struct LabelGroup<'a> { labels: &'a LabelGenerator, group: usize }
+pub struct LabelGroup<'a> {
+    labels: &'a LabelGenerator,
+    group: usize,
+}
 
 impl LabelGroup<'_> {
-    pub fn generate_name<S>(&self, prefix: S) -> Result<String> where S: Into<String> {
+    pub fn generate_name<S>(&self, prefix: S) -> Result<String>
+    where
+        S: Into<String>,
+    {
         self.labels.generate_name_within_group(prefix, self.group)
     }
+
     #[allow(dead_code)]
-    pub fn generate<S>(&self, prefix: S) -> Result<ProgramObject> where S: Into<String> {
-        self.labels.generate_name_within_group(prefix, self.group)
+    pub fn generate<S>(&self, prefix: S) -> Result<ProgramObject>
+    where
+        S: Into<String>,
+    {
+        self.labels
+            .generate_name_within_group(prefix, self.group)
             .map(|name| ProgramObject::String(name))
     }
 }
@@ -92,7 +130,13 @@ pub fn compile(ast: &AST) -> Result<Program> {
     let mut current_frame = Frame::Top;
     let mut active_buffer = Code::new();
 
-    ast.compile_into(&mut program, &mut active_buffer, &mut global_environment, &mut current_frame, true)?;
+    ast.compile_into(
+        &mut program,
+        &mut active_buffer,
+        &mut global_environment,
+        &mut current_frame,
+        true,
+    )?;
 
     program.completed_code.extend(active_buffer);
     program.materialize()
@@ -100,7 +144,7 @@ pub fn compile(ast: &AST) -> Result<Program> {
 
 type Scope = usize;
 
-#[derive(PartialEq,Eq,Debug,Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum Frame {
     Local(Environment),
     Top,
@@ -121,7 +165,7 @@ impl Frame {
     }
 }
 
-#[derive(PartialEq,Eq,Debug,Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Environment {
     locals: HashMap<(Scope, String), LocalFrameIndex>,
     scopes: Vec<Scope>,
@@ -131,7 +175,12 @@ pub struct Environment {
 
 impl Environment {
     pub fn new() -> Self {
-        Environment { locals: HashMap::new(), scopes: vec!(0), scope_sequence: 0, unique_number: 0 }
+        Environment {
+            locals: HashMap::new(),
+            scopes: vec![0],
+            scope_sequence: 0,
+            unique_number: 0,
+        }
     }
 
     pub fn from_locals(locals: Vec<String>) -> Self {
@@ -141,9 +190,13 @@ impl Environment {
             local_map.insert((0, local), LocalFrameIndex::from_usize(i));
         }
 
-        Environment { locals: local_map, scopes: vec!(0), scope_sequence: 0, unique_number: 0 }
+        Environment {
+            locals: local_map,
+            scopes: vec![0],
+            scope_sequence: 0,
+            unique_number: 0,
+        }
     }
-
 
     pub fn from_locals_at(locals: Vec<String>, level: usize) -> Self {
         let mut local_map: HashMap<(Scope, String), LocalFrameIndex> = HashMap::new();
@@ -152,16 +205,24 @@ impl Environment {
             local_map.insert((level, local), LocalFrameIndex::from_usize(i));
         }
 
-        Environment { locals: local_map, scopes: vec!(0), scope_sequence: level + 1, unique_number: 0 }
+        Environment {
+            locals: local_map,
+            scopes: vec![0],
+            scope_sequence: level + 1,
+            unique_number: 0,
+        }
     }
 
     fn current_scope(&self) -> Scope {
-        *self.scopes.last().expect("Cannot pop from empty scope stack")
+        *self
+            .scopes
+            .last()
+            .expect("Cannot pop from empty scope stack")
     }
 
     pub fn generate_unique_number(&mut self) -> usize {
         let number = self.unique_number;
-        self.unique_number +=1 ;
+        self.unique_number += 1;
         number
     }
 
@@ -169,8 +230,10 @@ impl Environment {
         let key = (self.current_scope(), id.to_string());
 
         if let Some(index) = self.locals.get(&key) {
-            return Err(format!("Local {} already exist (at index {:?}) and cannot be redefined",
-                                id, index))
+            return Err(format!(
+                "Local {} already exist (at index {:?}) and cannot be redefined",
+                id, index
+            ));
         }
 
         let index = LocalFrameIndex::from_usize(self.locals.len());
@@ -217,24 +280,51 @@ impl Environment {
     }
 
     pub fn leave_scope(&mut self) {
-        self.scopes.pop()
+        self.scopes
+            .pop()
             .expect("Cannot leave scope: the scope stack is empty");
     }
 }
 
 pub trait Compiled {
-    fn compile_into(&self, program: &mut ProgramGenerator, active_buffer: &mut Code, global_environment: &mut Environment, current_frame: &mut Frame, keep_result: bool) -> Result<()>;
-    fn compile(&self, global_environment: &mut Environment, current_frame: &mut Frame) -> Result<Program> {
+    fn compile_into(
+        &self,
+        program: &mut ProgramGenerator,
+        active_buffer: &mut Code,
+        global_environment: &mut Environment,
+        current_frame: &mut Frame,
+        keep_result: bool,
+    ) -> Result<()>;
+
+    fn compile(
+        &self,
+        global_environment: &mut Environment,
+        current_frame: &mut Frame,
+    ) -> Result<Program> {
         let mut program = ProgramGenerator::new();
         let mut active_buffer: Code = Code::new();
-        self.compile_into(&mut program, &mut active_buffer, global_environment, current_frame, true)?;
+        self.compile_into(
+            &mut program,
+            &mut active_buffer,
+            global_environment,
+            current_frame,
+            true,
+        )?;
         program.completed_code.extend(active_buffer);
         program.materialize()
     }
 }
 
 impl Compiled for AST {
-    fn compile_into(&self, program: &mut ProgramGenerator, active_buffer: &mut Code, global_environment: &mut Environment, current_frame: &mut Frame, keep_result: bool) -> Result<()> {
+    fn compile_into(
+        &self,
+        program: &mut ProgramGenerator,
+        active_buffer: &mut Code,
+        global_environment: &mut Environment,
+        current_frame: &mut Frame,
+        keep_result: bool,
+    ) -> Result<()> {
+        #[rustfmt::skip] // It just splits everything into way too many lines
         match self {
             AST::Integer(value) => {
                 let constant = ProgramObject::Integer(*value);
@@ -639,14 +729,15 @@ impl Compiled for AST {
     }
 }
 
-fn compile_function_definition(name: &str,
-                               receiver: bool,
-                               parameters: &Vec<Identifier>,
-                               body: &AST,
-                               program: &mut ProgramGenerator,
-                               global_environment: &mut Environment,
-                               _current_frame: &mut Frame) -> Result<ConstantPoolIndex> {
-
+fn compile_function_definition(
+    name: &str,
+    receiver: bool,
+    parameters: &Vec<Identifier>,
+    body: &AST,
+    program: &mut ProgramGenerator,
+    global_environment: &mut Environment,
+    _current_frame: &mut Frame,
+) -> Result<ConstantPoolIndex> {
     // let end_label = program.labels.generate_name(format!("λ:{}", name))?;
     // let end_label_index =
     //     program.constant_pool.register(ProgramObject::from_str(&end_label));
@@ -660,12 +751,19 @@ fn compile_function_definition(name: &str,
     if receiver {
         child_environment.register_local("this");
     }
-    for parameter in parameters { // TODO Environment::from
+    for parameter in parameters {
+        // TODO Environment::from
         child_environment.register_local(parameter.as_str());
     }
     let mut child_frame = Frame::Local(child_environment);
 
-    body.compile_into(program, &mut function_buffer, global_environment, &mut child_frame, true)?;
+    body.compile_into(
+        program,
+        &mut function_buffer,
+        global_environment,
+        &mut child_frame,
+        true,
+    )?;
 
     let locals_in_frame = match child_frame {
         Frame::Local(child_environment) => child_environment.count_locals(),
