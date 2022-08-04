@@ -415,7 +415,7 @@ fn dispatch_integer_method(
         ("eq", _) => Pointer::from(false),
         ("neq", _) => Pointer::from(true),
 
-        // FIXME some are missing?
+        // ==, !=, eq, neq are already fully covered above.
         (method, argument)
             if method == "+"
                 || method == "-"
@@ -434,7 +434,7 @@ fn dispatch_integer_method(
                 || method == "le"
                 || method == "ge"
                 || method == "lt"
-                || method == "le" =>
+                || method == "gt" =>
         {
             bail!("Call method error: method {} is not defined in object `{}` for argument `{}` (expecting integer argument)", 
                   method, receiver, argument)
