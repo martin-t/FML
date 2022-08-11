@@ -31,11 +31,7 @@ pub fn evaluate(program: &Program) -> Result<()> {
     evaluate_with(program, &mut state, &mut output)
 }
 
-pub fn evaluate_with_memory_config(
-    program: &Program,
-    heap_size: usize,
-    heap_log: Option<PathBuf>,
-) -> Result<()> {
+pub fn evaluate_with_memory_config(program: &Program, heap_size: usize, heap_log: Option<PathBuf>) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_size(heap_size);
     if let Some(log) = heap_log {
@@ -63,10 +59,7 @@ pub fn step_with<W>(program: &Program, state: &mut State, output: &mut W) -> Res
 where
     W: Write,
 {
-    let address = state
-        .instruction_pointer
-        .get()
-        .with_context(|| "Nothing to execute.")?;
+    let address = state.instruction_pointer.get().with_context(|| "Nothing to execute.")?;
     let opcode = program.code.get(address)?;
     eval_opcode(program, state, output, opcode)
 }
@@ -132,11 +125,7 @@ pub fn eval_set_local(program: &Program, state: &mut State, index: &LocalFrameIn
 }
 
 #[inline(always)]
-pub fn eval_get_global(
-    program: &Program,
-    state: &mut State,
-    index: &ConstantPoolIndex,
-) -> Result<()> {
+pub fn eval_get_global(program: &Program, state: &mut State, index: &ConstantPoolIndex) -> Result<()> {
     let program_object = program.constant_pool.get(index)?;
     let name = program_object.as_str()?;
     let pointer = *state.frame_stack.globals.get(name)?;
@@ -146,11 +135,7 @@ pub fn eval_get_global(
 }
 
 #[inline(always)]
-pub fn eval_set_global(
-    program: &Program,
-    state: &mut State,
-    index: &ConstantPoolIndex,
-) -> Result<()> {
+pub fn eval_set_global(program: &Program, state: &mut State, index: &ConstantPoolIndex) -> Result<()> {
     let program_object = program.constant_pool.get(index)?;
     let name = program_object.as_str()?.to_owned();
     let pointer = *state.operand_stack.peek()?;
@@ -190,10 +175,7 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
                     name
                 )
             }
-            _ => bail!(
-                "Class members must be either Methods or Slots, but found `{}`.",
-                member
-            ),
+            _ => bail!("Class members must be either Methods or Slots, but found `{}`.", member),
         }
     }
 
@@ -211,9 +193,7 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
 
     let parent = state.operand_stack.pop()?;
 
-    let heap_index = state
-        .heap
-        .allocate(HeapObject::new_object(parent, fields, methods)); // TODO simplify
+    let heap_index = state.heap.allocate(HeapObject::new_object(parent, fields, methods)); // TODO simplify
     state.operand_stack.push(Pointer::from(heap_index));
     state.instruction_pointer.bump(program);
     Ok(())
@@ -241,11 +221,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
 }
 
 #[inline(always)]
-pub fn eval_get_field(
-    program: &Program,
-    state: &mut State,
-    index: &ConstantPoolIndex,
-) -> Result<()> {
+pub fn eval_get_field(program: &Program, state: &mut State, index: &ConstantPoolIndex) -> Result<()> {
     let program_object = program.constant_pool.get(index)?;
     let name = program_object.as_str()?;
     let pointer = state.operand_stack.pop()?;
@@ -260,11 +236,7 @@ pub fn eval_get_field(
 }
 
 #[inline(always)]
-pub fn eval_set_field(
-    program: &Program,
-    state: &mut State,
-    index: &ConstantPoolIndex,
-) -> Result<()> {
+pub fn eval_set_field(program: &Program, state: &mut State, index: &ConstantPoolIndex) -> Result<()> {
     let program_object = program.constant_pool.get(index)?;
     let name = program_object.as_str()?;
     let value_pointer = state.operand_stack.pop()?;
@@ -297,13 +269,7 @@ pub fn eval_call_method(
     let argument_pointers = state.operand_stack.pop_sequence(arguments.to_usize() - 1)?;
     let receiver_pointer = state.operand_stack.pop()?;
 
-    dispatch_method(
-        program,
-        state,
-        receiver_pointer,
-        method_name,
-        argument_pointers,
-    )
+    dispatch_method(program, state, receiver_pointer, method_name, argument_pointers)
 }
 
 fn dispatch_method(
@@ -315,33 +281,25 @@ fn dispatch_method(
 ) -> Result<()> {
     match receiver_pointer {
         Pointer::Null => {
-            dispatch_null_method(method_name, argument_pointers)?
-                .push_onto(&mut state.operand_stack);
+            dispatch_null_method(method_name, argument_pointers)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
         }
         Pointer::Integer(i) => {
-            dispatch_integer_method(&i, method_name, argument_pointers)?
-                .push_onto(&mut state.operand_stack);
+            dispatch_integer_method(&i, method_name, argument_pointers)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
         }
         Pointer::Boolean(b) => {
-            dispatch_boolean_method(&b, method_name, argument_pointers)?
-                .push_onto(&mut state.operand_stack);
+            dispatch_boolean_method(&b, method_name, argument_pointers)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
         }
         Pointer::Reference(index) => match state.heap.dereference_mut(&index)? {
             HeapObject::Array(array) => {
-                dispatch_array_method(array, method_name, argument_pointers)?
-                    .push_onto(&mut state.operand_stack);
+                dispatch_array_method(array, method_name, argument_pointers)?.push_onto(&mut state.operand_stack);
                 state.instruction_pointer.bump(program);
             }
-            HeapObject::Object(_) => dispatch_object_method(
-                program,
-                state,
-                receiver_pointer,
-                method_name,
-                argument_pointers,
-            )?,
+            HeapObject::Object(_) => {
+                dispatch_object_method(program, state, receiver_pointer, method_name, argument_pointers)?
+            }
         },
     }
     Ok(())
@@ -371,11 +329,7 @@ fn dispatch_null_method(method_name: &str, argument_pointers: Vec<Pointer>) -> R
     Ok(result)
 }
 
-fn dispatch_integer_method(
-    receiver: &i32,
-    method_name: &str,
-    argument_pointers: Vec<Pointer>,
-) -> Result<Pointer> {
+fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
     ensure!(
         argument_pointers.len() == 1,
         "Invalid number of arguments for method `{}` in object `{}`",
@@ -450,11 +404,7 @@ fn dispatch_integer_method(
     Ok(result)
 }
 
-fn dispatch_boolean_method(
-    receiver: &bool,
-    method_name: &str,
-    argument_pointers: Vec<Pointer>,
-) -> Result<Pointer> {
+fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
     ensure!(
         argument_pointers.len() == 1,
         "Invalid number of arguments for method `{}` in object `{}`",
@@ -506,11 +456,7 @@ fn dispatch_array_method(
         "get" => dispatch_array_get_method(array, method_name, argument_pointers),
         "set" => dispatch_array_set_method(array, method_name, argument_pointers),
         // LATER Would be nice to print arguments as well
-        _ => bail!(
-            "Call method error: no method `{}` in array `{}`",
-            method_name,
-            array
-        ),
+        _ => bail!("Call method error: no method `{}` in array `{}`", method_name, array),
     }
 }
 
@@ -564,14 +510,9 @@ fn dispatch_object_method(
     let method_option = object_instance.methods.get(method_name).cloned();
 
     match method_option {
-        Some(method) => eval_call_object_method(
-            program,
-            state,
-            method,
-            method_name,
-            receiver_pointer,
-            argument_pointers,
-        ),
+        Some(method) => {
+            eval_call_object_method(program, state, method, method_name, receiver_pointer, argument_pointers)
+        }
         None if object_instance.parent.is_null() => {
             // LATER Would be nice to print arguments as well
             bail!(
@@ -580,13 +521,7 @@ fn dispatch_object_method(
                 object_instance
             );
         }
-        None => dispatch_method(
-            program,
-            state,
-            parent_pointer,
-            method_name,
-            argument_pointers,
-        ),
+        None => dispatch_method(program, state, parent_pointer, method_name, argument_pointers),
     }
 }
 

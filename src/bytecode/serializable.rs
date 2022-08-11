@@ -28,10 +28,7 @@ pub fn read_bool<R: Read>(reader: &mut R) -> bool {
     match read_u8(reader) {
         0 => false,
         1 => true,
-        n => panic!(
-            "Problem reading boolfrom data stream: unrecognized value: {}",
-            n
-        ),
+        n => panic!("Problem reading boolfrom data stream: unrecognized value: {}", n),
     }
 }
 
@@ -65,12 +62,8 @@ pub fn read_utf8<R: Read>(reader: &mut R) -> String {
     for i in 0..length {
         bytes[i] = read_u8(reader);
     }
-    String::from_utf8(bytes).unwrap_or_else(|_| {
-        panic!(
-            "Problem reading UTF-8 string of size {} from data sink",
-            length
-        )
-    })
+    String::from_utf8(bytes)
+        .unwrap_or_else(|_| panic!("Problem reading UTF-8 string of size {} from data sink", length))
 }
 
 pub fn read_u16_vector<R: Read>(reader: &mut R) -> Vec<u16> {
@@ -99,9 +92,7 @@ pub fn read_u16_as_usize<R: Read>(reader: &mut R) -> usize {
 
 // Reads u32 and converts it to usize, for compatibility between Rust types and Feeny bytecode.
 pub fn read_u32_as_usize<R: Read>(reader: &mut R) -> usize {
-    read_u32(reader)
-        .try_into()
-        .expect("Couldn't read u32 as usize")
+    read_u32(reader).try_into().expect("Couldn't read u32 as usize")
 }
 
 pub fn write_u8<W: Write>(writer: &mut W, value: u8) -> Result<()> {

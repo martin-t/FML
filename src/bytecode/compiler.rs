@@ -64,11 +64,7 @@ impl LabelGenerator {
         S: Into<String>,
     {
         let name = format!("{}:{}", prefix.into(), group);
-        ensure!(
-            !self.names.contains(&name),
-            "Label `{}` already exists.",
-            name
-        );
+        ensure!(!self.names.contains(&name), "Label `{}` already exists.", name);
         Ok(name)
     }
 
@@ -86,17 +82,13 @@ impl LabelGenerator {
     where
         S: Into<String>,
     {
-        self.generate_name(prefix)
-            .map(|name| ProgramObject::String(name))
+        self.generate_name(prefix).map(|name| ProgramObject::String(name))
     }
 
     pub fn create_group(&mut self) -> LabelGroup<'_> {
         let group = self.groups;
         self.groups += 1;
-        LabelGroup {
-            labels: self,
-            group,
-        }
+        LabelGroup { labels: self, group }
     }
 }
 
@@ -214,10 +206,7 @@ impl Environment {
     }
 
     fn current_scope(&self) -> Scope {
-        *self
-            .scopes
-            .last()
-            .expect("Cannot pop from empty scope stack")
+        *self.scopes.last().expect("Cannot pop from empty scope stack")
     }
 
     pub fn generate_unique_number(&mut self) -> usize {
@@ -280,9 +269,7 @@ impl Environment {
     }
 
     pub fn leave_scope(&mut self) {
-        self.scopes
-            .pop()
-            .expect("Cannot leave scope: the scope stack is empty");
+        self.scopes.pop().expect("Cannot leave scope: the scope stack is empty");
     }
 }
 
@@ -296,11 +283,7 @@ pub trait Compiled {
         keep_result: bool,
     ) -> Result<()>;
 
-    fn compile(
-        &self,
-        global_environment: &mut Environment,
-        current_frame: &mut Frame,
-    ) -> Result<Program> {
+    fn compile(&self, global_environment: &mut Environment, current_frame: &mut Frame) -> Result<Program> {
         let mut program = ProgramGenerator::new();
         let mut active_buffer: Code = Code::new();
         self.compile_into(
