@@ -1,1 +1,3 @@
+# The project was written without using rustfmt
+# and applying it now results in a lot of undesired linebreaks.
 max_width = 120
