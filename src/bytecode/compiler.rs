@@ -1,7 +1,6 @@
 #![allow(clippy::redundant_closure)] // Sometimes it's clearer to name the value explicitly
 
 use std::collections::{HashMap, HashSet};
-use std::ops::Deref;
 
 use anyhow::{ensure, Result};
 
@@ -307,7 +306,6 @@ impl Compiled for AST {
         current_frame: &mut Frame,
         keep_result: bool,
     ) -> Result<()> {
-        #[rustfmt::skip] // It just splits everything into way too many lines
         match self {
             AST::Integer(value) => {
                 let constant = ProgramObject::Integer(*value);
@@ -330,86 +328,101 @@ impl Compiled for AST {
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::Variable { name: Identifier(name), value } => {
-                value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+            AST::Variable {
+                name: Identifier(name),
+                value,
+            } => {
+                value.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 match current_frame {
                     Frame::Local(environment) => {
-                        let index = environment.register_new_local(name)
+                        let index = environment
+                            .register_new_local(name)
                             .unwrap_or_else(|_| panic!("Cannot register new variable {}", &name));
                         active_buffer.emit(OpCode::SetLocal { index });
-                    },
+                    }
                     Frame::Top if !global_environment.in_outermost_scope() => {
-                        let index = global_environment.register_new_local(name)
+                        let index = global_environment
+                            .register_new_local(name)
                             .unwrap_or_else(|_| panic!("Cannot register new variable {}", &name));
                         active_buffer.emit(OpCode::SetLocal { index });
-                    },
+                    }
                     _ => {
                         let name_index = program.constant_pool.register(ProgramObject::from_str(name));
-                        let slot_index =
-                            program.constant_pool.register(ProgramObject::Slot { name: name_index });
-                        program.globals.register(slot_index)
+                        let slot_index = program.constant_pool.register(ProgramObject::Slot { name: name_index });
+                        program
+                            .globals
+                            .register(slot_index)
                             .unwrap_or_else(|_| panic!("Cannot register new global {}", name));
                         active_buffer.emit(OpCode::SetGlobal { name: name_index });
-                    },
+                    }
                 }
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::AccessVariable { name: Identifier(name) } => {
-                match current_frame {
-                    Frame::Local(environment) if environment.has_local(name) => {
-                        let index = environment.register_local(name);
-                        active_buffer.emit(OpCode::GetLocal { index });
-                    },
-                    Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
-                        let index = global_environment.register_local(name);
-                        active_buffer.emit(OpCode::GetLocal { index });
-                    },
-                    _ => {
-                        let index = program.constant_pool.register(ProgramObject::from_str(name));
-                        active_buffer.emit(OpCode::GetGlobal { name: index });
-                    },
+            AST::AccessVariable { name: Identifier(name) } => match current_frame {
+                Frame::Local(environment) if environment.has_local(name) => {
+                    let index = environment.register_local(name);
+                    active_buffer.emit(OpCode::GetLocal { index });
                 }
-            }
+                Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
+                    let index = global_environment.register_local(name);
+                    active_buffer.emit(OpCode::GetLocal { index });
+                }
+                _ => {
+                    let index = program.constant_pool.register(ProgramObject::from_str(name));
+                    active_buffer.emit(OpCode::GetGlobal { name: index });
+                }
+            },
 
-            AST::AssignVariable { name: Identifier(name), value } => {
+            AST::AssignVariable {
+                name: Identifier(name),
+                value,
+            } => {
                 match current_frame {
                     Frame::Local(environment) if environment.has_local(name) => {
                         let index = environment.register_local(name); // FIXME error if does not exists
-                        value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;    // FIXME scoping!!!
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // FIXME scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
-                    },
+                    }
                     Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
                         let index = global_environment.register_local(name); // FIXME error if does not exists
-                        value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;    // FIXME scoping!!!
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // FIXME scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
-                    },
+                    }
                     _ => {
                         let index = program.constant_pool.register(ProgramObject::from_str(name));
-                        value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                         active_buffer.emit(OpCode::SetGlobal { name: index });
-                    },
+                    }
                 }
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::Conditional { condition, consequent, alternative } => {
+            AST::Conditional {
+                condition,
+                consequent,
+                alternative,
+            } => {
                 let label_generator = program.labels.create_group();
                 let consequent_label = label_generator.generate_name("if:consequent")?;
                 let end_label = label_generator.generate_name("if:end")?;
 
-                let consequent_label_index =
-                    program.constant_pool.register(ProgramObject::from_str(&consequent_label));
-                let end_label_index =
-                    program.constant_pool.register(ProgramObject::from_str(&end_label));
+                let consequent_label_index = program
+                    .constant_pool
+                    .register(ProgramObject::from_str(&consequent_label));
+                let end_label_index = program.constant_pool.register(ProgramObject::from_str(&end_label));
 
-                (**condition).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                active_buffer.emit(OpCode::Branch { label: consequent_label_index } );
-                (**alternative).compile_into(program, active_buffer, global_environment, current_frame, keep_result)?;
-                active_buffer.emit(OpCode::Jump { label: end_label_index } );
-                active_buffer.emit(OpCode::Label { name: consequent_label_index });
+                condition.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                active_buffer.emit(OpCode::Branch {
+                    label: consequent_label_index,
+                });
+                alternative.compile_into(program, active_buffer, global_environment, current_frame, keep_result)?;
+                active_buffer.emit(OpCode::Jump { label: end_label_index });
+                active_buffer.emit(OpCode::Label {
+                    name: consequent_label_index,
+                });
                 //program.labels.set(consequent_label, program.code.current_address())?;
-                (**consequent).compile_into(program, active_buffer, global_environment, current_frame, keep_result)?;
+                consequent.compile_into(program, active_buffer, global_environment, current_frame, keep_result)?;
                 active_buffer.emit(OpCode::Label { name: end_label_index });
                 //program.labels.set(end_label, program.code.current_address())?;
             }
@@ -419,19 +432,25 @@ impl Compiled for AST {
                 let body_label = label_generator.generate_name("loop:body")?;
                 let condition_label = label_generator.generate_name("loop:condition")?;
 
-                let body_label_index =
-                    program.constant_pool.register(ProgramObject::from_str(&body_label));
-                let condition_label_index =
-                    program.constant_pool.register(ProgramObject::from_str(&condition_label));
+                let body_label_index = program.constant_pool.register(ProgramObject::from_str(&body_label));
+                let condition_label_index = program
+                    .constant_pool
+                    .register(ProgramObject::from_str(&condition_label));
 
-                active_buffer.emit(OpCode::Jump { label: condition_label_index });
+                active_buffer.emit(OpCode::Jump {
+                    label: condition_label_index,
+                });
                 active_buffer.emit(OpCode::Label { name: body_label_index });
                 //program.labels.set(body_label, program.code.current_address())?;
-                (**body).compile_into(program, active_buffer, global_environment, current_frame, false)?;
-                active_buffer.emit(OpCode::Label { name: condition_label_index });
+                body.compile_into(program, active_buffer, global_environment, current_frame, false)?;
+                active_buffer.emit(OpCode::Label {
+                    name: condition_label_index,
+                });
                 //program.labels.set(condition_label, program.code.current_address())?;
-                (**condition).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                active_buffer.emit(OpCode::Branch { label: body_label_index });
+                condition.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                active_buffer.emit(OpCode::Branch {
+                    label: body_label_index,
+                });
 
                 if keep_result {
                     let constant = ProgramObject::Null;
@@ -441,14 +460,17 @@ impl Compiled for AST {
             }
 
             AST::Array { size, value } => {
-                match value.deref() {
-                    AST::Boolean(_) | AST::Integer(_) | AST::Null |
-                    AST::AccessVariable { name:_ } | AST::AccessField { object:_, field:_ } => {
-                        size.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                        value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                match **value {
+                    AST::Boolean(_)
+                    | AST::Integer(_)
+                    | AST::Null
+                    | AST::AccessVariable { name: _ }
+                    | AST::AccessField { object: _, field: _ } => {
+                        size.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                         active_buffer.emit(OpCode::Array);
                         active_buffer.emit_unless(OpCode::Drop, keep_result);
-                    },
+                    }
                     _ => {
                         let unique_number = global_environment.generate_unique_number();
                         let i_id = Identifier::from(format!("::i_{}", unique_number));
@@ -456,48 +478,43 @@ impl Compiled for AST {
                         let array_id = Identifier::from(format!("::array_{}", unique_number));
 
                         // let ::size = eval SIZE;
-                        let size_definition =
-                            AST::variable(size_id.clone(), *size.clone());
+                        let size_definition = AST::variable(size_id.clone(), *size.clone());
 
                         // let ::array = array(::size, null);
                         let array_definition = AST::variable(
                             array_id.clone(),
-                            AST::array(
-                                AST::access_variable(size_id.clone()),
-                                AST::null()));
+                            AST::array(AST::access_variable(size_id.clone()), AST::null()),
+                        );
 
                         // let ::i = 0;
-                        let i_definition = AST::variable(
-                            i_id.clone(), AST::integer(0));
+                        let i_definition = AST::variable(i_id.clone(), AST::integer(0));
 
                         // ::array[::i] <- eval VALUE;
                         let set_array = AST::assign_array(
                             AST::access_variable(array_id.clone()),
                             AST::access_variable(i_id.clone()),
-                            *value.clone());
+                            *value.clone(),
+                        );
 
                         // ::i <- ::i + 1;
                         let increment_i = AST::assign_variable(
                             i_id.clone(),
-                            AST::operation(
-                                Operator::Addition,
-                                AST::access_variable(i_id.clone()),
-                                AST::Integer(1)));
+                            AST::operation(Operator::Addition, AST::access_variable(i_id.clone()), AST::Integer(1)),
+                        );
 
                         // ::i < ::size
                         let comparison = AST::operation(
                             Operator::Less,
                             AST::access_variable(i_id),
-                            AST::access_variable(size_id));
+                            AST::access_variable(size_id),
+                        );
 
                         // while ::i < ::size do
                         // begin
                         //   ::array[::i] <- eval VALUE;
                         //   ::i <- ::i + 1;
                         // end;
-                        let loop_de_loop = AST::loop_de_loop(
-                            comparison,
-                            AST::block(vec![set_array, increment_i]));
+                        let loop_de_loop = AST::loop_de_loop(comparison, AST::block(vec![set_array, increment_i]));
 
                         // ::array
                         let array = AST::access_variable(array_id);
@@ -511,8 +528,20 @@ impl Compiled for AST {
                         //   ::i <- ::i + 1;
                         // end;
                         // ::array
-                        size_definition.compile_into(program, active_buffer, global_environment, current_frame, false)?;
-                        array_definition.compile_into(program, active_buffer, global_environment, current_frame, false)?;
+                        size_definition.compile_into(
+                            program,
+                            active_buffer,
+                            global_environment,
+                            current_frame,
+                            false,
+                        )?;
+                        array_definition.compile_into(
+                            program,
+                            active_buffer,
+                            global_environment,
+                            current_frame,
+                            false,
+                        )?;
                         i_definition.compile_into(program, active_buffer, global_environment, current_frame, false)?;
                         loop_de_loop.compile_into(program, active_buffer, global_environment, current_frame, false)?;
                         array.compile_into(program, active_buffer, global_environment, current_frame, keep_result)?;
@@ -521,29 +550,36 @@ impl Compiled for AST {
             }
 
             AST::AccessArray { array, index } => {
-                (**array).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                (**index).compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                array.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                index.compile_into(program, active_buffer, global_environment, current_frame, true)?;
 
                 let name = program.constant_pool.register(ProgramObject::String("get".to_string()));
 
-                active_buffer.emit(OpCode::CallMethod { name, arguments: Arity::new(2) });
+                active_buffer.emit(OpCode::CallMethod {
+                    name,
+                    arguments: Arity::new(2),
+                });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
             AST::AssignArray { array, index, value } => {
-                (**array).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                (**index).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                (**value).compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                array.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                index.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                value.compile_into(program, active_buffer, global_environment, current_frame, true)?;
 
                 let name = program.constant_pool.register(ProgramObject::String("set".to_string()));
 
-                active_buffer.emit(OpCode::CallMethod { name, arguments: Arity::new(3) });
+                active_buffer.emit(OpCode::CallMethod {
+                    name,
+                    arguments: Arity::new(3),
+                });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
             AST::Print { format, arguments } => {
-                let format: ConstantPoolIndex =
-                    program.constant_pool.register(ProgramObject::String(format.to_string()));
+                let format: ConstantPoolIndex = program
+                    .constant_pool
+                    .register(ProgramObject::String(format.to_string()));
 
                 for argument in arguments.iter() {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
@@ -554,23 +590,32 @@ impl Compiled for AST {
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::Function { name: Identifier(name), parameters, body } => {
+            AST::Function {
+                name: Identifier(name),
+                parameters,
+                body,
+            } => {
                 // let end_label = program.labels.generate_name(format!("λ:{}", name))?;
                 // let end_label_index =
                 //     program.constant_pool.register(ProgramObject::from_str(&end_label));
 
-
                 let mut function_buffer = Code::new();
                 // function_buffer.emit(OpCode::Jump { label: end_label_index });
 
-
                 let mut child_environment = Environment::new();
-                for parameter in parameters { // TODO Environment::from
+                for parameter in parameters {
+                    // TODO Environment::from
                     child_environment.register_local(parameter.as_str());
                 }
                 let mut child_frame = Frame::Local(child_environment);
 
-                (**body).compile_into(program, &mut function_buffer, global_environment, &mut child_frame, true)?;
+                body.compile_into(
+                    program,
+                    &mut function_buffer,
+                    global_environment,
+                    &mut child_frame,
+                    true,
+                )?;
 
                 let locals_in_frame = match child_frame {
                     Frame::Local(child_environment) => child_environment.count_locals(),
@@ -600,32 +645,48 @@ impl Compiled for AST {
                 program.globals.register(constant)?;
             }
 
-            AST::CallFunction { name: Identifier(name), arguments } => {
+            AST::CallFunction {
+                name: Identifier(name),
+                arguments,
+            } => {
                 let index = program.constant_pool.register(ProgramObject::String(name.to_string()));
                 for argument in arguments.iter() {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 }
                 let arity = Arity::from_usize(arguments.len());
-                active_buffer.emit(OpCode::CallFunction { name: index, arguments: arity });
+                active_buffer.emit(OpCode::CallFunction {
+                    name: index,
+                    arguments: arity,
+                });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
             AST::Object { extends, members } => {
-                (**extends).compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                extends.compile_into(program, active_buffer, global_environment, current_frame, true)?;
 
-                let slots: Result<Vec<ConstantPoolIndex>> = members.iter().map(|m| m.deref()).map(|m| match m {
-                    AST::Function { name, parameters, body } => {
-                        compile_function_definition(name.as_str(), true, parameters, body.deref(),
-                                                    program, global_environment, current_frame)
-
-                    }
-                    AST::Variable { name: Identifier(name), value } => {
-                        (*value).compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                        let index = program.constant_pool.register(ProgramObject::from_str(name));
-                        Ok(program.constant_pool.register(ProgramObject::slot_from_index(index)))
-                    },
-                    _ => panic!("Object definition: cannot define a member from {:?}", m)
-                }).collect();
+                let slots: Result<Vec<ConstantPoolIndex>> = members
+                    .iter()
+                    .map(|m| match &**m {
+                        AST::Function { name, parameters, body } => compile_function_definition(
+                            name.as_str(),
+                            true,
+                            parameters,
+                            body,
+                            program,
+                            global_environment,
+                            current_frame,
+                        ),
+                        AST::Variable {
+                            name: Identifier(name),
+                            value,
+                        } => {
+                            (*value).compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                            let index = program.constant_pool.register(ProgramObject::from_str(name));
+                            Ok(program.constant_pool.register(ProgramObject::slot_from_index(index)))
+                        }
+                        _ => panic!("Object definition: cannot define a member from {:?}", m),
+                    })
+                    .collect();
 
                 let class = ProgramObject::Class(slots?);
                 let class_index = program.constant_pool.register(class);
@@ -643,7 +704,13 @@ impl Compiled for AST {
                 let length = children.len();
                 for (i, child) in children.iter().enumerate() {
                     let last = i + 1 == length;
-                    child.deref().compile_into(program, active_buffer, global_environment, current_frame, last && keep_result)?;
+                    child.compile_into(
+                        program,
+                        active_buffer,
+                        global_environment,
+                        current_frame,
+                        last && keep_result,
+                    )?;
                 }
 
                 match current_frame {
@@ -652,42 +719,58 @@ impl Compiled for AST {
                 }
             }
 
-            AST::AccessField { object, field: Identifier(name) } => {
-                object.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+            AST::AccessField {
+                object,
+                field: Identifier(name),
+            } => {
+                object.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 let index = program.constant_pool.register(ProgramObject::from_str(name));
                 active_buffer.emit(OpCode::GetField { name: index });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::AssignField { object, field: Identifier(name), value } => {
-                object.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
-                value.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+            AST::AssignField {
+                object,
+                field: Identifier(name),
+                value,
+            } => {
+                object.compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                value.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 let index = program.constant_pool.register(ProgramObject::from_str(name));
                 active_buffer.emit(OpCode::SetField { name: index });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::CallMethod { object, name: Identifier(name), arguments } => {
+            AST::CallMethod {
+                object,
+                name: Identifier(name),
+                arguments,
+            } => {
                 let index = program.constant_pool.register(ProgramObject::from_str(name));
-                object.deref().compile_into(program, active_buffer, global_environment, current_frame, true)?;
+                object.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 for argument in arguments.iter() {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 }
                 let arity = Arity::from_usize(arguments.len() + 1);
-                active_buffer.emit(OpCode::CallMethod { name: index, arguments: arity });
+                active_buffer.emit(OpCode::CallMethod {
+                    name: index,
+                    arguments: arity,
+                });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
-            AST::Top (children) => {
-                let function_name_index=
-                    program.constant_pool.register(ProgramObject::from_string("λ:".to_owned()));
+            AST::Top(children) => {
+                let function_name_index = program
+                    .constant_pool
+                    .register(ProgramObject::from_string("λ:".to_owned()));
 
                 let mut top_buffer = Code::new();
 
                 let children_count = children.len();
                 for (i, child) in children.iter().enumerate() {
                     let last = children_count == i + 1;
-                    child.deref().compile_into(program, &mut top_buffer, global_environment, current_frame, last)?;                        // TODO uggo
+                    child.compile_into(program, &mut top_buffer, global_environment, current_frame, last)?;
+                    // TODO ^ uggo
                     // TODO could be cute to pop exit status off of stack
                 }
 
