@@ -455,7 +455,7 @@ fn dispatch_array_method(
     match method_name {
         "get" => dispatch_array_get_method(array, method_name, argument_pointers),
         "set" => dispatch_array_set_method(array, method_name, argument_pointers),
-        // LATER Would be nice to print arguments as well
+        // LATER(martin-t) Would be nice to print arguments as well
         _ => bail!("Call method error: no method `{}` in array `{}`", method_name, array),
     }
 }
@@ -514,7 +514,7 @@ fn dispatch_object_method(
             eval_call_object_method(program, state, method, method_name, receiver_pointer, argument_pointers)
         }
         None if object_instance.parent.is_null() => {
-            // LATER Would be nice to print arguments as well
+            // LATER(martin-t) Would be nice to print arguments as well
             bail!(
                 "Call method error: no method `{}` in object `{}`",
                 method_name,

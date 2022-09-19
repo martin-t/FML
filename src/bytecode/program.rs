@@ -253,7 +253,7 @@ pub enum ProgramObject {
      *
      * Serialized with tag `0x03`.
      */
-    // LATER Consider splitting off into Method struct to avoid fallible functions like `get_method_*`
+    // LATER(martin-t) Consider splitting off into Method struct to avoid fallible functions like `get_method_*`
     Method {
         name: ConstantPoolIndex,
         parameters: Arity,

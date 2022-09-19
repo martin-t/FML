@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 
-#[allow(clippy::vec_box)] // LATER perf
+#[allow(clippy::vec_box)] // LATER(martin-t) perf
 #[derive(PartialEq,Debug,Serialize,Deserialize,Clone)]
 pub enum AST {
     Integer(i32),
