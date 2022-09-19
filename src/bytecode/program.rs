@@ -400,7 +400,7 @@ impl SerializableWithContext for ProgramObject {
         }
     }
 
-    fn from_bytes<R: Read>(input: &mut R, code: &mut Code) -> Self {                                // TODO error handling
+    fn from_bytes<R: Read>(input: &mut R, code: &mut Code) -> Self {                                // LATER(kondziu) error handling
         let tag = serializable::read_u8(input);
         match tag {
             0x00 => ProgramObject::Integer(serializable::read_i32(input)),
@@ -555,7 +555,7 @@ impl std::fmt::Display for Code {
     }
 }
 
-// impl Code { // TODO refactor
+// impl Code { // LATER(kondziu) refactor
 //     pub fn new() -> Code {
 //         Code(Vec::new())
 //     }
@@ -608,7 +608,7 @@ impl std::fmt::Display for Code {
 //         self.opcodes.get(address.value_usize())
 //     }
 //
-//     // pub fn dump(&self) { // TODO pretty print
+//     // pub fn dump(&self) { // LATER(kondziu) pretty print
 //     //     for (i, opcode) in self.opcodes.iter().enumerate() {
 //     //         println!("{}: {:?}", i, opcode);
 //     //     }
@@ -681,7 +681,7 @@ impl Serializable for Program {
         let entry = Entry::from_bytes(input);
 
         let label_names = code.labels();
-        let label_constants = constant_pool.get_all(label_names).unwrap().into_iter();                // TODO error handling
+        let label_constants = constant_pool.get_all(label_names).unwrap().into_iter();                // LATER(kondziu) error handling
         let label_addresses = code.label_addresses().into_iter();
         let labels = Labels::from(label_constants.zip(label_addresses)).unwrap();
 

@@ -474,7 +474,7 @@ impl NamedSource {
                     source: Box::new(BufReader::new(file)),
                 })
                 .map_err(|error| anyhow!("Cannot open file for reading \"{}\": {}", name, error))
-            // TODO maybe directories too?
+            // LATER(kondziu) maybe directories too?
         } else {
             bail!("Cannot convert path into UTF string: {:?}", path)
         }

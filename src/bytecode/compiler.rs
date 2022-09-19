@@ -604,7 +604,7 @@ impl Compiled for AST {
 
                 let mut child_environment = Environment::new();
                 for parameter in parameters {
-                    // TODO Environment::from
+                    // LATER(kondziu) Environment::from
                     child_environment.register_local(parameter.as_str());
                 }
                 let mut child_frame = Frame::Local(child_environment);
@@ -770,8 +770,8 @@ impl Compiled for AST {
                 for (i, child) in children.iter().enumerate() {
                     let last = children_count == i + 1;
                     child.compile_into(program, &mut top_buffer, global_environment, current_frame, last)?;
-                    // TODO ^ uggo
-                    // TODO could be cute to pop exit status off of stack
+                    // LATER(kondziu) ^ uggo
+                    // LATER(kondziu) could be cute to pop exit status off of stack
                 }
 
                 let (start_address, function_length) = program.completed_code.extend(top_buffer);
@@ -818,7 +818,7 @@ fn compile_function_definition(
         child_environment.register_local("this");
     }
     for parameter in parameters {
-        // TODO Environment::from
+        // LATER(kondziu) Environment::from
         child_environment.register_local(parameter.as_str());
     }
     let mut child_frame = Frame::Local(child_environment);

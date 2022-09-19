@@ -22,12 +22,12 @@ pub enum AST {
     AssignArray { array: Box<AST>, index: Box<AST>, value: Box<AST> },
 
     Function { name: Identifier, parameters: Vec<Identifier>, body: Box<AST> },
-    //Operator { operator: Operator, parameters: Vec<Identifier>, body: Box<AST> },    // TODO Consider merging with function
+    //Operator { operator: Operator, parameters: Vec<Identifier>, body: Box<AST> },    // LATER(kondziu) Consider merging with function
 
     CallFunction { name: Identifier, arguments: Vec<Box<AST>> },
     CallMethod { object: Box<AST>, name: Identifier, arguments: Vec<Box<AST>> },
-    //CallOperator { object: Box<AST>, operator: Operator, arguments: Vec<Box<AST>> }, // TODO Consider removing
-    //Operation { operator: Operator, left: Box<AST>, right: Box<AST> },               // TODO Consider removing
+    //CallOperator { object: Box<AST>, operator: Operator, arguments: Vec<Box<AST>> }, // LATER(kondziu) Consider removing
+    //Operation { operator: Operator, left: Box<AST>, right: Box<AST> },               // LATER(kondziu) Consider removing
 
     Top (Vec<Box<AST>>),
     Block (Vec<Box<AST>>),

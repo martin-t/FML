@@ -107,7 +107,7 @@ pub fn eval_literal(program: &Program, state: &mut State, index: &ConstantPoolIn
 
 #[inline(always)]
 pub fn eval_get_local(program: &Program, state: &mut State, index: &LocalFrameIndex) -> Result<()> {
-    // TODO rename LocalFrameIndex to FrameIndex
+    // LATER(kondziu) rename LocalFrameIndex to FrameIndex
     let frame = state.frame_stack.get_locals()?;
     let pointer = *frame.get(index)?;
     state.operand_stack.push(pointer);
@@ -157,7 +157,7 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
     let mut methods = IndexMap::new();
 
     for member in members {
-        // TODO this could probably be a method in ProgramObject, something like: `create prototype object om class`
+        // LATER(kondziu) this could probably be a method in ProgramObject, something like: `create prototype object om class`
         match member {
             ProgramObject::Slot { name: index } => {
                 let program_object = program.constant_pool.get(index)?;
@@ -165,7 +165,7 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
                 slots.push(name);
             }
             ProgramObject::Method { name: index, .. } => {
-                // TODO, probably don't need to store methods, tbh, just the class, which would simplify this a lot
+                // LATER(kondziu), probably don't need to store methods, tbh, just the class, which would simplify this a lot
                 let program_object = program.constant_pool.get(index)?;
                 let name = program_object.as_str()?.to_owned();
                 let previous = methods.insert(name.clone(), member.clone());
@@ -193,7 +193,7 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
 
     let parent = state.operand_stack.pop()?;
 
-    let heap_index = state.heap.allocate(HeapObject::new_object(parent, fields, methods)); // TODO simplify
+    let heap_index = state.heap.allocate(HeapObject::new_object(parent, fields, methods)); // LATER(kondziu) simplify
     state.operand_stack.push(Pointer::from(heap_index));
     state.instruction_pointer.bump(program);
     Ok(())

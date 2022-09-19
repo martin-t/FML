@@ -225,8 +225,8 @@ impl std::fmt::Display for ArrayInstance {
 #[derive(Eq, PartialEq, Debug, Clone, Default)]
 pub struct ObjectInstance {
     pub parent: Pointer,
-    pub fields: IndexMap<String, Pointer>, // TODO make private
-    pub methods: IndexMap<String, ProgramObject> // TODO make private
+    pub fields: IndexMap<String, Pointer>, // LATER(kondziu) make private
+    pub methods: IndexMap<String, ProgramObject> // LATER(kondziu) make private
 }
 
 impl ObjectInstance {
@@ -425,7 +425,7 @@ impl Pointer {
         }
     }
 
-    pub fn evaluate_as_string(&self, heap: &Heap) -> Result<String> { // TODO trait candidate
+    pub fn evaluate_as_string(&self, heap: &Heap) -> Result<String> { // LATER(kondziu) trait candidate
         match self {
             Pointer::Null => Ok("null".to_owned()),
             Pointer::Integer(i) => Ok(i.to_string()),

@@ -229,7 +229,7 @@ impl State {
     //     self.heap.set_log(heap_log);
     //     self
     // }
-    pub fn from(program: &Program) -> Result<Self> {                                                // TODO error handling is a right mess here.
+    pub fn from(program: &Program) -> Result<Self> {                                                // LATER(kondziu) error handling is a right mess here.
 
         let entry_index = program.entry.get()
             .with_context(|| "Cannot find entry method.")?;

@@ -183,7 +183,7 @@ impl UglyPrintWithContext for ProgramObject {
                 write_string!(sink, 0, ") :");
 
                 for opcode in code.materialize(range).unwrap() {
-                    // TODO error handling ^
+                    // LATER(kondziu) error handling ^
                     write_string!(sink, 0, "\n");
                     //println!("indent {:?} {} -> {} ", self, indent, further!(indent));
                     opcode.pretty_print_indent(sink, further!(indent))
@@ -283,6 +283,6 @@ impl UglyPrint for Program {
             write_string!(sink, 0, "\n");
         }
         write_string!(sink, indent, "Entry : ");
-        self.entry.get().unwrap().pretty_print_no_indent(sink); // TODO error handling
+        self.entry.get().unwrap().pretty_print_no_indent(sink); // LATER(kondziu) error handling
     }
 }

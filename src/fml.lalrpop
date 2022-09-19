@@ -219,7 +219,7 @@ Conditional<openness>: AST = {
         AST::conditional(condition, consequent, AST::null()),
 }
 
-Print: AST = { // TODO format string check
+Print: AST = { // LATER(kondziu) format string check
     PRINT LPAREN <format: String> <arguments: (COMMA <Arguments>)?> RPAREN => {
         // let boxed_arguments: Vec<Box<AST>> = match arguments {
         //     Some(arguments) => arguments.into_iter().map( | e | Box::new(e)).collect(),
