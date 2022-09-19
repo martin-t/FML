@@ -380,13 +380,13 @@ impl Compiled for AST {
             } => {
                 match current_frame {
                     Frame::Local(environment) if environment.has_local(name) => {
-                        let index = environment.register_local(name); // FIXME error if does not exists
-                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // FIXME scoping!!!
+                        let index = environment.register_local(name); // LATER(kondziu,fixme) error if does not exists
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // LATER(kondziu,fixme) scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
                     }
                     Frame::Top if !global_environment.in_outermost_scope() && global_environment.has_local(name) => {
-                        let index = global_environment.register_local(name); // FIXME error if does not exists
-                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // FIXME scoping!!!
+                        let index = global_environment.register_local(name); // LATER(kondziu,fixme) error if does not exists
+                        value.compile_into(program, active_buffer, global_environment, current_frame, true)?; // LATER(kondziu,fixme) scoping!!!
                         active_buffer.emit(OpCode::SetLocal { index });
                     }
                     _ => {

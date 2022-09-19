@@ -533,7 +533,7 @@ fn eval_call_object_method(
     pointer: Pointer,
     argument_pointers: Vec<Pointer>,
 ) -> Result<()> {
-    let parameters = method.get_method_parameters()?; // FIXME perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
+    let parameters = method.get_method_parameters()?; // LATER(kondziu,fixme) perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
     let locals = method.get_method_locals()?;
     let address = method.get_method_start_address()?;
 
@@ -569,7 +569,7 @@ pub fn eval_call_function(
     let function_index = state.frame_stack.functions.get(name)?;
     let function = program.constant_pool.get(function_index)?;
 
-    let parameters = function.get_method_parameters()?; // FIXME perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
+    let parameters = function.get_method_parameters()?; // LATER(kondziu,fixme) perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
     let locals = function.get_method_locals()?;
     let address = function.get_method_start_address()?;
 

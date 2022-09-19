@@ -436,7 +436,7 @@ use crate::bytecode::compiler::*;
     assert_eq!(current_frame, expected_current_frame);
 }
 
-#[test] fn array_definition_complex_test() { // FIXME test is wrong
+#[test] fn array_definition_complex_test() { // LATER(kondziu,fixme) test is wrong
     let ast = AST::Array {
         size: Box::new(AST::Integer(10)),
         value: Box::new(AST::CallFunction {

@@ -104,7 +104,7 @@ impl std::fmt::Display for Entry {
 }
 
 #[derive(Eq, PartialEq, Debug)]
-pub struct Labels { names: HashMap<String, Address> } // FIXME clean up
+pub struct Labels { names: HashMap<String, Address> } // LATER(kondziu,fixme) clean up
 impl Labels {
     #[allow(dead_code)]
     pub fn new() -> Self { Labels { names: HashMap::new() } }
