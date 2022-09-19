@@ -30,7 +30,7 @@ pub enum OpCode {
      * [ProgramObject::Integer]: ../objects/enum.ProgramObject.html#variant.Integer
      * [ProgramObject::Null]: ../objects/enum.ProgramObject.html#variant.Null
      */
-    // LATER a type safe way to ConstantPoolIndex to the right constant type?
+    // LATER A type safe way to limit ConstantPoolIndex to the right constant type(s)?
     Literal {
         /// Integer|Null|Boolean
         index: ConstantPoolIndex,
