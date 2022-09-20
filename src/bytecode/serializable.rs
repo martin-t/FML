@@ -101,7 +101,7 @@ pub fn write_u8<W: Write>(writer: &mut W, value: u8) -> Result<()> {
 }
 
 pub fn write_bool<W: Write>(writer: &mut W, value: bool) -> Result<()> {
-    let byte = if value { 1 } else { 0 };
+    let byte = u8::from(value);
     writer.write_all(&[byte])?;
     Ok(())
 }

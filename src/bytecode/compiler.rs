@@ -811,7 +811,7 @@ fn compile_function_definition(
     let mut function_buffer = Code::new();
     // function_buffer.emit(OpCode::Jump { label: end_label_index });
 
-    let expected_arguments = parameters.len() + if receiver { 1 } else { 0 };
+    let expected_arguments = parameters.len() + usize::from(receiver);
 
     let mut child_environment = Environment::new();
     if receiver {

@@ -177,7 +177,7 @@ impl ArrayInstance {
         ArrayInstance(vec![])
     }
     #[allow(dead_code)]
-    pub fn iter<'a>(&'a self) -> impl Iterator<Item=&Pointer> + 'a {
+    pub fn iter(&self) -> impl Iterator<Item=&Pointer> {
         self.0.iter()
     }
     #[allow(dead_code)]
