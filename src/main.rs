@@ -104,12 +104,7 @@ struct BytecodeInterpreterAction {
 #[derive(Args, Debug)]
 #[clap(about = "Compiles an FML AST into bytecode")]
 struct CompilerAction {
-    #[clap(
-        short = 'o',
-        long = "output-path",
-        alias = "output-dir",
-        parse(from_os_str)
-    )]
+    #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
     pub output: Option<PathBuf>,
 
     #[clap(name = "FILE", parse(from_os_str))]
@@ -135,12 +130,7 @@ struct CompilerAction {
 #[derive(Args, Debug)]
 #[clap(about = "Parses FML source code and outputs an AST")]
 struct ParserAction {
-    #[clap(
-        short = 'o',
-        long = "output-path",
-        alias = "output-dir",
-        parse(from_os_str)
-    )]
+    #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
     pub output: Option<PathBuf>,
 
     #[clap(name = "FILE", parse(from_os_str))]
@@ -161,12 +151,7 @@ macro_rules! prepare_file_path_from_input_and_serializer {
             if path.is_dir() {
                 let mut file = path.clone();
                 let filename = match $self.selected_input().unwrap().name {
-                    Stream::File(file) => PathBuf::from(file)
-                        .file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .to_owned(),
+                    Stream::File(file) => PathBuf::from(file).file_name().unwrap().to_str().unwrap().to_owned(),
                     Stream::Console => "ast".to_owned(),
                 };
                 let extension = $self.selected_output_format().extension();
@@ -190,8 +175,7 @@ impl RunAction {
 
         let program = bytecode::compile(&ast).expect("Compiler error");
 
-        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone())
-            .expect("Interpreter error")
+        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone()).expect("Interpreter error")
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -209,8 +193,7 @@ impl BytecodeInterpreterAction {
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
-        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone())
-            .expect("Interpreter error")
+        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone()).expect("Interpreter error")
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -238,12 +221,8 @@ impl BytecodeDisassemblerAction {
 
 impl CompilerAction {
     pub fn compile(&self) {
-        let source = self
-            .selected_input()
-            .expect("Cannot open an input for the compiler.");
-        let mut sink = self
-            .selected_output()
-            .expect("Cannot open an output for the compiler.");
+        let source = self.selected_input().expect("Cannot open an input for the compiler.");
+        let mut sink = self.selected_output().expect("Cannot open an output for the compiler.");
         let input_serializer = self
             .selected_input_format()
             .expect("Cannot derive input format from file path. Consider setting it explicitly.");
@@ -288,12 +267,8 @@ impl CompilerAction {
 
 impl ParserAction {
     pub fn parse(&self) {
-        let source = self
-            .selected_input()
-            .expect("Cannot open an input for the parser.");
-        let mut sink = self
-            .selected_output()
-            .expect("Cannot open an output for the parser.");
+        let source = self.selected_input().expect("Cannot open an input for the parser.");
+        let mut sink = self.selected_output().expect("Cannot open an output for the parser.");
         let serializer = self.selected_output_format();
 
         let ast: AST = TopLevelParser::new()
@@ -359,10 +334,7 @@ impl std::str::FromStr for BCSerializer {
         match s.to_lowercase().as_str() {
             "bytes" | "bc" | "bytecode" => Ok(Self::Bytes),
             "string" | "str" | "pp" | "pretty" | "print" => Ok(Self::String),
-            format => Err(anyhow::anyhow!(
-                "Unknown BC serialization format: {}",
-                format
-            )),
+            format => Err(anyhow::anyhow!("Unknown BC serialization format: {}", format)),
         }
     }
 }
@@ -423,10 +395,7 @@ impl std::str::FromStr for ASTSerializer {
             "lisp" | "sexp" | "sexpr" => Ok(Self::Lisp),
             "yaml" => Ok(Self::Yaml),
             "rust" | "internal" | "debug" => Ok(Self::Internal),
-            format => Err(anyhow::anyhow!(
-                "Unknown AST serialization format: {}",
-                format
-            )),
+            format => Err(anyhow::anyhow!("Unknown AST serialization format: {}", format)),
         }
     }
 }
@@ -460,7 +429,7 @@ impl NamedSource {
             None => NamedSource::console(),
         }
     }
-    
+
     fn console() -> Result<NamedSource> {
         let named_source = NamedSource {
             name: Stream::Console,
@@ -491,9 +460,7 @@ impl NamedSource {
 
     fn extension(&self) -> Option<String> {
         match &self.name {
-            Stream::File(file) => PathBuf::from(file)
-                .extension()
-                .map(|s| s.to_str().unwrap().to_owned()),
+            Stream::File(file) => PathBuf::from(file).extension().map(|s| s.to_str().unwrap().to_owned()),
             Stream::Console => None,
         }
     }
@@ -563,9 +530,7 @@ impl NamedSink {
     #[allow(dead_code)]
     fn extension(&self) -> Option<String> {
         match &self.name {
-            Stream::File(file) => PathBuf::from(file)
-                .extension()
-                .map(|s| s.to_str().unwrap().to_owned()),
+            Stream::File(file) => PathBuf::from(file).extension().map(|s| s.to_str().unwrap().to_owned()),
             Stream::Console => None,
         }
     }
