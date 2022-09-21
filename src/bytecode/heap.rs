@@ -42,7 +42,7 @@ macro_rules! heap_log {
 
 #[derive(Debug, Default)]
 pub struct Heap {
-    max_size: usize,
+    trigger_size: usize,
     size: usize,
     log: Option<File>,
     memory: Vec<HeapObject>,
@@ -56,9 +56,10 @@ impl PartialEq for Heap {
 }
 
 impl Heap {
-    pub fn set_size(&mut self, size: usize /* in MB */) {
-        self.max_size = size * 1024 * 1024 /* in B */
+    pub fn set_size(&mut self, size_mb: usize) {
+        self.trigger_size = size_mb * 1024 * 1024;
     }
+
     pub fn set_log(&mut self, path: PathBuf) {
         let mut dir = path.clone();
         dir.pop();
@@ -68,11 +69,13 @@ impl Heap {
         writeln!(file, "timestamp,event,heap").unwrap();
 
         heap_log!(START -> Some(&mut file));
-        self.log = Some(file)
+        self.log = Some(file);
     }
+
     pub fn new() -> Self {
         Heap::default()
     }
+
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
         heap_log!(ALLOCATE -> self.log, self.size);
@@ -80,11 +83,13 @@ impl Heap {
         self.memory.push(object);
         index
     }
+
     pub fn dereference(&self, index: &HeapIndex) -> Result<&HeapObject> {
         self.memory
             .get(index.as_usize())
             .with_context(|| format!("Cannot dereference object from the heap at index: `{}`", index))
     }
+
     pub fn dereference_mut(&mut self, index: &HeapIndex) -> Result<&mut HeapObject> {
         self.memory
             .get_mut(index.as_usize())
@@ -96,7 +101,7 @@ impl From<Vec<HeapObject>> for Heap {
     fn from(objects: Vec<HeapObject>) -> Self {
         Heap {
             size: objects.iter().map(|o| o.size()).sum(),
-            max_size: 0,
+            trigger_size: 0,
             log: None,
             memory: objects,
         }

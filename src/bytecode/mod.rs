@@ -1,15 +1,15 @@
 use crate::parser::AST;
 
 // LATER(martin-t) Remove rustfmt::skip
-pub(crate) mod opcodes;
-pub(crate) mod compiler;
-pub(crate) mod debug;
-pub mod program;
-pub mod serializable;
+pub mod compiler;
+pub mod debug;
 pub mod interpreter;
+#[rustfmt::skip] pub mod opcodes;
+#[rustfmt::skip] pub mod program;
+pub mod serializable;
 #[rustfmt::skip] #[macro_use] mod helpers;
 pub mod heap;
-pub mod state;
+#[rustfmt::skip] pub mod state;
 
 use anyhow::Result;
 

@@ -58,7 +58,7 @@ impl LabelGenerator {
         }
     }
 
-    pub(crate) fn generate_name_within_group<S>(&self, prefix: S, group: usize) -> Result<String>
+    pub fn generate_name_within_group<S>(&self, prefix: S, group: usize) -> Result<String>
     where
         S: Into<String>,
     {

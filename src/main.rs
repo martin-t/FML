@@ -10,7 +10,6 @@ extern crate lalrpop_util;
 lalrpop_mod!(#[allow(clippy::all)] pub fml);
 
 // LATER(martin-t) Remove rustfmt::skip
-#[rustfmt::skip]
 mod bytecode;
 #[rustfmt::skip]
 mod parser;
@@ -66,7 +65,7 @@ struct RunAction {
         help = "Maximum heap size in megabytes",
         default_value = "0"
     )]
-    pub heap_size: usize,
+    pub heap_size_mb: usize,
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
@@ -95,7 +94,7 @@ struct BytecodeInterpreterAction {
         help = "Maximum heap size in megabytes",
         default_value = "0"
     )]
-    pub heap_size: usize,
+    pub heap_size_mb: usize,
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
@@ -179,7 +178,7 @@ impl RunAction {
 
         let program = bytecode::compile(&ast).expect("Compiler error");
 
-        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone()).expect("Interpreter error")
+        evaluate_with_memory_config(&program, self.heap_size_mb, self.heap_log.clone()).expect("Interpreter error")
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -197,7 +196,7 @@ impl BytecodeInterpreterAction {
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
-        evaluate_with_memory_config(&program, self.heap_size, self.heap_log.clone()).expect("Interpreter error")
+        evaluate_with_memory_config(&program, self.heap_size_mb, self.heap_log.clone()).expect("Interpreter error")
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {

@@ -64,7 +64,7 @@ impl From<Vec<Pointer>> for OperandStack {
 }
 
 #[derive(Eq, PartialEq, Debug)]
-pub struct Frame { pub(crate) return_address: Option<Address>, locals: Vec<Pointer> }
+pub struct Frame { pub return_address: Option<Address>, locals: Vec<Pointer> }
 impl Frame {
     pub fn new() -> Self {
         Frame { locals: Vec::new(), return_address: None }
