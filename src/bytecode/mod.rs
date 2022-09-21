@@ -8,7 +8,7 @@ pub mod program;
 pub mod serializable;
 pub mod interpreter;
 #[rustfmt::skip] #[macro_use] mod helpers;
-#[rustfmt::skip] pub mod heap;
+pub mod heap;
 pub mod state;
 
 use anyhow::Result;
