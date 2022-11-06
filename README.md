@@ -763,24 +763,15 @@ You can make the project compile significantly faster and iterate quicker:
 
 ### Prevent rust-analyzer from locking the `target` directory
 
-Add this to your VSCode config (or something similar for your editor):
+If you're using RA with `clippy` instead of `check`, add this to your VSCode config (or something similar for your editor):
 
 ```json
 "rust-analyzer.server.extraEnv": {
-    "CARGO_TARGET_DIR": "target-ra"
-},
-"rust-analyzer.files.excludeDirs": [
-  "target-ra/"
-]
+    "CARGO_TARGET_DIR": "target/ra"
+}
 ```
 
-Explanation: Normally, rust-analyzer runs `cargo check` (or `cargo clippy`) on save which locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build. This will make rust-analyzer make use a separate target directory so that it blocks the build less often at the expense of more disk space.
-
-* There can still be occassional blocking - probably when something touches `Cargo.lock`.
-* The amount of space used seems somewhat less than double of the normal shared `target`.
-* Excluding `target-ra` is not necessary but if it contains generated code, sometimes RA reports warnings in it as well. Likely an RA bug.
-
-Alternatively, you could disable saving when losing focus, disable running check on save or use the terminal inside VSCode to build the project.
+Explanation: Normally, if rust-analyzer runs `cargo clippy` on save, it locks `target` so if you switch to a terminal and do `cargo run`, it blocks the build for over a second which is currently a third of the build time. This will make rust-analyzer make use a separate target directory so that it'll never block a build at the expense of slightly more disk space (but not double since most files don't seem to be shared between cargo and RA). Alternatively, you could disable saving when losing focus, disable running check on save or use the terminal inside VSCode to build the project.
 
 ### On linux, use the `mold` linker
 
