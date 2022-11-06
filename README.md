@@ -9,12 +9,13 @@ ML-like syntax. The features are selected to make the language small and quick
 to implement, but to make the runtime implementation non-trivial.
 
 Features:
-  * object-oriented
-  * inheritence
-  * dynamically typed
-  * overrideable operators
-  * dynamic dispatch
-  * pass by reference
+
+* object-oriented
+* inheritence
+* dynamically typed
+* overrideable operators
+* dynamic dispatch
+* pass by reference
 
 The name FML is accidental, but turned out to be archetypal nevertheless.
 
@@ -26,44 +27,44 @@ FML is a rust project hosted on Github.
 
 Getting Rust (https://www.rust-lang.org/tools/install):
 
-```
+```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 ## Getting the code
 
-```
+```bash
 git clone https://github.com/kondziu/FML.git
 ```
 
 ## Compilation
 
-```
+```bash
 cd FML;
 cargo build --release
 ```
 
 Running:
 
-```
+```bash
 cargo run --release
 ```
 
 or
 
-```
+```bash
 target/release/fml
 ```
 
 If you're going to use the interpreter, I recommend using it through rlwrap.
 
-```
+```bash
 rlwrap cargo run --release
 ```
 
-or 
+or
 
-```
+```bash
 rlwrap target/release/fml
 ```
 
@@ -71,7 +72,7 @@ rlwrap target/release/fml
 
 Run an FML program:
 
-```
+```bash
 fml run examples/hello_world.fml
 ```
 
@@ -81,21 +82,21 @@ The execution always parses the FML source code, compiles it into bytecode, and 
 
 Parse the FML source into an AST in the form of a LISP S-expression:
 
-```
-fml parse examples/hello_world.fml -o examples/hello_world.ast --format=lisp       
+```bash
+fml parse examples/hello_world.fml -o examples/hello_world.ast --format=lisp
 ```
 
 Other formats include JSON and YAML.
 
 Compile LISP S-expression into bytecode:
 
-```
+```bash
 fml compile examples/hello_world.ast -o examples/hello_world.bc --input-format=lisp --output-format=bytes
 ```
 
 Execute bytecode:
 
-```
+```bash
 target/release/fml execute examples/hello_world.bc
 ```
 
@@ -143,7 +144,7 @@ FML has five types: integer, boolean, unit, objects, and arrays.
 *Note:* The semicolon `;` is used to separate two expressions, it's not a part
 of the literal.
 
-Integers have the following operators defined on them: 
+Integers have the following operators defined on them:
 
 ```fml
 5  + 7;   //    12
@@ -226,12 +227,12 @@ consecutive arguments to `print`:
 print("~ and ~ and ~ and ~\n", 1, 2, 3, 4)  // prints: 1 and 2 and 3 and 4
 ```
 
-The result of `print` is unit. 
+The result of `print` is unit.
 
 ## Variables
 
 FML uses the `let` keyword and `=` for declaration. A variable is given a name
-and an initial value. 
+and an initial value.
 
 ```fml
 let answer = 42;
@@ -271,8 +272,6 @@ operator `<-`.
 let answer = null;
 answer <- 42;
 ```
-
-
 
 ## Blocks of expressions
 
@@ -425,12 +424,14 @@ print("~\n", x)      // 2 * 2 + 1 = 5
 
 If a function's body requires more than one expression, use a block:
 
-function ff(x, y) -> 
+```fml
+function ff(x, y) ->
 begin
   let a = 2 * x;
   let b = y;
   a + b
 end;
+```
 
 FML functions pass arguments in by reference (or rather, the reference is
 copied)---it's explained later where it matters.
@@ -506,7 +507,7 @@ f(a);
 print("~\n", a);                // [null, -42, null, ] 
 ```
 
-## Objects 
+## Objects
 
 Objects are declared by defining an anonymous instance with optional
 inheritence declarations and a possibly-empty list of members.
@@ -580,7 +581,7 @@ point.print()
 
 ### Operators
 
-It is possible to deifne functions that overload operators. 
+It is possible to deifne functions that overload operators.
 
 ```fml
 function new(x) ->
@@ -681,7 +682,7 @@ arr.get(0);
 ### Inheritence
 
 The FML language supports inheritence. An object's parent is specified after
-the `object` keyword with the `extends` keyword. 
+the `object` keyword with the `extends` keyword.
 
 ```fml
 let pseudo_one = object extends 1 begin end;
@@ -690,9 +691,7 @@ print("~\n", pseudo_one + 2);
 print("~\n", pseudo_two + 1);
 ```
 
-But not `pseudo_one + pseudo_two`, because `pseudo_one` delagates to `1`, and `1
-+ pseudo_two` will fail.
-
+But not `pseudo_one + pseudo_two`, because `pseudo_one` delagates to `1`, and `1 + pseudo_two` will fail.
 
 Method dispatch looks at methods in the current object. If none are found, it
 looks in the parent object, and continues looking until there is no parent
