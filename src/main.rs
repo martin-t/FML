@@ -61,16 +61,14 @@ struct RunAction {
     pub input: Option<PathBuf>,
     #[clap(
         long = "heap-size",
-        name = "MBs",
-        help = "Maximum heap size in megabytes",
-        default_value = "0"
+        name = "BYTES",
+        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)",
     )]
-    pub heap_size_mb: usize,
+    pub heap_gc_size: Option<String>,
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
         help = "Path to heap log, if none, the log is not produced",
-        parse(from_os_str),
         parse(from_os_str)
     )]
     pub heap_log: Option<PathBuf>,
@@ -90,11 +88,11 @@ struct BytecodeInterpreterAction {
     pub input: Option<PathBuf>,
     #[clap(
         long = "heap-size",
-        name = "MBs",
-        help = "Maximum heap size in megabytes",
-        default_value = "0"
+        name = "BYTES",
+        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)",
     )]
-    pub heap_size_mb: usize,
+    // LATER(martin-t) Would be nice to parse it using clap and use Option<usize>
+    pub heap_gc_size: Option<String>,
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
@@ -168,6 +166,23 @@ macro_rules! prepare_file_path_from_input_and_serializer {
     };
 }
 
+fn parse_size(mut size: &str) -> Result<usize> {
+    let multiplier = if size.ends_with('G') {
+        1024 * 1024 * 1024
+    } else if size.ends_with('M') {
+        1024 * 1024
+    } else if size.ends_with('k') {
+        1024
+    } else {
+        1
+    };
+    if multiplier > 1 {
+        size = &size[..size.len() - 1];
+    }
+    let size = size.parse::<usize>()?;
+    Ok(size * multiplier)
+}
+
 impl RunAction {
     pub fn run(&self) {
         let source = self.selected_input().expect("Cannot open FML program.");
@@ -178,7 +193,12 @@ impl RunAction {
 
         let program = bytecode::compile(&ast).expect("Compiler error");
 
-        evaluate_with_memory_config(&program, self.heap_size_mb, self.heap_log.clone()).expect("Interpreter error")
+        let gc_size = self
+            .heap_gc_size
+            .as_ref()
+            .map(|size| parse_size(size).expect("Cannot parse heap size"));
+
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -196,7 +216,12 @@ impl BytecodeInterpreterAction {
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
-        evaluate_with_memory_config(&program, self.heap_size_mb, self.heap_log.clone()).expect("Interpreter error")
+        let gc_size = self
+            .heap_gc_size
+            .as_ref()
+            .map(|size| parse_size(size).expect("Cannot parse heap size"));
+
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {

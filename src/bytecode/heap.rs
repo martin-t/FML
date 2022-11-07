@@ -42,7 +42,7 @@ macro_rules! heap_log {
 
 #[derive(Debug, Default)]
 pub struct Heap {
-    trigger_size: usize,
+    gc_size: Option<usize>,
     size: usize,
     log: Option<File>,
     memory: Vec<HeapObject>,
@@ -56,8 +56,8 @@ impl PartialEq for Heap {
 }
 
 impl Heap {
-    pub fn set_size(&mut self, size_mb: usize) {
-        self.trigger_size = size_mb * 1024 * 1024;
+    pub fn set_gc_size(&mut self, size: Option<usize>) {
+        self.gc_size = size;
     }
 
     pub fn set_log(&mut self, path: PathBuf) {
@@ -100,8 +100,8 @@ impl Heap {
 impl From<Vec<HeapObject>> for Heap {
     fn from(objects: Vec<HeapObject>) -> Self {
         Heap {
+            gc_size: None,
             size: objects.iter().map(|o| o.size()).sum(),
-            trigger_size: 0,
             log: None,
             memory: objects,
         }
