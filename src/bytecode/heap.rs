@@ -78,6 +78,7 @@ impl Heap {
 
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
+        dbg!(object.size(), &object);
         heap_log!(ALLOCATE -> self.log, self.size);
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
@@ -180,6 +181,8 @@ impl HeapObject {
                     .map(|(string, program_object)| {
                         string.len()
                             + match program_object {
+                                // TODO Maybe this should store just const pool index?
+                                // TODO Maybe simplify - check variant and do size_of on program_object?
                                 ProgramObject::Method { .. } => {
                                     size_of::<ConstantPoolIndex>()
                                         + size_of::<Arity>()
