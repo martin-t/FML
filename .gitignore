@@ -1,3 +1,4 @@
+/heap*.log
 /tests/*/*.out
 /tests/*/*.diff
 
