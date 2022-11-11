@@ -38,8 +38,11 @@ jobs:
       - run: cargo build --verbose --all-features
       - run: cargo test --verbose --all-features
       # TODO regenerate BC test files, check nothing changed
+      # Need to specify shell, otherwise this always succeeds on windows without running any tests
       - run: tests/test_run.sh
+        shell: bash
       - run: tests/test_execute.sh
+        shell: bash
 
   format:
     runs-on: ubuntu-latest
