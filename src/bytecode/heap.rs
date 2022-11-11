@@ -78,7 +78,6 @@ impl Heap {
 
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
-        dbg!(object.size(), &object);
         heap_log!(ALLOCATE -> self.log, self.size);
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
