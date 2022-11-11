@@ -31,7 +31,11 @@ pub fn evaluate(program: &Program) -> Result<()> {
     evaluate_with(program, &mut state, &mut output)
 }
 
-pub fn evaluate_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
+pub fn evaluate_with_memory_config(
+    program: &Program,
+    heap_gc_size: Option<usize>,
+    heap_log: Option<PathBuf>,
+) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
     if let Some(log) = heap_log {

@@ -62,7 +62,7 @@ struct RunAction {
     #[clap(
         long = "heap-size",
         name = "BYTES",
-        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)",
+        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)"
     )]
     pub heap_gc_size: Option<String>,
     #[clap(
@@ -89,7 +89,7 @@ struct BytecodeInterpreterAction {
     #[clap(
         long = "heap-size",
         name = "BYTES",
-        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)",
+        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)"
     )]
     // LATER(martin-t) Would be nice to parse it using clap and use Option<usize>
     pub heap_gc_size: Option<String>,
