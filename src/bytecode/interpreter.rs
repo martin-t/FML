@@ -4,7 +4,6 @@ use crate::bytecode::heap::*;
 use crate::bytecode::opcodes::OpCode;
 
 use anyhow::{bail, ensure, Context, Result};
-use std::iter::repeat;
 
 use crate::veccat;
 
@@ -215,7 +214,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
         n
     );
 
-    let elements = repeat(initializer).take(n as usize).collect();
+    let elements = vec![initializer; n as usize];
     let array = HeapObject::from_pointers(elements);
 
     let heap_index = state.heap.allocate(array);
@@ -549,7 +548,7 @@ fn eval_call_object_method(
         argument_pointers.len()
     );
 
-    let local_pointers = locals.make_vector(Pointer::Null);
+    let local_pointers = vec![Pointer::Null; locals.to_usize()];
 
     state.instruction_pointer.bump(program);
     let frame = Frame::from(
@@ -586,7 +585,7 @@ pub fn eval_call_function(
     );
 
     let argument_pointers = state.operand_stack.pop_sequence(arguments.to_usize())?;
-    let local_pointers = locals.make_vector(Pointer::Null);
+    let local_pointers = vec![Pointer::Null; locals.to_usize()];
 
     state.instruction_pointer.bump(program);
     let frame = Frame::from(

@@ -4,9 +4,9 @@ use indexmap::IndexMap;
 use crate::bytecode::program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size};
 use crate::bytecode::state::OperandStack;
 
-use std::fs::{create_dir_all, File};
+use std::fs::{self, File};
 use std::io::Write;
-use std::mem::size_of;
+use std::mem;
 use std::path::PathBuf;
 use std::time::SystemTime;
 
@@ -63,7 +63,7 @@ impl Heap {
     pub fn set_log(&mut self, path: PathBuf) {
         let mut dir = path.clone();
         dir.pop();
-        create_dir_all(dir).unwrap();
+        fs::create_dir_all(dir).unwrap();
 
         let mut file = File::create(path).unwrap();
         writeln!(file, "timestamp,event,heap").unwrap();
@@ -78,6 +78,7 @@ impl Heap {
 
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
+        //dbg!(object.size(), &object); // LATER(martin-t) Remove
         heap_log!(ALLOCATE -> self.log, self.size);
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
@@ -166,13 +167,13 @@ impl HeapObject {
     }
     pub fn size(&self) -> usize {
         match self {
-            HeapObject::Array(array) => size_of::<ArrayInstance>() + array.length() * size_of::<Pointer>(),
+            HeapObject::Array(array) => mem::size_of::<ArrayInstance>() + array.length() * mem::size_of::<Pointer>(),
             HeapObject::Object(object) => {
-                let header = size_of::<ObjectInstance>();
+                let header = mem::size_of::<ObjectInstance>();
                 let fields: usize = object
                     .fields
                     .iter()
-                    .map(|(string, _pointer)| string.len() + size_of::<Pointer>())
+                    .map(|(string, _pointer)| string.len() + mem::size_of::<Pointer>())
                     .sum();
                 let methods: usize = object
                     .methods
@@ -181,12 +182,12 @@ impl HeapObject {
                         string.len()
                             + match program_object {
                                 // TODO Maybe this should store just const pool index?
-                                // TODO Maybe simplify - check variant and do size_of on program_object?
+                                // TODO Maybe simplify - check variant and do mem::size_of on program_object?
                                 ProgramObject::Method { .. } => {
-                                    size_of::<ConstantPoolIndex>()
-                                        + size_of::<Arity>()
-                                        + size_of::<Size>()
-                                        + size_of::<AddressRange>()
+                                    mem::size_of::<ConstantPoolIndex>()
+                                        + mem::size_of::<Arity>()
+                                        + mem::size_of::<Size>()
+                                        + mem::size_of::<AddressRange>()
                                 }
                                 _ => unreachable!(),
                             }

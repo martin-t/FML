@@ -9,7 +9,6 @@ use super::serializable::*;
 use anyhow::{Result, Context, Error, anyhow, ensure};
 
 use super::serializable::Serializable;
-use std::iter::repeat;
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Program {
@@ -970,11 +969,5 @@ impl std::fmt::Display for AddressRange {
             write!(f, "{}-{}", self.start,
                    Address::from_usize(self.start.value_usize() + self.length - 1))
         }
-    }
-}
-
-impl Size {
-    pub fn make_vector<T>(&self, element: T) -> Vec<T> where T: Clone {
-        repeat(element).take(self.to_usize()).collect::<Vec<T>>()
     }
 }
