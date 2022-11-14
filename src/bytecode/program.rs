@@ -554,30 +554,6 @@ impl std::fmt::Display for Code {
     }
 }
 
-// impl Code { // LATER(kondziu) refactor
-//     #[allow(dead_code)]
-//     pub fn from(opcodes: Vec<OpCode>) -> Code {
-//         Code(opcodes)
-//     }
-//
-//     #[allow(dead_code)]
-//     pub fn all_opcodes(&self) -> Vec<(Address, OpCode)> {
-//         self.opcodes.iter().enumerate().map(|(i, opcode)| {
-//             (Address::from_usize(i), opcode.clone())
-//         }).collect()
-//     }
-//
-//     pub fn addresses_to_code_vector(&self, range: &AddressRange) -> Vec<&OpCode> {
-//         let start = range.start().value_usize();
-//         let end = start + range.length();
-//         let mut result: Vec<&OpCode> = Vec::new();
-//         for i in start..end {
-//             result.push(&self.opcodes[i]);
-//         }
-//         result
-//     }
-// }
-
 impl Serializable for Program {
     fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         self.constant_pool.serialize(sink, &self.code)?;
