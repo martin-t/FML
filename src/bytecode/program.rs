@@ -340,9 +340,7 @@ impl ProgramObject {
     //         _ => false,
     //     }
     // }
-}
 
-impl ProgramObject {
     fn tag(&self) -> u8 {
         use ProgramObject::*;
         match &self {
@@ -354,6 +352,49 @@ impl ProgramObject {
             Class(_)                                           => 0x05,
             Boolean(_)                                         => 0x06,
         }
+    }
+
+    #[allow(dead_code)]
+    pub fn null() -> Self {
+        ProgramObject::Null
+    }
+
+    #[allow(dead_code)]
+    pub fn from_bool(b: bool) -> Self {
+        ProgramObject::Boolean(b)
+    }
+
+    pub fn from_str(string: &str) -> Self {
+        ProgramObject::String(string.to_string())
+    }
+
+    #[allow(dead_code)]
+    pub fn from_string(string: String) -> Self {
+        ProgramObject::String(string)
+    }
+
+    #[allow(dead_code)]
+    pub fn from_i32(n: i32) -> Self {
+        ProgramObject::Integer(n)
+    }
+
+    #[allow(dead_code)]
+    pub fn from_usize(n: usize) -> Self {
+        ProgramObject::Integer(n as i32)
+    }
+
+    pub fn slot_from_index(index: ConstantPoolIndex) -> Self {
+        ProgramObject::Slot { name: index }
+    }
+
+    #[allow(dead_code)]
+    pub fn slot_from_u16(index: u16) -> Self {
+        ProgramObject::Slot { name: ConstantPoolIndex::new(index) }
+    }
+
+    #[allow(dead_code)]
+    pub fn class_from_vec(indices: Vec<u16>) -> Self {
+        ProgramObject::Class(indices.iter().map(|n| ConstantPoolIndex::new(*n)).collect())
     }
 }
 
@@ -418,51 +459,6 @@ impl SerializableWithContext for ProgramObject {
     }
 }
 
-impl ProgramObject {
-
-    #[allow(dead_code)]
-    pub fn null() -> Self {
-        ProgramObject::Null
-    }
-
-    #[allow(dead_code)]
-    pub fn from_bool(b: bool) -> Self {
-        ProgramObject::Boolean(b)
-    }
-
-    pub fn from_str(string: &str) -> Self {
-        ProgramObject::String(string.to_string())
-    }
-
-    #[allow(dead_code)]
-    pub fn from_string(string: String) -> Self {
-        ProgramObject::String(string)
-    }
-
-    #[allow(dead_code)]
-    pub fn from_i32(n: i32) -> Self {
-        ProgramObject::Integer(n)
-    }
-
-    #[allow(dead_code)]
-    pub fn from_usize(n: usize) -> Self {
-        ProgramObject::Integer(n as i32)
-    }
-
-    pub fn slot_from_index(index: ConstantPoolIndex) -> Self {
-        ProgramObject::Slot { name: index }
-    }
-
-    #[allow(dead_code)]
-    pub fn slot_from_u16(index: u16) -> Self {
-        ProgramObject::Slot { name: ConstantPoolIndex::new(index) }
-    }
-
-    #[allow(dead_code)]
-    pub fn class_from_vec(indices: Vec<u16>) -> Self {
-        ProgramObject::Class(indices.iter().map(|n| ConstantPoolIndex::new(*n)).collect())
-    }
-}
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Code(Vec<OpCode>);
