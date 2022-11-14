@@ -757,7 +757,6 @@ impl Address {
 }
 
 impl Serializable for Arity {
-
     fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u8(sink, self.0)
     }
@@ -768,7 +767,6 @@ impl Serializable for Arity {
 }
 
 impl Arity {
-
     #[allow(dead_code)]
     pub fn serialize_plus_one<W: Write> (&self, sink: &mut W) -> Result<()> {
         assert!(self.0 < 255u8);
@@ -784,7 +782,6 @@ impl Arity {
 }
 
 impl Serializable for Size {
-
     fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u16(sink, self.0)
     }
