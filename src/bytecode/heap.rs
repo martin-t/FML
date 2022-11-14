@@ -1,14 +1,15 @@
-use anyhow::{anyhow, bail, ensure, Context, Result};
-use indexmap::IndexMap;
-
-use crate::bytecode::program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size};
-use crate::bytecode::state::OperandStack;
-
+use std::fmt::{self, Display, Formatter};
 use std::fs::{self, File};
 use std::io::Write;
 use std::mem;
 use std::path::PathBuf;
 use std::time::SystemTime;
+
+use anyhow::{anyhow, bail, ensure, Context, Result};
+use indexmap::IndexMap;
+
+use crate::bytecode::program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size};
+use crate::bytecode::state::OperandStack;
 
 macro_rules! heap_log {
     (START -> $file:expr) => {
@@ -199,8 +200,8 @@ impl HeapObject {
     }
 }
 
-impl std::fmt::Display for HeapObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for HeapObject {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             HeapObject::Array(array) => write!(f, "{}", array),
             HeapObject::Object(object) => write!(f, "{}", object),
@@ -263,8 +264,8 @@ impl From<Vec<Pointer>> for ArrayInstance {
     }
 }
 
-impl std::fmt::Display for ArrayInstance {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for ArrayInstance {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "[{}]",
@@ -326,8 +327,8 @@ impl ObjectInstance {
     }
 }
 
-impl std::fmt::Display for ObjectInstance {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for ObjectInstance {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let parent = match self.parent {
             Pointer::Null => None,
             parent => Some(parent.to_string()),
@@ -383,8 +384,8 @@ impl HeapIndex {
     }
 }
 
-impl std::fmt::Display for HeapIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for HeapIndex {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "0x{:x>8}", self.0)
     }
 }
@@ -562,8 +563,8 @@ impl From<bool> for Pointer {
     }
 }
 
-impl std::fmt::Display for Pointer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for Pointer {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Pointer::Null => write!(f, "null"),
             Pointer::Integer(i) => write!(f, "{}", i),

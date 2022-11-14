@@ -1,14 +1,15 @@
-use std::io::{Write, Read};
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::{self, Display, Formatter},
+    io::{Read, Write},
+};
 
-use super::opcodes::OpCode;
+use anyhow::{anyhow, ensure, Context, Error, Result};
 
-use super::serializable;
-use super::serializable::*;
-
-use anyhow::{Result, Context, Error, anyhow, ensure};
-
-use super::serializable::Serializable;
+use crate::bytecode::{
+    opcodes::OpCode,
+    serializable::{self, Serializable, SerializableWithContext},
+};
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Program {
@@ -31,8 +32,8 @@ impl Program {
     }
 }
 
-impl std::fmt::Display for Program {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for Program {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "Constant Pool:")?;
         write!(f, "{}", self.constant_pool)?;
         writeln!(f, "Entry: {}", self.entry)?;
@@ -66,8 +67,8 @@ impl From<Vec<ConstantPoolIndex>> for Globals {
     }
 }
 
-impl std::fmt::Display for Globals {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Globals {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         for (i, global) in self.0.iter().enumerate() {
             writeln!(f, "{}: {}", i, global)?;
         }
@@ -96,8 +97,8 @@ impl From<u16> for Entry {
     fn from(index: u16) -> Self { Entry(Some(ConstantPoolIndex::from(index))) }
 }
 
-impl std::fmt::Display for Entry {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Entry {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         self.0.as_ref().map_or(Ok(()), |index| write!(f, "{}", index))
     }
 }
@@ -161,8 +162,8 @@ impl ConstantPool {
     }
 }
 
-impl std::fmt::Display for ConstantPool {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for ConstantPool {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         for (i, program_object) in self.0.iter().enumerate() {
             writeln!(f, "{}: {}", i, program_object)?;
         }
@@ -356,8 +357,8 @@ impl ProgramObject {
     }
 }
 
-impl std::fmt::Display for ProgramObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for ProgramObject {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ProgramObject::Integer(n) => write!(f, "{}", n),
             ProgramObject::Boolean(b) => write!(f, "{}", b),
@@ -545,8 +546,8 @@ impl From<Vec<OpCode>> for Code {
     }
 }
 
-impl std::fmt::Display for Code {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for Code {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for (i, opcode) in self.0.iter().enumerate() {
             writeln!(f, "{}: {}", i, opcode)?;
         }
@@ -820,38 +821,38 @@ impl Serializable for LocalFrameIndex {
     }
 }
 
-impl std::fmt::Display for Address {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for Address {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{number:>0width$}", number=self.0, width=4)
     }
 }
 
-impl std::fmt::Display for ConstantPoolIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for ConstantPoolIndex {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "#{}", self.0)
     }
 }
 
-impl std::fmt::Display for LocalFrameIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for LocalFrameIndex {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "::{}", self.0)
     }
 }
 
-impl std::fmt::Display for Arity {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Arity {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl std::fmt::Display for Size {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for Size {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl std::fmt::Display for AddressRange {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl Display for AddressRange {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         if self.length == 0 {
             write!(f, "{}-∅", self.start)
         } else {

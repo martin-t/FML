@@ -1,9 +1,11 @@
-use crate::bytecode::program::*;
-use crate::bytecode::heap::*;
+use std::fmt;
+use std::io::Write;
 use std::collections::{HashMap, HashSet};
 
 use anyhow::{Result, Context, bail, anyhow, ensure};
-use std::io::Write as IOWrite;
+
+use crate::bytecode::program::*;
+use crate::bytecode::heap::*;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Copy)]
 pub struct InstructionPointer(Option<Address>);
@@ -493,8 +495,8 @@ impl Output {
     pub fn new() -> Self { Output() }
 }
 
-impl std::fmt::Write for Output {
-    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+impl fmt::Write for Output {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
         match std::io::stdout().write_all(s.as_bytes()) {
             Ok(_) => Ok(()),
             Err(_) => Err(std::fmt::Error),

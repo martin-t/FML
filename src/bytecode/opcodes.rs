@@ -1,3 +1,4 @@
+use std::fmt::{self, Display, Formatter};
 use std::io::{Read, Write};
 
 use super::serializable;
@@ -397,8 +398,8 @@ impl OpCode {
     }
 }
 
-impl std::fmt::Display for OpCode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for OpCode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             OpCode::Literal { index } => write!(f, "lit {}", index),
             OpCode::GetLocal { index } => write!(f, "get local {}", index),
