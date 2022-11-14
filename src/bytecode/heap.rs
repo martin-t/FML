@@ -398,13 +398,6 @@ pub enum Pointer {
     Reference(HeapIndex),
 }
 
-// impl Deref for Pointer {
-//     type Target = Pointer;
-//     fn deref(&self) -> &Self::Target {
-//         self.clone()
-//     }
-// }
-
 impl Pointer {
     pub fn push_onto(self, stack: &mut OperandStack) {
         stack.push(self);

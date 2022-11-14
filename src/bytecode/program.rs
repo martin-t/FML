@@ -555,10 +555,6 @@ impl std::fmt::Display for Code {
 }
 
 // impl Code { // LATER(kondziu) refactor
-//     pub fn new() -> Code {
-//         Code(Vec::new())
-//     }
-//
 //     #[allow(dead_code)]
 //     pub fn from(opcodes: Vec<OpCode>) -> Code {
 //         Code(opcodes)
@@ -571,13 +567,6 @@ impl std::fmt::Display for Code {
 //         }).collect()
 //     }
 //
-//     pub fn register_opcodes(&mut self, opcodes: Vec<OpCode>) -> AddressRange {
-//         let start = self.opcodes.len();
-//         let length = opcodes.len();
-//         self.opcodes.extend(opcodes);
-//         AddressRange::new(Address::from_usize(start), length)
-//     }
-//
 //     pub fn addresses_to_code_vector(&self, range: &AddressRange) -> Vec<&OpCode> {
 //         let start = range.start().value_usize();
 //         let end = start + range.length();
@@ -587,83 +576,7 @@ impl std::fmt::Display for Code {
 //         }
 //         result
 //     }
-//
-//     pub fn next_address(&self, address: Option<Address>) -> Option<Address> {
-//         match address {
-//             Some(address) => {
-//                 let new_address = Address::from_usize(address.value_usize() + 1);
-//                 if self.opcodes.len() > new_address.value_usize() {
-//                     Some(new_address)
-//                 } else {
-//                     None
-//                 }
-//             }
-//             None => panic!("Cannot advance a nothing address.")
-//         }
-//     }
-//
-//     pub fn get_opcode(&self, address: &Address) -> Option<&OpCode> {
-//         //self.table[address.value() as usize]
-//         self.opcodes.get(address.value_usize())
-//     }
-//
-//     // pub fn dump(&self) { // LATER(kondziu) pretty print
-//     //     for (i, opcode) in self.opcodes.iter().enumerate() {
-//     //         println!("{}: {:?}", i, opcode);
-//     //     }
-//     // }
 // }
-
-// #[derive(PartialEq,Debug,Clone)]
-// pub struct Labels {
-//     labels: HashMap<String, Address>,
-//     groups: usize,
-// }
-
-// impl Labels {
-//     pub fn new() -> Self {
-//         Labels { labels: HashMap::new(), groups: 0 }
-//     }
-//     pub fn from(labels: HashMap<String, Address>) -> Self {
-//         let groups = labels.iter().flat_map(|(label, _)| {
-//             label.split(":").last().map(|s| {
-//                 s.parse::<usize>().map_or(None, |n| Some(n))
-//             }).flatten()
-//         }).max().map_or(0, |n| n + 1);
-//         Labels { labels, groups }
-//     }
-//     pub fn generate_label<S>(&mut self, name: S) -> Option<String> where S: Into<String> {
-//         let label = format!("{}:{}", name.into(), self.groups);
-//         if self.labels.contains_key(&label) {
-//             None
-//         } else {
-//             Some(label)
-//         }
-//     }
-//     pub fn register_label_address<S>(&mut self, name: S, address: Address) -> Option<Address> where S: Into<String> {
-//         self.labels.insert(name.into(), address)
-//     }
-//     pub fn new_group(&mut self) {
-//         self.groups = self.groups + 1
-//     }
-//     pub fn get_label_address(&self, name: &str) -> Option<&Address> {
-//         self.labels.get(name)
-//     }
-//     pub fn all(&self) -> &HashMap<String, Address> {
-//         &self.labels
-//     }
-// }
-
-// #[derive(PartialEq,Debug,Clone)]
-// pub struct Program {
-//     code: Code,
-//     labels: Labels,
-//     constants: Vec<ProgramObject>,
-//     globals: Vec<ConstantPoolIndex>,
-//     entry: ConstantPoolIndex,
-// }
-//
-
 
 impl Serializable for Program {
     fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
