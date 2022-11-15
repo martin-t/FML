@@ -9,9 +9,7 @@ extern crate lalrpop_util;
 // The generated code triggers some clippy lints so ignore those: https://github.com/lalrpop/lalrpop/issues/614
 lalrpop_mod!(#[allow(clippy::all)] pub fml);
 
-// LATER(martin-t) Remove rustfmt::skip
 mod bytecode;
-#[rustfmt::skip]
 mod parser;
 
 #[cfg(test)]

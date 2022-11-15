@@ -1,10 +1,14 @@
-use std::fmt::{self, Debug, Display, Formatter};
-use std::cmp::PartialEq;
-use serde::{Serialize, Deserialize};
+use std::{
+    cmp::PartialEq,
+    fmt::{self, Debug, Display, Formatter},
+};
 
+use serde::{Deserialize, Serialize};
+
+#[rustfmt::skip]
 #[allow(clippy::vec_box)] // LATER(martin-t) perf
 #[allow(clippy::upper_case_acronyms)]
-#[derive(PartialEq,Debug,Serialize,Deserialize,Clone)]
+#[derive(PartialEq, Debug, Serialize, Deserialize, Clone)]
 pub enum AST {
     Integer(i32),
     Boolean(bool),
@@ -38,7 +42,6 @@ pub enum AST {
 impl AST {
     pub fn integer(i: i32) -> Self {
         Self::Integer(i)
-
     }
     pub fn boolean(b: bool) -> Self {
         Self::Boolean(b)
@@ -49,15 +52,24 @@ impl AST {
     }
 
     pub fn variable(name: Identifier, value: AST) -> Self {
-        Self::Variable { name, value: value.into_boxed() }
+        Self::Variable {
+            name,
+            value: value.into_boxed(),
+        }
     }
 
     pub fn array(size: AST, value: AST) -> Self {
-        Self::Array { size: size.into_boxed(), value: value.into_boxed() }
+        Self::Array {
+            size: size.into_boxed(),
+            value: value.into_boxed(),
+        }
     }
 
     pub fn object(extends: AST, members: Vec<AST>) -> Self {
-        Self::Object { extends: extends.into_boxed(), members: members.into_boxed() }
+        Self::Object {
+            extends: extends.into_boxed(),
+            members: members.into_boxed(),
+        }
     }
 
     pub fn access_variable(name: Identifier) -> Self {
@@ -65,22 +77,31 @@ impl AST {
     }
 
     pub fn access_field(object: AST, field: Identifier) -> Self {
-        Self::AccessField { object: object.into_boxed(), field }
+        Self::AccessField {
+            object: object.into_boxed(),
+            field,
+        }
     }
 
     pub fn access_array(array: AST, index: AST) -> Self {
-        Self::AccessArray { array: array.into_boxed(), index: index.into_boxed() }
+        Self::AccessArray {
+            array: array.into_boxed(),
+            index: index.into_boxed(),
+        }
     }
 
     pub fn assign_variable(name: Identifier, value: AST) -> Self {
-        Self::AssignVariable { name, value: value.into_boxed() }
+        Self::AssignVariable {
+            name,
+            value: value.into_boxed(),
+        }
     }
 
     pub fn assign_field(object: AST, field: Identifier, value: AST) -> Self {
         Self::AssignField {
             object: object.into_boxed(),
             field,
-            value: value.into_boxed()
+            value: value.into_boxed(),
         }
     }
 
@@ -88,34 +109,46 @@ impl AST {
         Self::AssignArray {
             array: array.into_boxed(),
             index: index.into_boxed(),
-            value: value.into_boxed()
+            value: value.into_boxed(),
         }
     }
 
     pub fn function(name: Identifier, parameters: Vec<Identifier>, body: AST) -> Self {
-        Self::Function { name, parameters, body: body.into_boxed() }
+        Self::Function {
+            name,
+            parameters,
+            body: body.into_boxed(),
+        }
     }
 
     pub fn operator(operator: Operator, parameters: Vec<Identifier>, body: AST) -> Self {
-        Self::Function { name: Identifier::from(operator), parameters, body: body.into_boxed() }
+        Self::Function {
+            name: Identifier::from(operator),
+            parameters,
+            body: body.into_boxed(),
+        }
     }
 
     pub fn call_function(name: Identifier, arguments: Vec<AST>) -> Self {
-        Self::CallFunction { name, arguments: arguments.into_boxed() }
+        Self::CallFunction {
+            name,
+            arguments: arguments.into_boxed(),
+        }
     }
 
     pub fn call_method(object: AST, name: Identifier, arguments: Vec<AST>) -> Self {
         Self::CallMethod {
             object: object.into_boxed(),
             name,
-            arguments: arguments.into_boxed() }
+            arguments: arguments.into_boxed(),
+        }
     }
 
     pub fn call_operator(object: AST, operator: Operator, arguments: Vec<AST>) -> Self {
         Self::CallMethod {
             object: object.into_boxed(),
             name: Identifier::from(operator),
-            arguments: arguments.into_boxed()
+            arguments: arguments.into_boxed(),
         }
     }
 
@@ -123,11 +156,11 @@ impl AST {
         Self::CallMethod {
             object: left.into_boxed(),
             name: Identifier::from(operator),
-            arguments: vec![right.into_boxed()]
+            arguments: vec![right.into_boxed()],
         }
     }
 
-    pub fn top (statements: Vec<AST>) -> Self {
+    pub fn top(statements: Vec<AST>) -> Self {
         Self::Top(statements.into_boxed())
     }
 
@@ -136,30 +169,37 @@ impl AST {
     }
 
     pub fn loop_de_loop(condition: AST, body: AST) -> Self {
-        Self::Loop { condition: condition.into_boxed(), body: body.into_boxed() }
+        Self::Loop {
+            condition: condition.into_boxed(),
+            body: body.into_boxed(),
+        }
     }
 
     pub fn conditional(condition: AST, consequent: AST, alternative: AST) -> Self {
         Self::Conditional {
             condition: condition.into_boxed(),
             consequent: consequent.into_boxed(),
-            alternative: alternative.into_boxed()
+            alternative: alternative.into_boxed(),
         }
     }
 
     pub fn print(format: String, arguments: Vec<AST>) -> Self {
-        Self::Print { format, arguments: arguments.into_boxed() }
+        Self::Print {
+            format,
+            arguments: arguments.into_boxed(),
+        }
     }
 
     pub fn from_binary_expression(first_operand: AST, other_operators_and_operands: Vec<(Operator, AST)>) -> Self {
-        other_operators_and_operands.into_iter()
+        other_operators_and_operands
+            .into_iter()
             .fold(first_operand, |left, (operator, right)| {
                 AST::operation(operator, left, right)
             })
     }
 }
 
-#[derive(PartialEq,Eq,Hash,Debug,Clone,Serialize,Deserialize)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 pub struct Identifier(pub String);
 
 impl From<Operator> for Identifier {
@@ -187,10 +227,12 @@ impl Display for Identifier {
 }
 
 impl Identifier {
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
-#[derive(PartialEq,Eq,Debug,Copy,Clone,Serialize,Deserialize)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum Operator {
     Multiplication,
     Division,
@@ -208,6 +250,7 @@ pub enum Operator {
 }
 
 impl Operator {
+    #[rustfmt::skip]
     pub fn as_str(&self) -> &str {
         match self {
             Operator::Multiplication => "*",
@@ -228,6 +271,7 @@ impl Operator {
 }
 
 impl From<&str> for Operator {
+    #[rustfmt::skip]
     fn from(s: &str) -> Self {
         match s {
             "*"  => Operator::Multiplication,
