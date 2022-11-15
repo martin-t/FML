@@ -4,7 +4,7 @@ use crate::parser::AST;
 pub mod compiler;
 pub mod debug;
 pub mod interpreter;
-#[rustfmt::skip] pub mod opcodes;
+pub mod opcodes;
 pub mod program;
 pub mod serializable;
 #[rustfmt::skip] #[macro_use] mod helpers;

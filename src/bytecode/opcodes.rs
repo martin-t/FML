@@ -172,10 +172,7 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x07`.
      */
-    CallMethod {
-        name: ConstantPoolIndex,
-        arguments: Arity,
-    },
+    CallMethod { name: ConstantPoolIndex, arguments: Arity },
 
     /**
      * ## Call a global function
@@ -193,10 +190,7 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x08`.
      */
-    CallFunction {
-        name: ConstantPoolIndex,
-        arguments: Arity,
-    },
+    CallFunction { name: ConstantPoolIndex, arguments: Arity },
 
     /**
      * ## Define a new label here
@@ -315,10 +309,7 @@ impl OpCode {
         opcodes
     }
 
-    pub fn write_opcode_vector<W: Write>(
-        sink: &mut W,
-        vector: &Vec<&OpCode>,
-    ) -> anyhow::Result<()> {
+    pub fn write_opcode_vector<W: Write>(sink: &mut W, vector: &Vec<&OpCode>) -> anyhow::Result<()> {
         serializable::write_usize_as_u32(sink, vector.len())?;
         for opcode in vector {
             opcode.serialize(sink)?;
