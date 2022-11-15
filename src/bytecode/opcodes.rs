@@ -281,6 +281,52 @@ pub enum OpCode {
     Drop,
 }
 
+impl OpCode {
+    #[rustfmt::skip]
+    pub fn to_hex(self) -> u8 {
+        use OpCode::*;
+        match self {
+            Label        { .. } => 0x00,
+            Literal      { .. } => 0x01,
+            Print        { .. } => 0x02,
+            Array        { .. } => 0x03,
+            Object       { .. } => 0x04,
+            GetField     { .. } => 0x05,
+            SetField     { .. } => 0x06,
+            CallMethod   { .. } => 0x07,
+            CallFunction { .. } => 0x08,
+            SetLocal     { .. } => 0x09,
+            GetLocal     { .. } => 0x0A,
+            SetGlobal    { .. } => 0x0B,
+            GetGlobal    { .. } => 0x0C,
+            Branch       { .. } => 0x0D,
+            Jump         { .. } => 0x0E,
+            Return              => 0x0F,
+            Drop                => 0x10,
+        }
+    }
+
+    pub fn read_opcode_vector<R: Read>(reader: &mut R) -> Vec<OpCode> {
+        let length = serializable::read_u32_as_usize(reader);
+        let mut opcodes: Vec<OpCode> = Vec::new();
+        for _ in 0..length {
+            opcodes.push(OpCode::from_bytes(reader));
+        }
+        opcodes
+    }
+
+    pub fn write_opcode_vector<W: Write>(
+        sink: &mut W,
+        vector: &Vec<&OpCode>,
+    ) -> anyhow::Result<()> {
+        serializable::write_usize_as_u32(sink, vector.len())?;
+        for opcode in vector {
+            opcode.serialize(sink)?;
+        }
+        Ok(())
+    }
+}
+
 impl Serializable for OpCode {
     fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u8(sink, self.to_hex())?;
@@ -347,52 +393,6 @@ impl Serializable for OpCode {
             0x10 => Drop,
             tag  => panic!("Cannot deserialize opcode: unknown tag {}", tag)
         }
-    }
-}
-
-impl OpCode {
-    #[rustfmt::skip]
-    pub fn to_hex(self) -> u8 {
-        use OpCode::*;
-        match self {
-            Label        { .. } => 0x00,
-            Literal      { .. } => 0x01,
-            Print        { .. } => 0x02,
-            Array        { .. } => 0x03,
-            Object       { .. } => 0x04,
-            GetField     { .. } => 0x05,
-            SetField     { .. } => 0x06,
-            CallMethod   { .. } => 0x07,
-            CallFunction { .. } => 0x08,
-            SetLocal     { .. } => 0x09,
-            GetLocal     { .. } => 0x0A,
-            SetGlobal    { .. } => 0x0B,
-            GetGlobal    { .. } => 0x0C,
-            Branch       { .. } => 0x0D,
-            Jump         { .. } => 0x0E,
-            Return              => 0x0F,
-            Drop                => 0x10,
-        }
-    }
-
-    pub fn read_opcode_vector<R: Read>(reader: &mut R) -> Vec<OpCode> {
-        let length = serializable::read_u32_as_usize(reader);
-        let mut opcodes: Vec<OpCode> = Vec::new();
-        for _ in 0..length {
-            opcodes.push(OpCode::from_bytes(reader));
-        }
-        opcodes
-    }
-
-    pub fn write_opcode_vector<W: Write>(
-        sink: &mut W,
-        vector: &Vec<&OpCode>,
-    ) -> anyhow::Result<()> {
-        serializable::write_usize_as_u32(sink, vector.len())?;
-        for opcode in vector {
-            opcode.serialize(sink)?;
-        }
-        Ok(())
     }
 }
 
