@@ -316,7 +316,6 @@ impl Serializable for OpCode {
             Jump { label } => label.serialize(sink),
             Return => Ok(()),
             Drop => Ok(()),
-            // Skip => { Ok(()) },
         }
     }
 
@@ -373,7 +372,6 @@ impl OpCode {
             Jump         { .. } => 0x0E,
             Return              => 0x0F,
             Drop                => 0x10,
-            // Skip => 0xFF,
         }
     }
 
