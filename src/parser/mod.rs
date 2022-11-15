@@ -23,12 +23,9 @@ pub enum AST {
     AssignArray { array: Box<AST>, index: Box<AST>, value: Box<AST> },
 
     Function { name: Identifier, parameters: Vec<Identifier>, body: Box<AST> },
-    //Operator { operator: Operator, parameters: Vec<Identifier>, body: Box<AST> },    // LATER(kondziu) Consider merging with function
 
     CallFunction { name: Identifier, arguments: Vec<Box<AST>> },
     CallMethod { object: Box<AST>, name: Identifier, arguments: Vec<Box<AST>> },
-    //CallOperator { object: Box<AST>, operator: Operator, arguments: Vec<Box<AST>> }, // LATER(kondziu) Consider removing
-    //Operation { operator: Operator, left: Box<AST>, right: Box<AST> },               // LATER(kondziu) Consider removing
 
     Top (Vec<Box<AST>>),
     Block (Vec<Box<AST>>),
@@ -123,7 +120,6 @@ impl AST {
     }
 
     pub fn operation(operator: Operator, left: AST, right: AST) -> Self {
-        //Self::Operation { operator, left: left.into_boxed(), right: right.into_boxed() }
         Self::CallMethod {
             object: left.into_boxed(),
             name: Identifier::from(operator),
@@ -153,6 +149,13 @@ impl AST {
 
     pub fn print(format: String, arguments: Vec<AST>) -> Self {
         Self::Print { format, arguments: arguments.into_boxed() }
+    }
+
+    pub fn from_binary_expression(first_operand: AST, other_operators_and_operands: Vec<(Operator, AST)>) -> Self {
+        other_operators_and_operands.into_iter()
+            .fold(first_operand, |left, (operator, right)| {
+                AST::operation(operator, left, right)
+            })
     }
 }
 
@@ -255,28 +258,6 @@ impl From<String> for Operator {
 impl Display for Operator {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.as_str())
-    }
-}
-
-#[macro_export]
-macro_rules! make_operator_ast {
-    ( $head:expr, $tail:expr ) => {
-        ($tail).into_iter().fold($head, |left, right| {
-            let (operator, value) = right;
-            AST::Operation {
-                operator: operator,
-                left: Box::new(left),
-                right: Box::new(value)}
-        })
-    }
-}
-
-impl AST {
-    pub fn from_binary_expression(first_operand: AST, other_operators_and_operands: Vec<(Operator, AST)>) -> Self {
-        other_operators_and_operands.into_iter()
-            .fold(first_operand, |left, (operator, right)| {
-                AST::operation(operator, left, right)
-            })
     }
 }
 
