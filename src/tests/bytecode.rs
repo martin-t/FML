@@ -283,12 +283,12 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
                         0x2A, 0x00,
                         0x0F);
 
-    let object = ProgramObject::Method {
+    let object = ProgramObject::Method(Method {
         name: ConstantPoolIndex::new(255),
         parameters: Arity::new(3),
         locals: Size::new(15),
         code: AddressRange::from(0, 2),
-    };
+    });
 
     let code = Code::from(
         vec!(
@@ -342,10 +342,10 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 
 
 #[test] fn method () {
-    let object = ProgramObject::Method { name: ConstantPoolIndex::new(255),
+    let object = ProgramObject::Method(Method { name: ConstantPoolIndex::new(255),
                                          parameters: Arity::new(3),
                                          locals: Size::new(15),
-                                         code: AddressRange::from(0, 2)};
+                                         code: AddressRange::from(0, 2)});
 
     let code = Code::from(vec!(OpCode::Literal { index: ConstantPoolIndex::new(42) },
                                OpCode::Return));

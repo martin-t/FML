@@ -91,30 +91,30 @@ fn feeny_method_argument_order_program() -> Program {
         /*  0 */ ProgramObject::Null,
         /*  1 */ ProgramObject::from_str("~"),
         /*  2 */ ProgramObject::from_str("m"),
-        /*  3 */ ProgramObject::Method {
+        /*  3 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(2),
             parameters: Arity::from_usize(4),
             locals: Size::from_usize(0),
             code: AddressRange:: from(0, 9),
-        },
+        }),
         /*  4 */ ProgramObject::Class(vec![ConstantPoolIndex::from_usize(3)]),
         /*  5 */ ProgramObject::from_i32(1),
         /*  6 */ ProgramObject::from_i32(2),
         /*  7 */ ProgramObject::from_i32(3),
         /*  8 */ ProgramObject::from_str("main"),
-        /*  9 */ ProgramObject::Method {
+        /*  9 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(8),
             parameters: Arity::from_usize(0),
             locals: Size::from_usize(1),
             code: AddressRange:: from(9, 10),
-        },
+        }),
         /* 10 */ ProgramObject::from_str("entry38"),
-        /* 11 */ ProgramObject::Method {
+        /* 11 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(10),
             parameters: Arity::from_usize(0),
             locals: Size::from_usize(0),
             code: AddressRange:: from(19, 4),
-        },
+        }),
     ]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(9)]);
@@ -281,30 +281,30 @@ fn feeny_object_member_order_program() -> Program {
         ProgramObject::Slot { name: ConstantPoolIndex::from_usize(8) },
         ProgramObject::from_str("~"),
         ProgramObject::from_str("m"),
-        ProgramObject::Method {
+        ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(11),
             parameters: Arity::from_usize(1),
             locals: Size::from_usize(0),
             code: AddressRange:: from(0, 12),
-        },
+        }),
         ProgramObject::Class(vec![ConstantPoolIndex::from_usize(5),
                                   ConstantPoolIndex::from_usize(7),
                                   ConstantPoolIndex::from_usize(9),
                                   ConstantPoolIndex::from_usize(12)]),
         ProgramObject::from_str("main"),
-        ProgramObject::Method {
+        ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(14),
             parameters: Arity::from_usize(0),
             locals: Size::from_usize(1),
             code: AddressRange:: from(12, 10),
-        },
+        }),
         ProgramObject::from_str("entry38"),
-        ProgramObject::Method {
+        ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(16),
             parameters: Arity::from_usize(0),
             locals: Size::from_usize(0),
             code: AddressRange:: from(22, 4),
-        },
+        }),
     ]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(15)]);
@@ -418,20 +418,20 @@ fn feeny_print_argument_order_program() -> Program {
         /* 2 */ ProgramObject::from_i32(3),
         /* 3 */ ProgramObject::from_str("~~~"),
         /* 4 */ ProgramObject::from_str("main"),
-        /* 5 */ ProgramObject::Method {
+        /* 5 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(4),
             parameters: Arity::new(0),
             locals: Size::new(0),
             code: AddressRange::from(0, 5),
-        },
+        }),
         /* 6 */ ProgramObject::Null,
         /* 7 */ ProgramObject::from_str("entry35"),
-        /* 8 */ ProgramObject::Method {
+        /* 8 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(7),
             parameters: Arity::new(0),
             locals: Size::new(0),
             code: AddressRange::from(5, 4),
-        },
+        }),
     ]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(5)]);
@@ -551,30 +551,30 @@ fn feeny_function_argument_order_program() -> Program {
     let constant_pool = ConstantPool::from(vec![
         /*  0 */ ProgramObject::from_str("~"),
         /*  1 */ ProgramObject::from_str("f"),
-        /*  2 */ ProgramObject::Method {
+        /*  2 */ ProgramObject::Method(Method {
                     name: ConstantPoolIndex::new(1),
                     parameters: Arity::new(3),
                     locals: Size::new(0),
                     code: AddressRange::from(0, 9),
-                },
+                }),
         /*  3 */ ProgramObject::from_i32(1),
         /*  4 */ ProgramObject::from_i32(2),
         /*  5 */ ProgramObject::from_i32(3),
         /*  6 */ ProgramObject::from_str("main"),
-        /*  7 */ ProgramObject::Method {
+        /*  7 */ ProgramObject::Method(Method {
                     name: ConstantPoolIndex::new(6),
                     parameters: Arity::new(0),
                     locals: Size::new(0),
                     code: AddressRange::from(9, 5),
-                },
+                }),
         /*  8 */ ProgramObject::Null,
         /*  9 */ ProgramObject::from_str("entry36"),
-        /* 10 */ ProgramObject::Method {
+        /* 10 */ ProgramObject::Method(Method {
                     name: ConstantPoolIndex::new(9),
                     parameters: Arity::new(0),
                     locals: Size::new(0),
                     code: AddressRange::from(14, 4),
-                },
+                }),
     ]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(2), ConstantPoolIndex::new(7)]);
@@ -657,20 +657,20 @@ fn feeny_hello_world_program() -> Program {
     let constant_pool = ConstantPool::from(vec![
         /* #0 */ ProgramObject::String("Hello World\n".to_string()),
         /* #1 */ ProgramObject::String("main".to_string()),
-        /* #2 */ ProgramObject::Method {
+        /* #2 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(1),
             parameters: Arity::new(0),
             locals: Size::new(0),
             code: AddressRange::from(0, 2),
-        },
+        }),
         /* #3 */ ProgramObject::Null,
         /* #4 */ ProgramObject::String("entry35".to_string()),
-        /* #5 */ ProgramObject::Method {
+        /* #5 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(4),
             parameters: Arity::new(0),
             locals: Size::new(0),
             code: AddressRange::from(2, 4),
-        },
+        }),
     ]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(2)]);
@@ -1005,31 +1005,31 @@ fn feeny_fibonacci_program () -> Program {
         /* #12 0x0C */ ProgramObject::String("ge".to_string()),
         /* #13 0x0D */ ProgramObject::Null,
         /* #14 0x0E */ ProgramObject::String("fib".to_string()),
-        /* #15 0x0F */ ProgramObject::Method {                             // fib
+        /* #15 0x0F */ ProgramObject::Method(Method {                             // fib
             name: ConstantPoolIndex::new(14),
             parameters: Arity::new(1),
             locals: Size::new(3),
             code: AddressRange::from(0, 49),
-        },
+        }),
         /* #16 0x10 */ ProgramObject::String("test45".to_string()),
         /* #17 0x11 */ ProgramObject::String("loop46".to_string()),
         /* #18 0x11 */ ProgramObject::String("Fib(~) = ~\n".to_string()),
         /* #19 0x12 */ ProgramObject::Integer(20),
         /* #20 0x13 */ ProgramObject::String("lt".to_string()),
         /* #21 0x14 */ ProgramObject::String("main".to_string()),
-        /* #22 0x15 */ ProgramObject::Method {                             // main
+        /* #22 0x15 */ ProgramObject::Method(Method {                             // main
             name: ConstantPoolIndex::new(21),
             parameters: Arity::new(0),
             locals: Size::new(1),
             code: AddressRange::from(49, 22),
-        },
+        }),
         /* #23 0x15 */ ProgramObject::String("entry47".to_string()),
-        /* #24 0x16 */ ProgramObject::Method {                             // entry47
+        /* #24 0x16 */ ProgramObject::Method(Method {                             // entry47
             name: ConstantPoolIndex::new(23),
             parameters: Arity::new(0),
             locals: Size::new(0),
             code: AddressRange::from(71,4),
-        }
+        })
     ]);
 
     let globals = Globals::from(vec![

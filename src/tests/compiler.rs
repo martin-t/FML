@@ -773,12 +773,12 @@ use crate::bytecode::compiler::*;
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
         /* 0 */ ProgramObject::String("project_right".to_string()),
-        /* 1 */ ProgramObject::Method {
+        /* 1 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(0),
             parameters: Arity::new(3),
             locals: Size::new(0),
             code: AddressRange::from(0, 2),
-        },
+        }),
     ]);
 
     let expected_globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
@@ -892,67 +892,67 @@ use crate::bytecode::compiler::*;
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
         /* 00 */ ProgramObject::from_bool(true),
         /* 01 */ ProgramObject::from_str("implies"),
-        /* 02 */ ProgramObject::Method {
+        /* 02 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(1),    // "implies"
             parameters: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(0, 2),     // opcodes: 0, 1
-        },
+        }),
 
         /* 03 */ ProgramObject::from_i32(1),
         /* 04 */ ProgramObject::from_str("id"),
         /* 05 */ ProgramObject::slot_from_u16(4), // "id"
 
         /* 06 */ ProgramObject::from_str("identity"),
-        /* 07 */ ProgramObject::Method {
+        /* 07 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(6),    // identity
             parameters: Arity::new(0+1),
             locals: Size::new(0),
             code: AddressRange::from(2, 2),     // addresses: 2, 3
-        },
+        }),
 
         /* 08 */ ProgramObject::from_str("or"),
-        /* 09 */ ProgramObject::Method {
+        /* 09 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(8),    // or
             parameters: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(4, 2),     // addresses: 5, 6
-        },
+        }),
 
         /* 10 */ ProgramObject::from_str("and"),
-        /* 11 */ ProgramObject::Method {
+        /* 11 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(10),    // and
             parameters: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(6, 2),     // addresses: 7, 8
-        },
+        }),
 
         /* 12 */ ProgramObject::from_str("hash"),
         /* 13 */ ProgramObject::slot_from_u16(12),
 
         /* 14 */ ProgramObject::from_str("+"),
-        /* 15 */ ProgramObject::Method {
+        /* 15 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(14),          // +
             parameters: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(8, 2),           // addresses: 7, 8
-        },
+        }),
 
         /* 16 */ ProgramObject::from_str("*"),
-        /* 17 */ ProgramObject::Method {
+        /* 17 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(16),          // *
             parameters: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(10, 2),           // addresses: 9, 10
-        },
+        }),
 
         /* 18 */ ProgramObject::from_str("me"),
-        /* 19 */ ProgramObject::Method {
+        /* 19 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(18),          // *
             parameters: Arity::new(1),
             locals: Size::new(0),
             code: AddressRange::from(12, 2),
-        },
+        }),
 
         /* 20 */ ProgramObject::class_from_vec(vec!(2, 5, 7, 9, 11, 13, 15, 17, 19)),
     ]);

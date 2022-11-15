@@ -697,10 +697,10 @@ macro_rules! indexmap {
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("bar".to_string()),
-        ProgramObject::Method { name: ConstantPoolIndex::new(0),
+        ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
             parameters: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) }]);
+            code: AddressRange::from(0,1) })]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -747,10 +747,10 @@ macro_rules! indexmap {
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("foo".to_string()),
-        ProgramObject::Method { name: ConstantPoolIndex::new(0),
+        ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
             parameters: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) }]);
+            code: AddressRange::from(0,1) })]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -789,10 +789,10 @@ macro_rules! indexmap {
     ));
 
     let constants = ConstantPool::from(vec![ ProgramObject::String("fun".to_string()),
-                                             ProgramObject::Method { name: ConstantPoolIndex::new(0),
+                                             ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
                                                  parameters: Arity::new(3),
                                                  locals: Size::new(0),
-                                                 code: AddressRange::from(0,1) }]);
+                                                 code: AddressRange::from(0,1) })]);
     let globals = Globals::new();
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -839,10 +839,10 @@ macro_rules! indexmap {
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("xxx".to_string()),
-        ProgramObject::Method { name: ConstantPoolIndex::new(0),
+        ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
             parameters: Arity::new(3),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) }]);
+            code: AddressRange::from(0,1) })]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
@@ -876,10 +876,10 @@ macro_rules! indexmap {
 
     let constants = ConstantPool::from(vec![
         /*0*/ ProgramObject::String ("+".to_string()),
-        /*1*/ ProgramObject::Method { name: ConstantPoolIndex::new(0),
+        /*1*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
             parameters: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)},
+            code: AddressRange::from(0, 1)}),
         /*2*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1)))]);
 
     let globals = Globals::new();
@@ -894,12 +894,12 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method {
+    let method = ProgramObject::Method(Method {
         name: ConstantPoolIndex::new(0),
         parameters: Arity::new(1),
         locals: Size::new(0),
         code: AddressRange::from(0, 1)
-    };
+    });
 
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
@@ -925,10 +925,10 @@ macro_rules! indexmap {
         /*1*/ ProgramObject::Slot { name: ConstantPoolIndex::new(0) },
 
         /*2*/ ProgramObject::String ("+".to_string()),
-        /*3*/ ProgramObject::Method { name: ConstantPoolIndex::new(2),
+        /*3*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(2),
             parameters: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)},
+            code: AddressRange::from(0, 1)}),
 
         /*4*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1),
                                         ConstantPoolIndex::new(3)))
@@ -947,12 +947,12 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method {
+    let method = ProgramObject::Method(Method {
         name: ConstantPoolIndex::new(2),
         parameters: Arity::new(1),
         locals: Size::new(0),
         code: AddressRange::from(0, 1)
-    };
+    });
 
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
@@ -982,10 +982,10 @@ macro_rules! indexmap {
         /*3*/ ProgramObject::Slot { name: ConstantPoolIndex::new(2) },
 
         /*4*/ ProgramObject::String ("+".to_string()),
-        /*5*/ ProgramObject::Method { name: ConstantPoolIndex::new(4),
+        /*5*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(4),
             parameters: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)},
+            code: AddressRange::from(0, 1)}),
 
         /*6*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1),
                                         ConstantPoolIndex::new(3),
@@ -1005,12 +1005,12 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method {
+    let method = ProgramObject::Method(Method {
         name: ConstantPoolIndex::new(4),
         parameters: Arity::new(1),
         locals: Size::new(0),
         code: AddressRange::from(0, 1)
-    };
+    });
 
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
@@ -1120,10 +1120,10 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::Null,
                                     IndexMap::new(),
-                                    indexmap!(("f".to_string(), ProgramObject::Method { name: ConstantPoolIndex::new(0),
+                                    indexmap!(("f".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
                                                                                         parameters: Arity::new(0 + 1),
                                                                                         locals: Size::new(0),
-                                                                                        code: AddressRange::from(0, 1) })));
+                                                                                        code: AddressRange::from(0, 1) }))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
@@ -1163,10 +1163,10 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::from(0),
                                     IndexMap::new(),
-                                    indexmap!(("+".to_string(), ProgramObject::Method { name: ConstantPoolIndex::new(0),
+                                    indexmap!(("+".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
                                                                                         parameters: Arity::new(1 + 1),
                                                                                         locals: Size::new(0),
-                                                                                        code: AddressRange::from(0, 1) })));
+                                                                                        code: AddressRange::from(0, 1) }))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
@@ -1208,10 +1208,10 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::from(0),
                                     IndexMap::new(),
-                                    indexmap!(("g".to_string(), ProgramObject::Method { name: ConstantPoolIndex::new(0),
+                                    indexmap!(("g".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
                                                                                       parameters: Arity::new(3 + 1),
                                                                                       locals: Size::new(0),
-                                                                                      code: AddressRange::from(0, 1) })));
+                                                                                      code: AddressRange::from(0, 1) }))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
     state.operand_stack.push(Pointer::from(state.heap.allocate(receiver.clone())));
