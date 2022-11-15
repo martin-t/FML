@@ -5,7 +5,7 @@ pub mod compiler;
 pub mod debug;
 pub mod interpreter;
 #[rustfmt::skip] pub mod opcodes;
-#[rustfmt::skip] pub mod program;
+pub mod program;
 pub mod serializable;
 #[rustfmt::skip] #[macro_use] mod helpers;
 pub mod heap;

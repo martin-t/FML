@@ -34,7 +34,9 @@ pub struct Entry(Option<ConstantPoolIndex>);
 pub struct Code(Vec<OpCode>);
 
 #[derive(Eq, PartialEq, Debug)]
-pub struct Labels { names: HashMap<String, Address> }
+pub struct Labels {
+    names: HashMap<String, Address>,
+}
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub enum ProgramObject {
@@ -118,12 +120,21 @@ pub struct Method {
     pub code: AddressRange,
 }
 
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct ConstantPoolIndex(u16);
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct LocalFrameIndex(u16);
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct Arity(u8);
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct Size(u16);
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct Address(u32);
-#[derive(PartialEq,Debug,Copy,Clone,Eq,PartialOrd,Ord,Hash)] pub struct AddressRange { start: Address, length: usize }
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct ConstantPoolIndex(u16);
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct LocalFrameIndex(u16);
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct Arity(u8);
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct Size(u16);
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct Address(u32);
+#[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
+pub struct AddressRange {
+    start: Address,
+    length: usize,
+}
 
 impl Program {
     #[allow(dead_code)]
@@ -133,28 +144,35 @@ impl Program {
         let label_addresses = code.label_addresses().into_iter();
         let labels = Labels::from(label_constants.zip(label_addresses)).unwrap();
 
-        Ok(Program { labels, constant_pool, code, globals, entry })
+        Ok(Program {
+            constant_pool,
+            globals,
+            entry,
+            code,
+            labels,
+        })
     }
 }
 
 impl ConstantPool {
-    pub fn new() -> Self { ConstantPool(Vec::new()) }
+    pub fn new() -> Self {
+        ConstantPool(Vec::new())
+    }
     pub fn get(&self, index: &ConstantPoolIndex) -> Result<&ProgramObject> {
-        self.0.get(index.as_usize())
-            .with_context(||
-                format!("Cannot dereference object from the constant pool at index: `{}`", index))
+        self.0
+            .get(index.as_usize())
+            .with_context(|| format!("Cannot dereference object from the constant pool at index: `{}`", index))
     }
     pub fn get_all(&self, indices: Vec<&ConstantPoolIndex>) -> Result<Vec<&ProgramObject>> {
-        indices.iter()
-            .map(|index| self.get(index))
-            .collect()
+        indices.iter().map(|index| self.get(index)).collect()
     }
     pub fn push(&mut self, program_object: ProgramObject) -> ConstantPoolIndex {
         self.0.push(program_object);
         ConstantPoolIndex::from_usize(self.0.len() - 1)
     }
     pub fn position(&self, program_object: &ProgramObject) -> Option<ConstantPoolIndex> {
-        self.0.iter()
+        self.0
+            .iter()
             .position(|c| c == program_object)
             .map(ConstantPoolIndex::from_usize)
     }
@@ -165,7 +183,7 @@ impl ConstantPool {
             None => self.push(program_object),
         }
     }
-    pub fn iter(&self) -> impl Iterator<Item=&ProgramObject> {
+    pub fn iter(&self) -> impl Iterator<Item = &ProgramObject> {
         self.0.iter()
     }
     #[allow(dead_code)]
@@ -199,15 +217,19 @@ impl From<Vec<bool>> for ConstantPool {
 }
 
 impl Globals {
-    pub fn new() -> Self { Globals(Vec::new()) }
+    pub fn new() -> Self {
+        Globals(Vec::new())
+    }
     pub fn register(&mut self, name_index: ConstantPoolIndex) -> Result<()> {
-        ensure!(!self.0.contains(&name_index),
-                 "Cannot register global `{}`, index is already registered as a global.",
-                 name_index);
+        ensure!(
+            !self.0.contains(&name_index),
+            "Cannot register global `{}`, index is already registered as a global.",
+            name_index
+        );
         self.0.push(name_index);
         Ok(())
     }
-    pub fn iter(&self) -> impl Iterator<Item=ConstantPoolIndex> + '_ {
+    pub fn iter(&self) -> impl Iterator<Item = ConstantPoolIndex> + '_ {
         self.0.iter().copied()
     }
 }
@@ -219,7 +241,9 @@ impl From<Vec<ConstantPoolIndex>> for Globals {
 }
 
 impl Entry {
-    pub fn new() -> Self { Entry(None) }
+    pub fn new() -> Self {
+        Entry(None)
+    }
     pub fn get(&self) -> Result<ConstantPoolIndex> {
         ensure!(self.0.is_some(), "Entry point was read, but it was not set yet.");
         Ok(self.0.unwrap())
@@ -236,11 +260,15 @@ impl From<ConstantPoolIndex> for Entry {
 }
 
 impl From<u16> for Entry {
-    fn from(index: u16) -> Self { Entry(Some(ConstantPoolIndex::from(index))) }
+    fn from(index: u16) -> Self {
+        Entry(Some(ConstantPoolIndex::from(index)))
+    }
 }
 
 impl Code {
-    pub fn new() -> Self { Code(Vec::new()) }
+    pub fn new() -> Self {
+        Code(Vec::new())
+    }
     pub fn upcoming_address(&self) -> Address {
         Address::from_usize(self.0.len())
     }
@@ -256,10 +284,14 @@ impl Code {
     }
     #[allow(dead_code)]
     pub fn emit_if(&mut self, opcode: OpCode, condition: bool) {
-        if condition { self.emit(opcode) }
+        if condition {
+            self.emit(opcode)
+        }
     }
     pub fn emit_unless(&mut self, opcode: OpCode, condition: bool) {
-        if !condition { self.emit(opcode) }
+        if !condition {
+            self.emit(opcode)
+        }
     }
     #[allow(dead_code)]
     pub fn length(&self) -> usize {
@@ -271,9 +303,13 @@ impl Code {
 
         //println!("start: {}, end: {}", start, end);
 
-        ensure!(end <= self.0.len(),
-                 "Address range exceeds code size: {} + {} >= {}.",
-                 start, range.length, self.0.len());
+        ensure!(
+            end <= self.0.len(),
+            "Address range exceeds code size: {} + {} >= {}.",
+            start,
+            range.length,
+            self.0.len()
+        );
 
         Ok((start..end).map(|index| &self.0[index]).collect())
     }
@@ -284,16 +320,23 @@ impl Code {
         AddressRange::new(Address::from_usize(start), length)
     }
     pub fn labels(&self) -> Vec<&ConstantPoolIndex> {
-        self.0.iter().flat_map(|opcode| match opcode {
-            OpCode::Label { name } => Some(name),
-            _ => None
-        }).collect()
+        self.0
+            .iter()
+            .flat_map(|opcode| match opcode {
+                OpCode::Label { name } => Some(name),
+                _ => None,
+            })
+            .collect()
     }
     pub fn label_addresses(&self) -> Vec<Address> {
-        self.0.iter().enumerate().flat_map(|(address, opcode)| match opcode {
-            OpCode::Label { .. } => Some(Address::from_usize(address)),
-            _ => None
-        }).collect()
+        self.0
+            .iter()
+            .enumerate()
+            .flat_map(|(address, opcode)| match opcode {
+                OpCode::Label { .. } => Some(Address::from_usize(address)),
+                _ => None,
+            })
+            .collect()
     }
     pub fn next(&self, address: Address) -> Option<Address> {
         let index = address.value_usize() + 1;
@@ -322,17 +365,21 @@ impl From<Vec<OpCode>> for Code {
 // LATER(kondziu,fixme) clean up
 impl Labels {
     #[allow(dead_code)]
-    pub fn new() -> Self { Labels { names: HashMap::new() } }
+    pub fn new() -> Self {
+        Labels { names: HashMap::new() }
+    }
     pub fn get(&self, label: &str) -> Result<&Address> {
-        self.names.get(label)
+        self.names
+            .get(label)
             .with_context(|| format!("Label `{}` was not previously register.", label))
     }
     pub fn from<'a, I>(labels: I) -> Result<Self>
-        where I: IntoIterator<Item=(&'a ProgramObject, Address)> {
-        let names = labels.into_iter()
-            .map(|(program_object, address)| {
-                program_object.as_str().map(|name| (name.to_owned(), address))
-            })
+    where
+        I: IntoIterator<Item = (&'a ProgramObject, Address)>,
+    {
+        let names = labels
+            .into_iter()
+            .map(|(program_object, address)| program_object.as_str().map(|name| (name.to_owned(), address)))
             .collect::<Result<HashMap<String, Address>>>()?;
         Ok(Labels { names })
     }
@@ -341,18 +388,21 @@ impl Labels {
 impl ProgramObject {
     #[allow(dead_code)]
     pub fn is_literal(&self) -> bool {
-        matches!(self, ProgramObject::Null | ProgramObject::Boolean(_) | ProgramObject::Integer(_))
+        matches!(
+            self,
+            ProgramObject::Null | ProgramObject::Boolean(_) | ProgramObject::Integer(_)
+        )
     }
     pub fn as_str(&self) -> anyhow::Result<&str> {
         match self {
             ProgramObject::String(string) => Ok(string),
-            _ => anyhow::bail!("Expecting a program object representing a String, found `{}`", self)
+            _ => anyhow::bail!("Expecting a program object representing a String, found `{}`", self),
         }
     }
     pub fn as_class_definition(&self) -> anyhow::Result<&Vec<ConstantPoolIndex>> {
         match self {
             ProgramObject::Class(members) => Ok(members),
-            _ => anyhow::bail!("Expecting a program object representing a Class, found `{}`", self)
+            _ => anyhow::bail!("Expecting a program object representing a Class, found `{}`", self),
         }
     }
     pub fn is_slot(&self) -> bool {
@@ -361,7 +411,7 @@ impl ProgramObject {
     pub fn as_method(&self) -> anyhow::Result<&Method> {
         match self {
             ProgramObject::Method(method) => Ok(method),
-            _ => anyhow::bail!("Expecting a program object representing a Method, found `{}`", self)
+            _ => anyhow::bail!("Expecting a program object representing a Method, found `{}`", self),
         }
     }
     pub fn is_method(&self) -> bool {
@@ -370,20 +420,20 @@ impl ProgramObject {
     pub fn as_slot_index(&self) -> anyhow::Result<&ConstantPoolIndex> {
         match self {
             ProgramObject::Slot { name } => Ok(name),
-            _ => anyhow::bail!("Expecting a program object representing a Slot, found `{}`", self)
+            _ => anyhow::bail!("Expecting a program object representing a Slot, found `{}`", self),
         }
     }
 
+    #[rustfmt::skip]
     fn tag(&self) -> u8 {
-        use ProgramObject::*;
         match &self {
-            Integer(_)                                         => 0x00,
-            Null                                               => 0x01,
-            String(_)                                          => 0x02,
-            Method(_)                                          => 0x03,
-            Slot {name:_}                                      => 0x04,
-            Class(_)                                           => 0x05,
-            Boolean(_)                                         => 0x06,
+            ProgramObject::Integer(_)    => 0x00,
+            ProgramObject::Null          => 0x01,
+            ProgramObject::String(_)     => 0x02,
+            ProgramObject::Method(_)     => 0x03,
+            ProgramObject::Slot {name:_} => 0x04,
+            ProgramObject::Class(_)      => 0x05,
+            ProgramObject::Boolean(_)    => 0x06,
         }
     }
 
@@ -422,7 +472,9 @@ impl ProgramObject {
 
     #[allow(dead_code)]
     pub fn slot_from_u16(index: u16) -> Self {
-        ProgramObject::Slot { name: ConstantPoolIndex::new(index) }
+        ProgramObject::Slot {
+            name: ConstantPoolIndex::new(index),
+        }
     }
 
     #[allow(dead_code)]
@@ -431,13 +483,14 @@ impl ProgramObject {
     }
 }
 
-
 impl ConstantPoolIndex {
     pub fn new(value: u16) -> ConstantPoolIndex {
         ConstantPoolIndex(value)
     }
 
-    pub fn value(&self) -> u16 { self.0 }
+    pub fn value(&self) -> u16 {
+        self.0
+    }
 
     pub fn from_usize(value: usize) -> ConstantPoolIndex {
         assert!(value <= 65535usize);
@@ -476,11 +529,13 @@ impl From<usize> for ConstantPoolIndex {
 
 impl LocalFrameIndex {
     #[allow(dead_code)]
-    pub fn new(value: u16) -> LocalFrameIndex   {
+    pub fn new(value: u16) -> LocalFrameIndex {
         LocalFrameIndex(value)
     }
 
-    pub fn value(&self) -> u16 { self.0 }
+    pub fn value(&self) -> u16 {
+        self.0
+    }
 
     pub fn from_usize(value: usize) -> LocalFrameIndex {
         assert!(value <= 65535usize);
@@ -489,11 +544,13 @@ impl LocalFrameIndex {
 }
 
 impl Arity {
-    pub fn new(value: u8)  -> Arity {
+    pub fn new(value: u8) -> Arity {
         Arity(value)
     }
 
-    pub fn value(&self) -> u8  { self.0 }
+    pub fn value(&self) -> u8 {
+        self.0
+    }
 
     pub fn from_usize(value: usize) -> Arity {
         assert!(value <= 255usize);
@@ -511,7 +568,9 @@ impl Size {
         Size(value)
     }
 
-    pub fn value(&self) -> u16 { self.0 }
+    pub fn value(&self) -> u16 {
+        self.0
+    }
 
     pub fn from_usize(value: usize) -> Size {
         assert!(value <= 65535usize);
@@ -528,16 +587,20 @@ impl Address {
     pub fn from_u32(value: u32) -> Address {
         Address(value)
     }
+
     pub fn from_usize(value: usize) -> Address {
         assert!(value <= 4_294_967_295usize);
         Address(value as u32)
     }
+
     pub fn value_u32(&self) -> u32 {
         self.0
     }
+
     pub fn value_usize(&self) -> usize {
         self.0 as usize
     }
+
     #[allow(dead_code)]
     pub fn offset(&self, n: usize) -> Self {
         Address::from_usize(self.value_usize() + n)
@@ -545,17 +608,24 @@ impl Address {
 }
 
 impl AddressRange {
-    pub fn new (start: Address, length: usize) -> Self {
+    pub fn new(start: Address, length: usize) -> Self {
         AddressRange { start, length }
     }
 
     #[allow(dead_code)]
-    pub fn from (start: usize, length: usize) -> Self {
-        AddressRange { start: Address::from_usize(start), length }
+    pub fn from(start: usize, length: usize) -> Self {
+        AddressRange {
+            start: Address::from_usize(start),
+            length,
+        }
     }
+
     #[allow(dead_code)]
-    pub fn from_addresses (start: Address, end: Address) -> Self {
-        AddressRange { start, length: end.value_usize() - start.value_usize() + 1 }
+    pub fn from_addresses(start: Address, end: Address) -> Self {
+        AddressRange {
+            start,
+            length: end.value_usize() - start.value_usize() + 1,
+        }
     }
 
     pub fn start(&self) -> &Address {
@@ -582,24 +652,31 @@ impl Serializable for Program {
         let entry = Entry::from_bytes(input);
 
         let label_names = code.labels();
-        let label_constants = constant_pool.get_all(label_names).unwrap().into_iter();                // LATER(kondziu) error handling
+        let label_constants = constant_pool.get_all(label_names).unwrap().into_iter(); // LATER(kondziu) error handling
         let label_addresses = code.label_addresses().into_iter();
         let labels = Labels::from(label_constants.zip(label_addresses)).unwrap();
 
-        Program { constant_pool, labels, code, globals, entry }
+        Program {
+            constant_pool,
+            labels,
+            code,
+            globals,
+            entry,
+        }
     }
 }
 
 impl SerializableWithContext for ConstantPool {
     fn serialize<W: Write>(&self, sink: &mut W, code: &Code) -> Result<()> {
         serializable::write_usize_as_u16(sink, self.0.len())?;
-        self.0.iter().try_for_each(|program_object| program_object.serialize(sink, code))
+        self.0
+            .iter()
+            .try_for_each(|program_object| program_object.serialize(sink, code))
     }
 
     fn from_bytes<R: Read>(input: &mut R, code: &mut Code) -> Self {
         let size = serializable::read_u16_as_usize(input);
-        let constants: Vec<ProgramObject> =
-            (0..size).map(|_| ProgramObject::from_bytes(input, code)).collect();
+        let constants: Vec<ProgramObject> = (0..size).map(|_| ProgramObject::from_bytes(input, code)).collect();
 
         ConstantPool(constants)
     }
@@ -628,16 +705,15 @@ impl Serializable for Entry {
 impl SerializableWithContext for ProgramObject {
     fn serialize<W: Write>(&self, sink: &mut W, code: &Code) -> anyhow::Result<()> {
         serializable::write_u8(sink, self.tag())?;
-        use ProgramObject::*;
         match &self {
-            Null        => Ok(()),
-            Integer(n)  => serializable::write_i32(sink, *n),
-            Boolean(b)  => serializable::write_bool(sink, *b),
-            String(s)   => serializable::write_utf8(sink, s),
-            Class(v)    => ConstantPoolIndex::write_cpi_vector(sink, v),
-            Slot {name} => name.serialize(sink),
+            ProgramObject::Null => Ok(()),
+            ProgramObject::Integer(n) => serializable::write_i32(sink, *n),
+            ProgramObject::Boolean(b) => serializable::write_bool(sink, *b),
+            ProgramObject::String(s) => serializable::write_utf8(sink, s),
+            ProgramObject::Class(v) => ConstantPoolIndex::write_cpi_vector(sink, v),
+            ProgramObject::Slot { name } => name.serialize(sink),
 
-            Method(method) => {
+            ProgramObject::Method(method) => {
                 method.name.serialize(sink)?;
                 method.parameters.serialize(sink)?;
                 method.locals.serialize(sink)?;
@@ -646,26 +722,31 @@ impl SerializableWithContext for ProgramObject {
         }
     }
 
-    fn from_bytes<R: Read>(input: &mut R, code: &mut Code) -> Self {                                // LATER(kondziu) error handling
+    fn from_bytes<R: Read>(input: &mut R, code: &mut Code) -> Self {
+        // LATER(kondziu) error handling
         let tag = serializable::read_u8(input);
         match tag {
             0x00 => ProgramObject::Integer(serializable::read_i32(input)),
             0x01 => ProgramObject::Null,
             0x02 => ProgramObject::String(serializable::read_utf8(input)),
-            0x03 => ProgramObject::Method(Method { name: ConstantPoolIndex::from_bytes(input),
+            0x03 => ProgramObject::Method(Method {
+                name: ConstantPoolIndex::from_bytes(input),
                 parameters: Arity::from_bytes(input),
                 locals: Size::from_bytes(input),
-                code: code.append(OpCode::read_opcode_vector(input))}),
-            0x04 => ProgramObject::Slot { name: ConstantPoolIndex::from_bytes(input) },
+                code: code.append(OpCode::read_opcode_vector(input)),
+            }),
+            0x04 => ProgramObject::Slot {
+                name: ConstantPoolIndex::from_bytes(input),
+            },
             0x05 => ProgramObject::Class(ConstantPoolIndex::read_cpi_vector(input)),
             0x06 => ProgramObject::Boolean(serializable::read_bool(input)),
-            _    => panic!("Cannot deserialize value: unrecognized value tag: {}", tag)
+            _ => panic!("Cannot deserialize value: unrecognized value tag: {}", tag),
         }
     }
 }
 
 impl Serializable for ConstantPoolIndex {
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u16(sink, self.0)
     }
     fn from_bytes<R: Read>(input: &mut R) -> Self {
@@ -674,7 +755,7 @@ impl Serializable for ConstantPoolIndex {
 }
 
 impl Serializable for LocalFrameIndex {
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u16(sink, self.0)
     }
     fn from_bytes<R: Read>(input: &mut R) -> Self {
@@ -683,7 +764,7 @@ impl Serializable for LocalFrameIndex {
 }
 
 impl Serializable for Arity {
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u8(sink, self.0)
     }
 
@@ -693,7 +774,7 @@ impl Serializable for Arity {
 }
 
 impl Serializable for Size {
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u16(sink, self.0)
     }
 
@@ -703,7 +784,7 @@ impl Serializable for Size {
 }
 
 impl Serializable for Address {
-    fn serialize<W: Write> (&self, sink: &mut W) -> anyhow::Result<()> {
+    fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u32(sink, self.0)
     }
     fn from_bytes<R: Read>(input: &mut R) -> Self {
@@ -766,20 +847,19 @@ impl Display for ProgramObject {
             ProgramObject::String(s) => write!(f, "\"{}\"", s),
             ProgramObject::Slot { name } => write!(f, "slot {}", name),
             ProgramObject::Method(method) => {
-                write!(f, "method {} args:{} locals:{} {}", method.name, method.parameters, method.locals, method.code)
-            },
+                write!(
+                    f,
+                    "method {} args:{} locals:{} {}",
+                    method.name, method.parameters, method.locals, method.code
+                )
+            }
             ProgramObject::Class(members) => {
-                let members = members.iter()
-                    .map(|i| i.to_string())
-                    .collect::<Vec<String>>()
-                    .join(",");
+                let members = members.iter().map(|i| i.to_string()).collect::<Vec<String>>().join(",");
                 write!(f, "class {}", members)
-            },
+            }
         }
     }
 }
-
-
 
 impl Display for ConstantPoolIndex {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
@@ -807,7 +887,7 @@ impl Display for Size {
 
 impl Display for Address {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{number:>0width$}", number=self.0, width=4)
+        write!(f, "{number:>0width$}", number = self.0, width = 4)
     }
 }
 
@@ -816,8 +896,12 @@ impl Display for AddressRange {
         if self.length == 0 {
             write!(f, "{}-∅", self.start)
         } else {
-            write!(f, "{}-{}", self.start,
-                   Address::from_usize(self.start.value_usize() + self.length - 1))
+            write!(
+                f,
+                "{}-{}",
+                self.start,
+                Address::from_usize(self.start.value_usize() + self.length - 1)
+            )
         }
     }
 }
