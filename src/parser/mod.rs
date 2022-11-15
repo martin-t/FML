@@ -3,6 +3,7 @@ use std::cmp::PartialEq;
 use serde::{Serialize, Deserialize};
 
 #[allow(clippy::vec_box)] // LATER(martin-t) perf
+#[allow(clippy::upper_case_acronyms)]
 #[derive(PartialEq,Debug,Serialize,Deserialize,Clone)]
 pub enum AST {
     Integer(i32),
