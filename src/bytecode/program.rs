@@ -253,13 +253,7 @@ pub enum ProgramObject {
      *
      * Serialized with tag `0x03`.
      */
-    // LATER(martin-t) Consider splitting off into Method struct to avoid fallible functions like `get_method_*`
-    Method {
-        name: ConstantPoolIndex,
-        parameters: Arity,
-        locals: Size,
-        code: AddressRange,
-    },
+    Method(Method),
 
     /**
      * Represents an object structure consisting of field (aka slot) and method members for each
@@ -273,6 +267,14 @@ pub enum ProgramObject {
      * Serialized with tag `0x05`.
      */
     Class(Vec<ConstantPoolIndex>),
+}
+
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
+pub struct Method {
+    pub name: ConstantPoolIndex,
+    pub parameters: Arity,
+    pub locals: Size,
+    pub code: AddressRange,
 }
 
 impl ProgramObject {
@@ -295,38 +297,14 @@ impl ProgramObject {
     pub fn is_slot(&self) -> bool {
         matches!(self, ProgramObject::Slot { .. })
     }
+    pub fn as_method(&self) -> anyhow::Result<&Method> {
+        match self {
+            ProgramObject::Method(method) => Ok(method),
+            _ => anyhow::bail!("Expecting a program object representing a Method, found `{}`", self)
+        }
+    }
     pub fn is_method(&self) -> bool {
         matches!(self, ProgramObject::Method { .. })
-    }
-    pub fn get_method_parameters(&self) -> anyhow::Result<&Arity> {
-        match self {
-            ProgramObject::Method { parameters, .. } => Ok(parameters),
-            pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
-        }
-    }
-    pub fn get_method_name(&self) -> anyhow::Result<&ConstantPoolIndex> {
-        match self {
-            ProgramObject::Method { name, .. } => Ok(name),
-            pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
-        }
-    }
-    pub fn get_method_locals(&self) -> anyhow::Result<&Size> {
-        match self {
-            ProgramObject::Method { locals, .. } => Ok(locals),
-            pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
-        }
-    }
-    pub fn get_method_start_address(&self) -> anyhow::Result<&Address> {
-        match self {
-            ProgramObject::Method { code, .. } => Ok(code.start()),
-            pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
-        }
-    }
-    pub fn get_method_length(&self) -> anyhow::Result<usize> {
-        match self {
-            ProgramObject::Method { code, .. } => Ok(code.length),
-            pointer => Err(anyhow::anyhow!("Expected a Method but found `{}`", pointer)),
-        }
     }
     pub fn as_slot_index(&self) -> anyhow::Result<&ConstantPoolIndex> {
         match self {
@@ -334,12 +312,6 @@ impl ProgramObject {
             _ => anyhow::bail!("Expecting a program object representing a Slot, found `{}`", self)
         }
     }
-    // pub fn as_method(&self) -> bool {
-    //     match self {
-    //         ProgramObject::Method { name, arguments, locals, code } => true,
-    //         _ => false,
-    //     }
-    // }
 
     fn tag(&self) -> u8 {
         use ProgramObject::*;
@@ -347,7 +319,7 @@ impl ProgramObject {
             Integer(_)                                         => 0x00,
             Null                                               => 0x01,
             String(_)                                          => 0x02,
-            Method {name: _, parameters: _, locals: _, code: _} => 0x03,
+            Method(_)                                          => 0x03,
             Slot {name:_}                                      => 0x04,
             Class(_)                                           => 0x05,
             Boolean(_)                                         => 0x06,
@@ -406,8 +378,8 @@ impl Display for ProgramObject {
             ProgramObject::Null => write!(f, "null"),
             ProgramObject::String(s) => write!(f, "\"{}\"", s),
             ProgramObject::Slot { name } => write!(f, "slot {}", name),
-            ProgramObject::Method { name, locals, parameters: arguments, code } => {
-                write!(f, "method {} args:{} locals:{} {}", name, arguments, locals, code)
+            ProgramObject::Method(method) => {
+                write!(f, "method {} args:{} locals:{} {}", method.name, method.parameters, method.locals, method.code)
             },
             ProgramObject::Class(members) => {
                 let members = members.iter()
@@ -432,11 +404,11 @@ impl SerializableWithContext for ProgramObject {
             Class(v)    => ConstantPoolIndex::write_cpi_vector(sink, v),
             Slot {name} => name.serialize(sink),
 
-            Method {name, parameters, locals, code: range} => {
-                name.serialize(sink)?;
-                parameters.serialize(sink)?;
-                locals.serialize(sink)?;
-                OpCode::write_opcode_vector(sink, &code.materialize(range)?)
+            Method(method) => {
+                method.name.serialize(sink)?;
+                method.parameters.serialize(sink)?;
+                method.locals.serialize(sink)?;
+                OpCode::write_opcode_vector(sink, &code.materialize(&method.code)?)
             }
         }
     }
@@ -447,10 +419,10 @@ impl SerializableWithContext for ProgramObject {
             0x00 => ProgramObject::Integer(serializable::read_i32(input)),
             0x01 => ProgramObject::Null,
             0x02 => ProgramObject::String(serializable::read_utf8(input)),
-            0x03 => ProgramObject::Method { name: ConstantPoolIndex::from_bytes(input),
+            0x03 => ProgramObject::Method(Method { name: ConstantPoolIndex::from_bytes(input),
                 parameters: Arity::from_bytes(input),
                 locals: Size::from_bytes(input),
-                code: code.append(OpCode::read_opcode_vector(input))},
+                code: code.append(OpCode::read_opcode_vector(input))}),
             0x04 => ProgramObject::Slot { name: ConstantPoolIndex::from_bytes(input) },
             0x05 => ProgramObject::Class(ConstantPoolIndex::read_cpi_vector(input)),
             0x06 => ProgramObject::Boolean(serializable::read_bool(input)),

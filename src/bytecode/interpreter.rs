@@ -167,9 +167,9 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
                 let name = program_object.as_str()?;
                 slots.push(name);
             }
-            ProgramObject::Method { name: index, .. } => {
+            ProgramObject::Method(method) => {
                 // LATER(kondziu), probably don't need to store methods, tbh, just the class, which would simplify this a lot
-                let program_object = program.constant_pool.get(index)?;
+                let program_object = program.constant_pool.get(&method.name)?;
                 let name = program_object.as_str()?.to_owned();
                 let previous = methods.insert(name.clone(), member.clone());
                 ensure!(
@@ -514,6 +514,7 @@ fn dispatch_object_method(
 
     match method_option {
         Some(method) => {
+            let method = method.as_method()?;
             eval_call_object_method(program, state, method, method_name, receiver_pointer, argument_pointers)
         }
         None if object_instance.parent.is_null() => {
@@ -531,24 +532,20 @@ fn dispatch_object_method(
 fn eval_call_object_method(
     program: &Program,
     state: &mut State,
-    method: ProgramObject,
+    method: &Method,
     method_name: &str,
     pointer: Pointer,
     argument_pointers: Vec<Pointer>,
 ) -> Result<()> {
-    let parameters = method.get_method_parameters()?; // LATER(kondziu,fixme) perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
-    let locals = method.get_method_locals()?;
-    let address = method.get_method_start_address()?;
-
     ensure!(
-        argument_pointers.len() == parameters.to_usize() - 1,
+        argument_pointers.len() == method.parameters.to_usize() - 1,
         "Method `{}` requires {} arguments, but {} were supplied",
         method_name,
-        parameters,
+        method.parameters,
         argument_pointers.len()
     );
 
-    let local_pointers = vec![Pointer::Null; locals.to_usize()];
+    let local_pointers = vec![Pointer::Null; method.locals.to_usize()];
 
     state.instruction_pointer.bump(program);
     let frame = Frame::from(
@@ -556,7 +553,7 @@ fn eval_call_object_method(
         veccat!(vec![pointer], argument_pointers, local_pointers),
     );
     state.frame_stack.push(frame);
-    state.instruction_pointer.set(Some(*address));
+    state.instruction_pointer.set(Some(*method.code.start()));
     Ok(())
 }
 
@@ -570,22 +567,18 @@ pub fn eval_call_function(
     let program_object = program.constant_pool.get(index)?;
     let name = program_object.as_str()?;
     let function_index = state.frame_stack.functions.get(name)?;
-    let function = program.constant_pool.get(function_index)?;
-
-    let parameters = function.get_method_parameters()?; // LATER(kondziu,fixme) perhaps the thing to do here is to have a Method struct inside the ProgramObject::Method constructor
-    let locals = function.get_method_locals()?;
-    let address = function.get_method_start_address()?;
+    let function = program.constant_pool.get(function_index)?.as_method()?;
 
     ensure!(
-        arguments == parameters,
+        arguments == &function.parameters,
         "Function `{}` requires {} arguments, but {} were supplied",
         name,
-        parameters,
+        function.parameters,
         arguments
     );
 
     let argument_pointers = state.operand_stack.pop_sequence(arguments.to_usize())?;
-    let local_pointers = vec![Pointer::Null; locals.to_usize()];
+    let local_pointers = vec![Pointer::Null; function.locals.to_usize()];
 
     state.instruction_pointer.bump(program);
     let frame = Frame::from(
@@ -593,7 +586,7 @@ pub fn eval_call_function(
         veccat!(argument_pointers, local_pointers),
     );
     state.frame_stack.push(frame);
-    state.instruction_pointer.set(Some(*address));
+    state.instruction_pointer.set(Some(*function.code.start()));
     Ok(())
 }
 

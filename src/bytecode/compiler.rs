@@ -634,12 +634,12 @@ impl Compiled for AST {
                 let name = ProgramObject::String(name.to_string());
                 let name_index = program.constant_pool.register(name);
 
-                let method = ProgramObject::Method {
+                let method = ProgramObject::Method(Method {
                     name: name_index,
                     locals: Size::from_usize(locals_in_frame - parameters.len()),
                     parameters: Arity::from_usize(parameters.len()),
                     code: AddressRange::new(start_address, function_length),
-                };
+                });
 
                 let constant = program.constant_pool.register(method);
                 program.globals.register(constant)?;
@@ -779,12 +779,12 @@ impl Compiled for AST {
                 // println!("top start addr: {}", start_address);
                 // println!("top end addr: {}", start_address);
 
-                let method = ProgramObject::Method {
+                let method = ProgramObject::Method(Method {
                     name: function_name_index,
                     locals: Size::from_usize(global_environment.count_locals()),
                     parameters: Arity::from_usize(0),
                     code: AddressRange::new(start_address, function_length),
-                };
+                });
 
                 let function_index = program.constant_pool.register(method);
                 program.entry.set(function_index);
@@ -795,6 +795,7 @@ impl Compiled for AST {
     }
 }
 
+// LATER(martin-t) Is this duplicated code? There are 2 other similar blocks in this file.
 fn compile_function_definition(
     name: &str,
     receiver: bool,
@@ -847,12 +848,12 @@ fn compile_function_definition(
     let name_object = ProgramObject::String(name.to_string());
     let name_index = program.constant_pool.register(name_object);
 
-    let method = ProgramObject::Method {
+    let method = ProgramObject::Method(Method {
         name: name_index,
         locals: Size::from_usize(locals_in_frame - expected_arguments),
         parameters: Arity::from_usize(expected_arguments),
         code: AddressRange::new(start_address, length),
-    };
+    });
 
     Ok(program.constant_pool.register(method))
 }

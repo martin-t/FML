@@ -236,13 +236,10 @@ impl State {
         let entry_index = program.entry.get()
             .with_context(|| "Cannot find entry method.")?;
         let entry_method = program.constant_pool.get(&entry_index)
-            .with_context(|| "Cannot find entry method.")?;
-        let entry_address = entry_method.get_method_start_address()?;
-        let entry_length = entry_method.get_method_length()?;
-        let entry_locals = entry_method.get_method_locals()?;
+            .with_context(|| "Cannot find entry method.")?.as_method()?;
 
-        let instruction_pointer = if entry_length > 0 { 
-            InstructionPointer::from(*entry_address) 
+        let instruction_pointer = if entry_method.code.length() > 0 { 
+            InstructionPointer::from(*entry_method.code.start()) 
         } else { 
             InstructionPointer::new()
         };
@@ -269,8 +266,8 @@ impl State {
             .collect::<Result<Vec<String>>>()?;
 
         fn extract_function(program: &Program, index: &ConstantPoolIndex, method: &ProgramObject) -> Result<(String, ConstantPoolIndex)> {
-            let name_index = method.get_method_name()?;
-            let name_object = program.constant_pool.get(name_index)?;
+            let name_index = method.as_method()?.name;
+            let name_object = program.constant_pool.get(&name_index)?;
             let name = name_object.as_str()?;
             Ok((name.to_owned(), *index))
         }
@@ -283,7 +280,7 @@ impl State {
         let global_frame = GlobalFrame::from(globals, Pointer::Null)?;
         let global_functions = GlobalFunctions::from(functions)?;
         let mut frame_stack = FrameStack::from((global_frame, global_functions));
-        frame_stack.push(Frame::with_capacity(None, entry_locals.to_usize(), Pointer::Null));
+        frame_stack.push(Frame::with_capacity(None, entry_method.locals.to_usize(), Pointer::Null));
 
         let operand_stack = OperandStack::new();
         let heap: Heap = Heap::new();
