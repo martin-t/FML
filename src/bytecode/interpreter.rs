@@ -318,7 +318,7 @@ fn dispatch_null_method(method_name: &str, argument_pointers: Vec<Pointer>) -> R
     let argument = argument_pointers.last().unwrap();
 
     #[rustfmt::skip]
-    let result = match (method_name, argument) {
+    let pointer = match (method_name, argument) {
         ("==", Pointer::Null) | ("eq", Pointer::Null)  => Pointer::from(true),
         ("==", _) | ("eq", _)                          => Pointer::from(false),
         ("!=", Pointer::Null) | ("neq", Pointer::Null) => Pointer::from(false),
@@ -329,7 +329,7 @@ fn dispatch_null_method(method_name: &str, argument_pointers: Vec<Pointer>) -> R
         ),
     };
 
-    Ok(result)
+    Ok(pointer)
 }
 
 fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
@@ -343,7 +343,7 @@ fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers:
     let argument_pointer = argument_pointers.last().unwrap();
 
     #[rustfmt::skip]
-    let result = match (method_name, argument_pointer) {
+    let pointer = match (method_name, argument_pointer) {
         ("+",  Pointer::Integer(argument)) => Pointer::from(receiver +  argument),
         ("-",  Pointer::Integer(argument)) => Pointer::from(receiver -  argument),
         ("*",  Pointer::Integer(argument)) => Pointer::from(receiver *  argument),
@@ -404,7 +404,7 @@ fn dispatch_integer_method(receiver: &i32, method_name: &str, argument_pointers:
             argument
         ),
     };
-    Ok(result)
+    Ok(pointer)
 }
 
 fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers: Vec<Pointer>) -> Result<Pointer> {
@@ -418,7 +418,7 @@ fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers
     let argument_pointer = argument_pointers.last().unwrap();
 
     #[rustfmt::skip]
-    let result = match (method_name, argument_pointer) {
+    let pointer = match (method_name, argument_pointer) {
         ("&",  Pointer::Boolean(argument)) => Pointer::from(*receiver && *argument),
         ("|",  Pointer::Boolean(argument)) => Pointer::from(*receiver || *argument),
         ("==", Pointer::Boolean(argument)) => Pointer::from(*receiver == *argument),
@@ -447,7 +447,7 @@ fn dispatch_boolean_method(receiver: &bool, method_name: &str, argument_pointers
             argument
         ),
     };
-    Ok(result)
+    Ok(pointer)
 }
 
 fn dispatch_array_method(
