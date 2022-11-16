@@ -1,7 +1,3 @@
-// https://github.com/rust-lang/rust/issues/74087
-// LATER(martin-t) Can remove after removing rustfmt::skip
-#![allow(macro_expanded_macro_exports_accessed_by_absolute_paths)]
-
 #[macro_use]
 extern crate lalrpop_util;
 
