@@ -1,5 +1,3 @@
-use anyhow::Result;
-
 #[macro_export]
 macro_rules! veccat {
     ($a:expr, $b:expr) => {
