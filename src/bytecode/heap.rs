@@ -11,36 +11,6 @@ use indexmap::IndexMap;
 use crate::bytecode::program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size};
 use crate::bytecode::state::OperandStack;
 
-macro_rules! heap_log {
-    (START -> $file:expr) => {
-        if let Some(file) = &mut $file {
-            let timestamp = SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos();
-            write!(file, "{},S,0\n", timestamp).unwrap();
-        }
-    };
-    (ALLOCATE -> $file:expr, $memory:expr) => {
-        if let Some(file) = &mut $file {
-            let timestamp = SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos();
-            write!(file, "{},A,{}\n", timestamp, $memory).unwrap();
-        }
-    };
-    (GC -> $file:expr, $memory:expr) => {
-        if let Some(file) = &mut $file {
-            let timestamp = SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos();
-            write!(file, "{},G,{}\n", timestamp, $memory).unwrap();
-        }
-    };
-}
-
 #[derive(Debug, Default)]
 pub struct Heap {
     gc_size: Option<usize>,
@@ -57,6 +27,10 @@ impl PartialEq for Heap {
 }
 
 impl Heap {
+    pub fn new() -> Self {
+        Heap::default()
+    }
+
     pub fn set_gc_size(&mut self, size: Option<usize>) {
         self.gc_size = size;
     }
@@ -69,18 +43,45 @@ impl Heap {
         let mut file = File::create(path).unwrap();
         writeln!(file, "timestamp,event,heap").unwrap();
 
-        heap_log!(START -> Some(&mut file));
         self.log = Some(file);
+        self.log_start();
     }
 
-    pub fn new() -> Self {
-        Heap::default()
+    fn log_start(&mut self) {
+        if let Some(file) = &mut self.log {
+            let timestamp = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            write!(file, "{},S,0\n", timestamp).unwrap();
+        }
+    }
+
+    fn log_allocate(&mut self, memory: usize) {
+        if let Some(file) = &mut self.log {
+            let timestamp = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            write!(file, "{},A,{}\n", timestamp, memory).unwrap();
+        }
+    }
+
+    #[allow(dead_code)]
+    fn log_gc(&mut self, memory: usize) {
+        if let Some(file) = &mut self.log {
+            let timestamp = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            write!(file, "{},G,{}\n", timestamp, memory).unwrap();
+        }
     }
 
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
         //dbg!(object.size(), &object); // LATER(martin-t) Remove
-        heap_log!(ALLOCATE -> self.log, self.size);
+        self.log_allocate(self.size);
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
         index
