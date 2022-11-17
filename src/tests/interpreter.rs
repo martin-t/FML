@@ -491,7 +491,7 @@ macro_rules! indexmap {
 
     let pointers = vec![Pointer::from(1i32), Pointer::from(2i32), Pointer::from(3i32)];
     let array = HeapObject::from_pointers(pointers);
-    let pointer = state.heap.allocate(array.clone());
+    let pointer = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, array.clone());
     state.operand_stack.push(Pointer::from(pointer));
 
     step_with(&program, &mut state, &mut output).unwrap();
@@ -531,7 +531,7 @@ macro_rules! indexmap {
 
     let methods = IndexMap::new();
     let object = HeapObject::new_object(parent, fields, methods);
-    let pointer = state.heap.allocate(object.clone());
+    let pointer = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, object.clone());
 
     state.operand_stack.push(Pointer::from(pointer));
 
@@ -572,7 +572,7 @@ macro_rules! indexmap {
 
     let methods = IndexMap::new();
     let object = HeapObject::new_object(parent, fields, methods);
-    let pointer = state.heap.allocate(object.clone());
+    let pointer = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, object.clone());
 
     state.operand_stack.push(Pointer::from(pointer));
 
@@ -1042,7 +1042,7 @@ macro_rules! indexmap {
     let mut output: String = String::new();
 
     let head_index =
-        state.heap.allocate(HeapObject::from(Pointer::Null,
+        state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, HeapObject::from(Pointer::Null,
                                              indexmap!(("value".to_string(), Pointer::from(42i32))),
                                              IndexMap::new()));
 
@@ -1082,7 +1082,7 @@ macro_rules! indexmap {
                                   indexmap!(("value".to_string(), Pointer::from(1))),
                                   IndexMap::new());
 
-    let head_index = state.heap.allocate(object);
+    let head_index = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, object);
     state.operand_stack.push(Pointer::from(head_index));
     state.operand_stack.push(Pointer::from(6));
 
@@ -1127,7 +1127,7 @@ macro_rules! indexmap {
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
-    let heap_index = state.heap.allocate(receiver.clone());
+    let heap_index = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, receiver.clone());
     state.operand_stack.push(Pointer::from(heap_index));
 
     step_with(&program, &mut state, &mut output).unwrap();
@@ -1170,7 +1170,7 @@ macro_rules! indexmap {
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
-    let head_index = state.heap.allocate(receiver.clone());
+    let head_index = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, receiver.clone());
     state.operand_stack.push(Pointer::from(head_index));
     state.operand_stack.push(Pointer::from(1));
 
@@ -1214,7 +1214,8 @@ macro_rules! indexmap {
                                                                                       code: AddressRange::from(0, 1) }))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
-    state.operand_stack.push(Pointer::from(state.heap.allocate(receiver.clone())));
+    let pointer = Pointer::from(state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, receiver.clone()));
+    state.operand_stack.push(pointer);
     state.operand_stack.push(Pointer::from(1i32));
     state.operand_stack.push(Pointer::from(2i32));
     state.operand_stack.push(Pointer::from(3i32));
@@ -1266,8 +1267,8 @@ macro_rules! indexmap {
 //     let mut output: String = String::new();
 //
 //     state.instruction_pointer.set(Some(Address::from_usize(0)));
-//     state.operand_stack.push(Pointer::from(state.heap.allocate(receiver.clone())));
-//     state.operand_stack.push(Pointer::from(state.heap.allocate(argument.clone())));
+//     state.operand_stack.push(Pointer::from(state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, receiver.clone())));
+//     state.operand_stack.push(Pointer::from(state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, argument.clone())));
 //
 //     step_with(&program, &mut state, &mut output).unwrap();
 //
@@ -1482,7 +1483,7 @@ fn call_method_boolean(receiver: bool, argument: bool, operation: &str, result: 
 
     let array =
         HeapObject::from_pointers(vec![Pointer::from(42), Pointer::from(666), Pointer::from(0)]);
-    let array_index = state.heap.allocate(array.clone());
+    let array_index = state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, array.clone());
     state.operand_stack.push(Pointer::from(array_index));
     state.operand_stack.push(Pointer::from(1));
 
@@ -1523,7 +1524,8 @@ fn call_method_boolean(receiver: bool, argument: bool, operation: &str, result: 
 
     state.instruction_pointer.set(Some(Address::from_usize(0)));
 
-    state.operand_stack.push(Pointer::from(state.heap.allocate(array)));
+    let pointer = Pointer::from(state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, array));
+    state.operand_stack.push(pointer);
     state.operand_stack.push(Pointer::from(1));
     state.operand_stack.push(Pointer::from(42));
 
