@@ -53,7 +53,7 @@ impl Heap {
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            write!(file, "{},S,0\n", timestamp).unwrap();
+            writeln!(file, "{},S,0", timestamp).unwrap();
         }
     }
 
@@ -63,7 +63,7 @@ impl Heap {
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            write!(file, "{},A,{}\n", timestamp, memory).unwrap();
+            writeln!(file, "{},A,{}", timestamp, memory).unwrap();
         }
     }
 
@@ -74,7 +74,7 @@ impl Heap {
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            write!(file, "{},G,{}\n", timestamp, memory).unwrap();
+            writeln!(file, "{},G,{}", timestamp, memory).unwrap();
         }
     }
 
