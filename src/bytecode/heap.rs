@@ -83,8 +83,8 @@ impl Heap {
 
     pub fn allocate(
         &mut self,
-        frame_stack: &FrameStack,
-        operand_stack: &OperandStack,
+        frame_stack: &mut FrameStack,
+        operand_stack: &mut OperandStack,
         object: HeapObject,
     ) -> HeapIndex {
         //dbg!(object.size(), &object); // LATER(martin-t) Remove
@@ -103,7 +103,7 @@ impl Heap {
         index
     }
 
-    fn gc(&mut self, frame_stack: &FrameStack, operand_stack: &OperandStack) {
+    fn gc(&mut self, frame_stack: &mut FrameStack, operand_stack: &mut OperandStack) {
         use std::collections::VecDeque;
 
         #[derive(Debug)]
@@ -161,6 +161,7 @@ impl Heap {
         }
 
         // Nuke everything unreachable so it crashes if there's a bug
+        // LATER Make optional: --debug flag?
         for index in 0..gc.marks.len() {
             if !gc.marks[index] {
                 self.memory[index] = HeapObject::Object(ObjectInstance {
@@ -171,7 +172,74 @@ impl Heap {
             }
         }
 
-        // TODO Sweep
+        // Sweep - compute forwarding pointers
+        let mut forwarding = vec![0; self.memory.len()];
+        let mut new_index = 0;
+        for old_index in 0..gc.marks.len() {
+            if gc.marks[old_index] {
+                forwarding[old_index] = new_index;
+                new_index += 1;
+            }
+        }
+        let new_length = new_index;
+
+        // Sweep - update pointers
+        let rewrite_pointer = |pointer: &mut Pointer| {
+            if let Pointer::Reference(index) = pointer {
+                let new_index = forwarding[index.0];
+                index.0 = new_index;
+            }
+        };
+        for global in frame_stack.globals.values_mut() {
+            rewrite_pointer(global)
+        }
+        for frame in frame_stack.frames_mut() {
+            for local in frame.locals_mut() {
+                rewrite_pointer(local);
+            }
+        }
+        for operand in operand_stack.values_mut() {
+            rewrite_pointer(operand);
+        }
+        for index in 0..gc.marks.len() {
+            if !gc.marks[index] {
+                continue;
+            }
+
+            let heap_object = &mut self.memory[index];
+            match heap_object {
+                HeapObject::Array(array) => {
+                    for element in &mut array.0 {
+                        rewrite_pointer(element);
+                    }
+                }
+                HeapObject::Object(object) => {
+                    rewrite_pointer(&mut object.parent);
+                    for field in object.fields.values_mut() {
+                        rewrite_pointer(field);
+                    }
+                }
+            }
+        }
+
+        // Sweep - compaction
+        for old_index in 0..gc.marks.len() {
+            if !gc.marks[old_index] {
+                continue;
+            }
+
+            let new_index = forwarding[old_index];
+            // LATER(martin-t) Perf - avoid clone? mem::swap?
+            self.memory[new_index] = self.memory[old_index].clone();
+        }
+        self.memory.truncate(new_length);
+
+        // Recalculate size
+        let mut size = 0;
+        for heap_object in &self.memory {
+            size += heap_object.size();
+        }
+        self.size = size;
     }
 
     pub fn dereference(&self, index: &HeapIndex) -> Result<&HeapObject> {
