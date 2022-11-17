@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{HashMap, HashSet, hash_map::Values},
     fmt,
     io::Write,
 };
@@ -54,6 +54,9 @@ impl OperandStack {
     pub fn new() -> Self {
         Self::default()
     }
+    pub fn values(&self) -> &Vec<Pointer> {
+        &self.0
+    }
     pub fn push(&mut self, pointer: Pointer) {
         self.0.push(pointer)
     }
@@ -105,6 +108,9 @@ impl Frame {
     pub fn from(return_address: Option<Address>, locals: Vec<Pointer>) -> Self {
         Frame { locals, return_address }
     }
+    pub fn locals(&self) -> &Vec<Pointer> {
+        &self.locals
+    }
     pub fn get(&self, index: &LocalFrameIndex) -> Result<&Pointer> {
         let index = index.value() as usize;
         if index >= self.locals.len() {
@@ -135,6 +141,9 @@ impl FrameStack {
             functions: GlobalFunctions::new(),
             frames: Vec::new(),
         }
+    }
+    pub fn frames(&self) -> &Vec<Frame> {
+        &self.frames
     }
     pub fn pop(&mut self) -> Result<Frame> {
         self.frames
@@ -223,6 +232,9 @@ impl GlobalFrame {
     }
     pub fn get(&self, name: &str) -> Result<&Pointer> {
         self.0.get(name).with_context(|| format!("No such global `{}`.", name))
+    }
+    pub fn values(&self) -> Values<String, Pointer> {
+        self.0.values()
     }
     #[allow(dead_code)]
     pub fn update(&mut self, name: String, pointer: Pointer) -> Result<()> {

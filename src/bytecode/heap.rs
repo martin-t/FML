@@ -1,15 +1,19 @@
-use std::fmt::{self, Display, Formatter};
-use std::fs::{self, File};
-use std::io::Write;
-use std::mem;
-use std::path::PathBuf;
-use std::time::SystemTime;
+use std::{
+    fmt::{self, Display, Formatter},
+    fs::{self, File},
+    io::Write,
+    mem,
+    path::PathBuf,
+    time::SystemTime,
+};
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use indexmap::IndexMap;
 
-use crate::bytecode::program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size};
-use crate::bytecode::state::OperandStack;
+use crate::bytecode::{
+    program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size},
+    state::{FrameStack, OperandStack},
+};
 
 #[derive(Debug, Default)]
 pub struct Heap {
@@ -57,34 +61,117 @@ impl Heap {
         }
     }
 
-    fn log_allocate(&mut self, memory: usize) {
+    fn log_allocate(&mut self) {
         if let Some(file) = &mut self.log {
             let timestamp = SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            writeln!(file, "{},A,{}", timestamp, memory).unwrap();
+            writeln!(file, "{},A,{}", timestamp, self.size).unwrap();
         }
     }
 
-    #[allow(dead_code)]
-    fn log_gc(&mut self, memory: usize) {
+    fn log_gc(&mut self) {
         if let Some(file) = &mut self.log {
             let timestamp = SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            writeln!(file, "{},G,{}", timestamp, memory).unwrap();
+            writeln!(file, "{},G,{}", timestamp, self.size).unwrap();
         }
     }
 
-    pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
-        self.size += object.size();
+    pub fn allocate(
+        &mut self,
+        frame_stack: &FrameStack,
+        operand_stack: &OperandStack,
+        object: HeapObject,
+    ) -> HeapIndex {
         //dbg!(object.size(), &object); // LATER(martin-t) Remove
-        self.log_allocate(self.size);
+
+        if let Some(gc_size) = self.gc_size {
+            if self.size + object.size() > gc_size {
+                self.gc(frame_stack, operand_stack);
+                self.log_gc();
+            }
+        }
+
+        self.size += object.size();
+        self.log_allocate();
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
         index
+    }
+
+    fn gc(&mut self, frame_stack: &FrameStack, operand_stack: &OperandStack) {
+        use std::collections::VecDeque;
+
+        #[derive(Debug)]
+        struct Gc {
+            marks: Vec<bool>,
+            to_visit: VecDeque<HeapIndex>,
+        }
+
+        impl Gc {
+            fn enque(&mut self, pointer: Pointer) {
+                if let Pointer::Reference(index) = pointer {
+                    if !self.marks[index.0] {
+                        self.to_visit.push_back(index);
+                    }
+                    self.marks[index.0] = true;
+                }
+            }
+        }
+
+        let mut gc = Gc {
+            marks: vec![false; self.memory.len()],
+            to_visit: VecDeque::new(),
+        };
+
+        // Mark roots
+        for &global in frame_stack.globals.values() {
+            gc.enque(global);
+        }
+        for frame in frame_stack.frames() {
+            for &local in frame.locals() {
+                gc.enque(local);
+            }
+        }
+        for &operand in operand_stack.values() {
+            gc.enque(operand);
+        }
+
+        // Mark everything reachable using BFS
+        // LATER(martin-t) Why BFS? DFS could be marginally faster?
+        while let Some(index) = gc.to_visit.pop_front() {
+            let heap_object = &self.memory[index.0];
+            match heap_object {
+                HeapObject::Array(array) => {
+                    for &element in &array.0 {
+                        gc.enque(element);
+                    }
+                }
+                HeapObject::Object(object) => {
+                    gc.enque(object.parent);
+                    for &field in object.fields.values() {
+                        gc.enque(field);
+                    }
+                }
+            }
+        }
+
+        // Nuke everything unreachable so it crashes if there's a bug
+        for index in 0..gc.marks.len() {
+            if !gc.marks[index] {
+                self.memory[index] = HeapObject::Object(ObjectInstance {
+                    parent: Pointer::Integer(666),
+                    fields: IndexMap::new(),
+                    methods: IndexMap::new(),
+                });
+            }
+        }
+
+        // TODO Sweep
     }
 
     pub fn dereference(&self, index: &HeapIndex) -> Result<&HeapObject> {

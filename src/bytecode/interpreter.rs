@@ -196,7 +196,9 @@ pub fn eval_object(program: &Program, state: &mut State, index: &ConstantPoolInd
 
     let parent = state.operand_stack.pop()?;
 
-    let heap_index = state.heap.allocate(HeapObject::new_object(parent, fields, methods)); // LATER(kondziu) simplify
+    let object = HeapObject::new_object(parent, fields, methods);
+
+    let heap_index = state.heap.allocate(&state.frame_stack, &state.operand_stack, object); // LATER(kondziu) simplify
     state.operand_stack.push(Pointer::from(heap_index));
     state.instruction_pointer.bump(program);
     Ok(())
@@ -217,7 +219,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
     let elements = vec![initializer; n as usize];
     let array = HeapObject::from_pointers(elements);
 
-    let heap_index = state.heap.allocate(array);
+    let heap_index = state.heap.allocate(&state.frame_stack, &state.operand_stack, array);
     state.operand_stack.push(Pointer::from(heap_index));
     state.instruction_pointer.bump(program);
     Ok(())
