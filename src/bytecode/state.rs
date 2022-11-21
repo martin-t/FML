@@ -93,17 +93,14 @@ impl From<Vec<Pointer>> for OperandStack {
     }
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Default)]
 pub struct Frame {
     pub return_address: Option<Address>,
     locals: Vec<Pointer>,
 }
 impl Frame {
     pub fn new() -> Self {
-        Frame {
-            locals: Vec::new(),
-            return_address: None,
-        }
+        Self::default()
     }
     pub fn with_capacity(return_address: Option<Address>, size: usize, initial: Pointer) -> Self {
         Frame {
@@ -137,7 +134,7 @@ impl Frame {
     }
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Default)]
 pub struct FrameStack {
     pub globals: GlobalFrame,
     pub functions: GlobalFunctions,
@@ -145,11 +142,7 @@ pub struct FrameStack {
 }
 impl FrameStack {
     pub fn new() -> Self {
-        FrameStack {
-            globals: GlobalFrame::new(),
-            functions: GlobalFunctions::new(),
-            frames: Vec::new(),
-        }
+        Self::default()
     }
     pub fn frames(&self) -> &Vec<Frame> {
         &self.frames
@@ -197,11 +190,11 @@ impl From<Frame> for FrameStack {
     }
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Default)]
 pub struct GlobalFunctions(HashMap<String, ConstantPoolIndex>);
 impl GlobalFunctions {
     pub fn new() -> Self {
-        GlobalFunctions(HashMap::new())
+        Self::default()
     }
     pub fn get(&self, name: &str) -> Result<&ConstantPoolIndex> {
         self.0
@@ -236,11 +229,11 @@ impl GlobalFunctions {
     }
 }
 
-#[derive(Eq, PartialEq, Debug)]
+#[derive(Eq, PartialEq, Debug, Default)]
 pub struct GlobalFrame(HashMap<String, Pointer>);
 impl GlobalFrame {
     pub fn new() -> Self {
-        GlobalFrame(HashMap::new())
+        Self::default()
     }
     pub fn get(&self, name: &str) -> Result<&Pointer> {
         self.0.get(name).with_context(|| format!("No such global `{}`.", name))

@@ -104,6 +104,8 @@ impl Heap {
     }
 
     fn gc(&mut self, frame_stack: &mut FrameStack, operand_stack: &mut OperandStack) {
+        #![allow(clippy::needless_range_loop)] // I just find this easier to read
+
         use std::collections::VecDeque;
 
         #[derive(Debug)]
