@@ -1,5 +1,8 @@
 use std::{
-    collections::{HashMap, HashSet, hash_map::{Values, ValuesMut}},
+    collections::{
+        hash_map::{Values, ValuesMut},
+        HashMap, HashSet,
+    },
     fmt,
     io::Write,
 };
