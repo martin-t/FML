@@ -31,7 +31,7 @@ macro_rules! heap_log {
 }
 
 #[derive(Debug)]
-pub struct Heap{ max_size: usize, size: usize, log: Option<File>, memory: Vec<HeapObject> }
+pub struct Heap{ max_size: usize, size: usize, size_last: usize, log: Option<File>, memory: Vec<HeapObject> }
 
 impl Eq for Heap {}
 impl PartialEq for Heap {
@@ -57,11 +57,18 @@ impl Heap {
         self.log = Some(file)
     }
     pub fn new() -> Self {
-        Heap { max_size: 0, log: None, memory: Vec::new(), size: 0 }
+        Heap { max_size: 0, log: None, memory: Vec::new(), size: 0, size_last: 0 }
     }
     pub fn allocate(&mut self, object: HeapObject) -> HeapIndex {
         self.size += object.size();
-        heap_log!(ALLOCATE -> self.log, self.size);
+        
+        let now = self.size as isize;
+        let last = self.size_last as isize;
+        let diff = (now - last).abs();
+        if diff > 100_000 {
+            self.size_last = self.size;
+            heap_log!(ALLOCATE -> self.log, self.size);
+        }
         let index = HeapIndex::from(self.memory.len());
         self.memory.push(object);
         index
@@ -82,6 +89,7 @@ impl From<Vec<HeapObject>> for Heap {
     fn from(objects: Vec<HeapObject>) -> Self {
         Heap {
             size: objects.iter().map(|o| o.size()).sum(),
+            size_last: 0,
             max_size: 0,
             log: None,
             memory: objects
