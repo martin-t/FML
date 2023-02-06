@@ -25,7 +25,7 @@ opt-level = 3
 
 [dependencies]
 anyhow = "1.0.37"
-clap = { version = "3.2.8", features = ["derive"] }
+clap = { version = "4.1.4", features = ["derive"] }
 indexmap = "1.6.2"
 lalrpop-util = { version = "0.19.8", features = ["lexer"] }
 regex = "1.5.5"
