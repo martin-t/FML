@@ -787,7 +787,7 @@ use crate::bytecode::compiler::*;
     let expected_program =
         Program::from(expected_code, expected_constants, expected_globals, expected_entry).unwrap();
 
-    assert_eq!(format!("{}", program), format!("{}", expected_program));
+    assert_eq!(format!("{program}"), format!("{expected_program}"));
 
     assert_eq!(program, expected_program);
     assert_eq!(global_environment, expected_global_environment);
@@ -963,7 +963,7 @@ use crate::bytecode::compiler::*;
     let expected_program =
         Program::from(expected_code, expected_constants, expected_globals, expected_entry).unwrap();
 
-    assert_eq!(format!("{}", program), format!("{}", expected_program));
+    assert_eq!(format!("{program}"), format!("{expected_program}"));
 
     assert_eq!(program, expected_program);
     assert_eq!(global_environment, expected_global_environment);

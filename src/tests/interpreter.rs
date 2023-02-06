@@ -116,7 +116,7 @@ macro_rules! indexmap {
     let expected_instruction_pointer = InstructionPointer::from(1u32);
     let expected_heap = Heap::new();
 
-    println!("expected frame stack: {:?}", expected_frame_stack);
+    println!("expected frame stack: {expected_frame_stack:?}");
     println!("actual frame stack:   {:?}", state.frame_stack);
 
     assert_eq!(&output, "", "test output");
@@ -248,7 +248,7 @@ macro_rules! indexmap {
     let expected_instruction_pointer = InstructionPointer::from(1u32);
     let expected_heap = Heap::new();
 
-    println!("expected ip: {:?}", expected_instruction_pointer);
+    println!("expected ip: {expected_instruction_pointer:?}");
     println!("actual   ip: {:?}", state.instruction_pointer);
 
     assert_eq!(&output, "", "test output");

@@ -4,14 +4,14 @@ use crate::parser::*;
 #[allow(dead_code)]
 pub fn parse(input: &str) -> Result<crate::parser::AST, String> {
     match crate::fml::TopLevelParser::new().parse(input) {
-        Err(e) => Err(format!("{:?}", e)),
+        Err(e) => Err(format!("{e:?}")),
         Ok(ast) => Ok(ast),
     }
 }
 
 #[allow(dead_code)]
 fn parse_ok(input: &str, correct: AST) {
-    println!("{}", input);
+    println!("{input}");
     for i in 0..input.len() {
         if i%10 == 0 {
             print!(" ");
@@ -25,7 +25,7 @@ fn parse_ok(input: &str, correct: AST) {
 
 #[allow(dead_code)]
 fn parse_err(input: &str) {
-    println!("{}", input);
+    println!("{input}");
     assert!(TopLevelParser::new().parse(input).is_err());
 }
 
