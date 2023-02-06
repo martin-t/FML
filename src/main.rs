@@ -51,7 +51,7 @@ impl Action {
 #[derive(Args, Debug)]
 #[clap(about = "Run an FML program")]
 struct RunAction {
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
     #[clap(
         long = "heap-size",
@@ -62,8 +62,7 @@ struct RunAction {
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
-        help = "Path to heap log, if none, the log is not produced",
-        parse(from_os_str)
+        help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
 }
@@ -71,14 +70,14 @@ struct RunAction {
 #[derive(Args, Debug)]
 #[clap(about = "Print FML bytecode in human-readable form")]
 struct BytecodeDisassemblerAction {
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
 }
 
 #[derive(Args, Debug)]
 #[clap(about = "Interpret FML bytecode")]
 struct BytecodeInterpreterAction {
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
     #[clap(
         long = "heap-size",
@@ -90,8 +89,7 @@ struct BytecodeInterpreterAction {
     #[clap(
         long = "heap-log",
         name = "LOG_FILE",
-        help = "Path to heap log, if none, the log is not produced",
-        parse(from_os_str)
+        help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
 }
@@ -99,10 +97,10 @@ struct BytecodeInterpreterAction {
 #[derive(Args, Debug)]
 #[clap(about = "Compiles an FML AST into bytecode")]
 struct CompilerAction {
-    #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
+    #[clap(short = 'o', long = "output-path", alias = "output-dir")]
     pub output: Option<PathBuf>,
 
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
 
     #[clap(
@@ -125,10 +123,10 @@ struct CompilerAction {
 #[derive(Args, Debug)]
 #[clap(about = "Parses FML source code and outputs an AST")]
 struct ParserAction {
-    #[clap(short = 'o', long = "output-path", alias = "output-dir", parse(from_os_str))]
+    #[clap(short = 'o', long = "output-path", alias = "output-dir")]
     pub output: Option<PathBuf>,
 
-    #[clap(name = "FILE", parse(from_os_str))]
+    #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
 
     #[clap(
