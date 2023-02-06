@@ -288,7 +288,7 @@ impl From<&str> for Operator {
             "|"  => Operator::Disjunction,
             "&"  => Operator::Conjunction,
 
-            other => panic!("Cannot parse {} as Operator", other),
+            other => panic!("Cannot parse {other} as Operator"),
         }
     }
 }

@@ -161,7 +161,7 @@ impl ConstantPool {
     pub fn get(&self, index: &ConstantPoolIndex) -> Result<&ProgramObject> {
         self.0
             .get(index.as_usize())
-            .with_context(|| format!("Cannot dereference object from the constant pool at index: `{}`", index))
+            .with_context(|| format!("Cannot dereference object from the constant pool at index: `{index}`"))
     }
     pub fn get_all(&self, indices: Vec<&ConstantPoolIndex>) -> Result<Vec<&ProgramObject>> {
         indices.iter().map(|index| self.get(index)).collect()
@@ -371,7 +371,7 @@ impl Labels {
     pub fn get(&self, label: &str) -> Result<&Address> {
         self.names
             .get(label)
-            .with_context(|| format!("Label `{}` was not previously register.", label))
+            .with_context(|| format!("Label `{label}` was not previously register."))
     }
     pub fn from<'a, I>(labels: I) -> Result<Self>
     where
@@ -740,7 +740,7 @@ impl SerializableWithContext for ProgramObject {
             },
             0x05 => ProgramObject::Class(ConstantPoolIndex::read_cpi_vector(input)),
             0x06 => ProgramObject::Boolean(serializable::read_bool(input)),
-            _ => panic!("Cannot deserialize value: unrecognized value tag: {}", tag),
+            _ => panic!("Cannot deserialize value: unrecognized value tag: {tag}"),
         }
     }
 }
@@ -808,7 +808,7 @@ impl Display for Program {
 impl Display for ConstantPool {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         for (i, program_object) in self.0.iter().enumerate() {
-            writeln!(f, "{}: {}", i, program_object)?;
+            writeln!(f, "{i}: {program_object}")?;
         }
         Ok(())
     }
@@ -817,7 +817,7 @@ impl Display for ConstantPool {
 impl Display for Globals {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         for (i, global) in self.0.iter().enumerate() {
-            writeln!(f, "{}: {}", i, global)?;
+            writeln!(f, "{i}: {global}")?;
         }
         Ok(())
     }
@@ -825,14 +825,14 @@ impl Display for Globals {
 
 impl Display for Entry {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        self.0.as_ref().map_or(Ok(()), |index| write!(f, "{}", index))
+        self.0.as_ref().map_or(Ok(()), |index| write!(f, "{index}"))
     }
 }
 
 impl Display for Code {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for (i, opcode) in self.0.iter().enumerate() {
-            writeln!(f, "{}: {}", i, opcode)?;
+            writeln!(f, "{i}: {opcode}")?;
         }
         Ok(())
     }
@@ -841,11 +841,11 @@ impl Display for Code {
 impl Display for ProgramObject {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            ProgramObject::Integer(n) => write!(f, "{}", n),
-            ProgramObject::Boolean(b) => write!(f, "{}", b),
+            ProgramObject::Integer(n) => write!(f, "{n}"),
+            ProgramObject::Boolean(b) => write!(f, "{b}"),
             ProgramObject::Null => write!(f, "null"),
-            ProgramObject::String(s) => write!(f, "\"{}\"", s),
-            ProgramObject::Slot { name } => write!(f, "slot {}", name),
+            ProgramObject::String(s) => write!(f, "\"{s}\""),
+            ProgramObject::Slot { name } => write!(f, "slot {name}"),
             ProgramObject::Method(method) => {
                 write!(
                     f,
@@ -855,7 +855,7 @@ impl Display for ProgramObject {
             }
             ProgramObject::Class(members) => {
                 let members = members.iter().map(|i| i.to_string()).collect::<Vec<String>>().join(",");
-                write!(f, "class {}", members)
+                write!(f, "class {members}")
             }
         }
     }

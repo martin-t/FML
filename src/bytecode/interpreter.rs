@@ -19,7 +19,7 @@ trait OpCodeEvaluationResult<T> {
 impl<T> OpCodeEvaluationResult<T> for Result<T> {
     #[inline(always)]
     fn attach(self, opcode: &OpCode) -> Result<T> {
-        self.with_context(|| format!("Error evaluating {}:", opcode))
+        self.with_context(|| format!("Error evaluating {opcode}:"))
     }
 }
 

@@ -57,7 +57,7 @@ impl Heap {
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .unwrap()
                 .as_nanos();
-            writeln!(file, "{},S,0", timestamp).unwrap();
+            writeln!(file, "{timestamp},S,0").unwrap();
         }
     }
 
@@ -247,13 +247,13 @@ impl Heap {
     pub fn dereference(&self, index: &HeapIndex) -> Result<&HeapObject> {
         self.memory
             .get(index.as_usize())
-            .with_context(|| format!("Cannot dereference object from the heap at index: `{}`", index))
+            .with_context(|| format!("Cannot dereference object from the heap at index: `{index}`"))
     }
 
     pub fn dereference_mut(&mut self, index: &HeapIndex) -> Result<&mut HeapObject> {
         self.memory
             .get_mut(index.as_usize())
-            .with_context(|| format!("Cannot dereference object from the heap at index: `{}`", index))
+            .with_context(|| format!("Cannot dereference object from the heap at index: `{index}`"))
     }
 }
 
@@ -361,8 +361,8 @@ impl HeapObject {
 impl Display for HeapObject {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            HeapObject::Array(array) => write!(f, "{}", array),
-            HeapObject::Object(object) => write!(f, "{}", object),
+            HeapObject::Array(array) => write!(f, "{array}"),
+            HeapObject::Object(object) => write!(f, "{object}"),
         }
     }
 }
@@ -429,7 +429,7 @@ impl Display for ArrayInstance {
             "[{}]",
             self.0
                 .iter()
-                .map(|pointer| format!("{}", pointer))
+                .map(|pointer| format!("{pointer}"))
                 .collect::<Vec<String>>()
                 .join(", ")
         )
@@ -451,12 +451,12 @@ impl ObjectInstance {
     pub fn get_field(&self, name: &str) -> Result<&Pointer> {
         self.fields
             .get(name)
-            .with_context(|| format!("There is no field named `{}` in object `{}`", name, self))
+            .with_context(|| format!("There is no field named `{name}` in object `{self}`"))
     }
     pub fn set_field(&mut self, name: &str, pointer: Pointer) -> Result<Pointer> {
         self.fields
             .insert(name.to_owned(), pointer)
-            .with_context(|| format!("There is no field named `{}` in object `{}`", name, self))
+            .with_context(|| format!("There is no field named `{name}` in object `{self}`"))
     }
     pub fn evaluate_as_string(&self, heap: &Heap) -> Result<String> {
         let parent = match self.parent {
@@ -470,15 +470,11 @@ impl ObjectInstance {
 
         let fields = sorted_fields
             .into_iter()
-            .map(|(name, value)| {
-                value
-                    .evaluate_as_string(heap)
-                    .map(|value| format!("{}={}", name, value))
-            })
+            .map(|(name, value)| value.evaluate_as_string(heap).map(|value| format!("{name}={value}")))
             .collect::<Result<Vec<String>>>()?;
 
         match parent {
-            Some(parent) if fields.is_empty() => Ok(format!("object(..={})", parent)),
+            Some(parent) if fields.is_empty() => Ok(format!("object(..={parent})")),
             Some(parent) => Ok(format!("object(..={}, {})", parent, fields.join(", "))),
             None => Ok(format!("object({})", fields.join(", "))),
         }
@@ -495,7 +491,7 @@ impl Display for ObjectInstance {
         let fields = self
             .fields
             .iter()
-            .map(|(name, value)| format!("{}={}", name, value))
+            .map(|(name, value)| format!("{name}={value}"))
             .collect::<Vec<String>>();
 
         match parent {
@@ -655,7 +651,7 @@ impl From<Pointer> for bool {
     fn from(val: Pointer) -> Self {
         match val {
             Pointer::Boolean(b) => b,
-            p => panic!("Cannot cast `{}` into a boolean pointer.", p),
+            p => panic!("Cannot cast `{p}` into a boolean pointer."),
         }
     }
 }
@@ -664,7 +660,7 @@ impl From<Pointer> for i32 {
     fn from(val: Pointer) -> Self {
         match val {
             Pointer::Integer(i) => i,
-            p => panic!("Cannot cast `{}` into an integer pointer.", p),
+            p => panic!("Cannot cast `{p}` into an integer pointer."),
         }
     }
 }
@@ -725,9 +721,9 @@ impl Display for Pointer {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Pointer::Null => write!(f, "null"),
-            Pointer::Integer(i) => write!(f, "{}", i),
-            Pointer::Boolean(b) => write!(f, "{}", b),
-            Pointer::Reference(p) => write!(f, "{}", p),
+            Pointer::Integer(i) => write!(f, "{i}"),
+            Pointer::Boolean(b) => write!(f, "{b}"),
+            Pointer::Reference(p) => write!(f, "{p}"),
         }
     }
 }

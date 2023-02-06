@@ -231,7 +231,7 @@ impl BytecodeDisassemblerAction {
             .deserialize(&mut source)
             .expect("Cannot parse bytecode from input.");
 
-        println!("{}", program);
+        println!("{program}");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -297,7 +297,7 @@ impl ParserAction {
 
         let result = serializer.serialize(&ast).expect("Cannot serialize AST");
 
-        write!(sink, "{}", result).expect("Cannot write to output");
+        write!(sink, "{result}").expect("Cannot write to output");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -372,9 +372,9 @@ impl ASTSerializer {
             ASTSerializer::Lisp => serde_lexpr::to_string(&ast)?,
             ASTSerializer::Json => serde_json::to_string(&ast)?,
             ASTSerializer::Yaml => serde_yaml::to_string(&ast)?,
-            ASTSerializer::Internal => format!("{:?}", ast),
+            ASTSerializer::Internal => format!("{ast:?}"),
         };
-        Ok(format!("{}\n", string))
+        Ok(format!("{string}\n"))
     }
 
     pub fn deserialize(&self, source: &str) -> Result<AST> {

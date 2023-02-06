@@ -382,7 +382,7 @@ impl Serializable for OpCode {
             0x0E => Jump         { label:     ConstantPoolIndex::from_bytes(input)  },
             0x0F => Return,
             0x10 => Drop,
-            tag  => panic!("Cannot deserialize opcode: unknown tag {}", tag)
+            tag  => panic!("Cannot deserialize opcode: unknown tag {tag}")
         }
     }
 }
@@ -390,21 +390,21 @@ impl Serializable for OpCode {
 impl Display for OpCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            OpCode::Literal { index } => write!(f, "lit {}", index),
-            OpCode::GetLocal { index } => write!(f, "get local {}", index),
-            OpCode::SetLocal { index } => write!(f, "set local {}", index),
-            OpCode::GetGlobal { name } => write!(f, "get global {}", name),
-            OpCode::SetGlobal { name } => write!(f, "set global {}", name),
-            OpCode::Object { class } => write!(f, "object {}", class),
+            OpCode::Literal { index } => write!(f, "lit {index}"),
+            OpCode::GetLocal { index } => write!(f, "get local {index}"),
+            OpCode::SetLocal { index } => write!(f, "set local {index}"),
+            OpCode::GetGlobal { name } => write!(f, "get global {name}"),
+            OpCode::SetGlobal { name } => write!(f, "set global {name}"),
+            OpCode::Object { class } => write!(f, "object {class}"),
             OpCode::Array => write!(f, "array"),
-            OpCode::GetField { name } => write!(f, "get slot {}", name),
-            OpCode::SetField { name } => write!(f, "set slot {}", name),
-            OpCode::CallMethod { name, arguments } => write!(f, "call slot {} {}", name, arguments),
-            OpCode::CallFunction { name, arguments } => write!(f, "call {} {}", name, arguments),
-            OpCode::Print { format, arguments } => write!(f, "printf {} {}", format, arguments),
-            OpCode::Label { name } => write!(f, "label {}", name),
-            OpCode::Jump { label } => write!(f, "goto {}", label),
-            OpCode::Branch { label } => write!(f, "branch {}", label),
+            OpCode::GetField { name } => write!(f, "get slot {name}"),
+            OpCode::SetField { name } => write!(f, "set slot {name}"),
+            OpCode::CallMethod { name, arguments } => write!(f, "call slot {name} {arguments}"),
+            OpCode::CallFunction { name, arguments } => write!(f, "call {name} {arguments}"),
+            OpCode::Print { format, arguments } => write!(f, "printf {format} {arguments}"),
+            OpCode::Label { name } => write!(f, "label {name}"),
+            OpCode::Jump { label } => write!(f, "goto {label}"),
+            OpCode::Branch { label } => write!(f, "branch {label}"),
             OpCode::Return => write!(f, "return"),
             OpCode::Drop => write!(f, "drop"),
         }

@@ -197,9 +197,7 @@ impl GlobalFunctions {
         Self::default()
     }
     pub fn get(&self, name: &str) -> Result<&ConstantPoolIndex> {
-        self.0
-            .get(name)
-            .with_context(|| format!("No such function `{}`.", name))
+        self.0.get(name).with_context(|| format!("No such function `{name}`."))
     }
     #[allow(dead_code)]
     pub fn update(&mut self, name: String, index: ConstantPoolIndex) -> Result<()> {
@@ -236,7 +234,7 @@ impl GlobalFrame {
         Self::default()
     }
     pub fn get(&self, name: &str) -> Result<&Pointer> {
-        self.0.get(name).with_context(|| format!("No such global `{}`.", name))
+        self.0.get(name).with_context(|| format!("No such global `{name}`."))
     }
     pub fn values(&self) -> Values<String, Pointer> {
         self.0.values()

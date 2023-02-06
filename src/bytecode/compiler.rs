@@ -219,8 +219,7 @@ impl Environment {
 
         if let Some(index) = self.locals.get(&key) {
             return Err(format!(
-                "Local {} already exist (at index {:?}) and cannot be redefined",
-                id, index
+                "Local {id} already exist (at index {index:?}) and cannot be redefined"
             ));
         }
 
@@ -352,7 +351,7 @@ impl Compiled for AST {
                         program
                             .globals
                             .register(slot_index)
-                            .unwrap_or_else(|_| panic!("Cannot register new global {}", name));
+                            .unwrap_or_else(|_| panic!("Cannot register new global {name}"));
                         active_buffer.emit(OpCode::SetGlobal { name: name_index });
                     }
                 }
@@ -473,9 +472,9 @@ impl Compiled for AST {
                     }
                     _ => {
                         let unique_number = global_environment.generate_unique_number();
-                        let i_id = Identifier::from(format!("::i_{}", unique_number));
-                        let size_id = Identifier::from(format!("::size_{}", unique_number));
-                        let array_id = Identifier::from(format!("::array_{}", unique_number));
+                        let i_id = Identifier::from(format!("::i_{unique_number}"));
+                        let size_id = Identifier::from(format!("::size_{unique_number}"));
+                        let array_id = Identifier::from(format!("::array_{unique_number}"));
 
                         // let ::size = eval SIZE;
                         let size_definition = AST::variable(size_id.clone(), *size.clone());
@@ -684,7 +683,7 @@ impl Compiled for AST {
                             let index = program.constant_pool.register(ProgramObject::from_str(name));
                             Ok(program.constant_pool.register(ProgramObject::slot_from_index(index)))
                         }
-                        _ => panic!("Object definition: cannot define a member from {:?}", m),
+                        _ => panic!("Object definition: cannot define a member from {m:?}"),
                     })
                     .collect();
 
