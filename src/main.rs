@@ -6,10 +6,10 @@ extern crate lalrpop_util;
 lalrpop_mod!(#[allow(clippy::all)] pub fml);
 
 mod bytecode;
+mod jit;
 mod parser;
 
 #[cfg(test)]
-#[rustfmt::skip] // LATER(martin-t) Would be nice to format but it's too much code that needs manual fixes
 mod tests;
 
 use std::fmt::{self, Debug, Formatter};
@@ -24,28 +24,18 @@ use crate::bytecode::interpreter::evaluate_with_memory_config;
 use crate::bytecode::program::Program;
 use crate::bytecode::serializable::Serializable;
 use crate::fml::TopLevelParser;
+use crate::jit::jit_with_memory_config;
 use crate::parser::AST;
 
 #[derive(Parser, Debug)]
 #[clap(version, author)]
 enum Action {
     Run(RunAction),
-    Disassemble(BytecodeDisassemblerAction),
+    Jit(JitAction),
     Execute(BytecodeInterpreterAction),
+    Disassemble(BytecodeDisassemblerAction),
     Compile(CompilerAction),
     Parse(ParserAction),
-}
-
-impl Action {
-    pub fn execute(&self) {
-        match self {
-            Self::Run(action) => action.run(),
-            Self::Disassemble(action) => action.debug(),
-            Self::Execute(action) => action.interpret(),
-            Self::Compile(action) => action.compile(),
-            Self::Parse(action) => action.parse(),
-        }
-    }
 }
 
 #[derive(Args, Debug)]
@@ -68,10 +58,23 @@ struct RunAction {
 }
 
 #[derive(Args, Debug)]
-#[clap(about = "Print FML bytecode in human-readable form")]
-struct BytecodeDisassemblerAction {
+#[clap(about = "Interpret FML bytecode using a JIT")]
+struct JitAction {
     #[clap(name = "FILE")]
     pub input: Option<PathBuf>,
+    #[clap(
+        long = "heap-size",
+        name = "BYTES",
+        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)"
+    )]
+    // LATER(martin-t) Would be nice to parse it using clap and use Option<usize>
+    pub heap_gc_size: Option<String>,
+    #[clap(
+        long = "heap-log",
+        name = "LOG_FILE",
+        help = "Path to heap log, if none, the log is not produced"
+    )]
+    pub heap_log: Option<PathBuf>,
 }
 
 #[derive(Args, Debug)]
@@ -92,6 +95,13 @@ struct BytecodeInterpreterAction {
         help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
+}
+
+#[derive(Args, Debug)]
+#[clap(about = "Print FML bytecode in human-readable form")]
+struct BytecodeDisassemblerAction {
+    #[clap(name = "FILE")]
+    pub input: Option<PathBuf>,
 }
 
 #[derive(Args, Debug)]
@@ -191,6 +201,29 @@ impl RunAction {
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
         evaluate_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("Interpreter error");
+    }
+
+    pub fn selected_input(&self) -> Result<NamedSource> {
+        NamedSource::from(self.input.as_ref())
+    }
+}
+
+impl JitAction {
+    pub fn jit(&self) {
+        let mut source = self
+            .selected_input()
+            .expect("Cannot open an input for the bytecode interpreter.");
+
+        let program = BCSerializer::Bytes
+            .deserialize(&mut source)
+            .expect("Cannot parse bytecode from input.");
+
+        let gc_size = self
+            .heap_gc_size
+            .as_ref()
+            .map(|size| parse_size(size).expect("Cannot parse heap size"));
+
+        jit_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("JIT error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -578,5 +611,12 @@ impl Debug for NamedSink {
 }
 
 fn main() {
-    Action::parse().execute();
+    match Action::parse() {
+        Action::Run(action) => action.run(),
+        Action::Jit(action) => action.jit(),
+        Action::Execute(action) => action.interpret(),
+        Action::Disassemble(action) => action.debug(),
+        Action::Compile(action) => action.compile(),
+        Action::Parse(action) => action.parse(),
+    }
 }

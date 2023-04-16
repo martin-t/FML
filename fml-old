@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# TODO make release optional
-# TODO unnecessarily complex, this should be in FMLtest?
-# TODO `run` does NOT run AST interpreter as one would expect
+# LATER(martin-t) make release optional
+# LATER(martin-t) unnecessarily complex, this should be in FMLtest?
+# LATER(martin-t) `run` does NOT run AST interpreter as one would expect
 
 # Some basic usage of the runtime
 CMD="rlwrap target/debug/fml"

@@ -20,3 +20,5 @@
 
 # Option 3 - simply call the binary
 target/debug/fml "$@"
+
+# TODO Make release default but optional.

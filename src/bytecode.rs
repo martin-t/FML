@@ -3,7 +3,6 @@ use crate::parser::AST;
 #[macro_use]
 mod helpers; // Keep this first so the macros are available everywhere
 
-// LATER(martin-t) Remove rustfmt::skip
 pub mod compiler;
 pub mod debug;
 pub mod heap;
