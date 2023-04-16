@@ -163,7 +163,7 @@ impl Heap {
         }
 
         // Nuke everything unreachable so it crashes if there's a bug
-        // LATER Make optional: --debug flag?
+        // LATER(martin-t) Make optional: --debug flag?
         for index in 0..gc.marks.len() {
             if !gc.marks[index] {
                 self.memory[index] = HeapObject::Object(ObjectInstance {

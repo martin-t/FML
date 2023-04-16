@@ -41,7 +41,8 @@ jobs:
       # Use build instead of check since it needs to be built for tests anyway
       - run: cargo build --verbose --all-features
       - run: cargo test --verbose --all-features
-      # TODO regenerate BC test files, check nothing changed
+      # LATER(martin-t) Regenerate BC test files here, check nothing changed
+      # so that the .fml files are the only source of truth.
       # Need to specify shell, otherwise this always succeeds on windows without running any tests
       - run: tests/test_run.sh
         shell: bash

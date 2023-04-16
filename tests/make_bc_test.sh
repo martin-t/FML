@@ -16,4 +16,4 @@ name=$(dirname "$fmlpath")/$(basename "$fmlpath" .fml)
 # --delimiter="\n" makes sure quotes and backslashes are not removed
 ./fml execute "$name.bc" | xargs --delimiter="\n" -I{} echo "// >" {} | tee --append "$name.bc.txt"
 
-# TODO check expected is the same
+# LATER(martin-t) Check expected is the same

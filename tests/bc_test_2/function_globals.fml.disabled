@@ -6,7 +6,7 @@ function f() ->
  print("~ ~ ~ ~\n", a, b, c, d);
 f()
 
-// TODO need errors without line numbers
+// LATER(martin-t) need errors without line numbers
 // > thread 'main' panicked at 'Interpreter error: Error evaluating get global #14:
 // > 
 // > Caused by:
