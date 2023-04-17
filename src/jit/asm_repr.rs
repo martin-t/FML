@@ -5,6 +5,7 @@ use std::{
     iter,
 };
 
+/// TODO Explain relative offsets for call/jump.
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Instr {
@@ -49,8 +50,8 @@ pub enum Instr {
     // Jcc
     // We should only need these 6 because we only use signed integers.
     // Also these are all relative, there's no absolute variant.
-    // LATER: Offset is relative to the start of the instruction, not the end
-    // because that's how NASM works - chage/remove?
+
+    // Offset is relative to the start of this instruction.
     _Je(i32),
     _Jg(i32),
     _Jge(i32),
@@ -58,6 +59,7 @@ pub enum Instr {
     _Jle(i32),
     _Jne(i32),
 
+    // Offset is relative to the start of the next instruction.
     Je32(i32),
     Jg32(i32),
     Jge32(i32),
@@ -95,6 +97,7 @@ pub enum Instr {
 
     TestRR(Reg, Reg),
     TestMR(Mem, Reg),
+    // There is no TestRM in x86
     TestRI(Reg, i32),
     TestMI(Mem, i32),
 
@@ -148,15 +151,15 @@ pub enum Reg {
 
 /// https://blog.yossarian.net/2020/06/13/How-x86_64-addresses-memory
 ///
-/// LATER should this specify size (dword/qword)?
-///     We have no way to use Instr::*MI with 64 bit memory locations.
+/// LATER(martin-t) Add a way to specify size (dword/qword).
+///     We currently have no way to use Instr::*MI with 64 bit memory locations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Mem {
     pub base: Option<Reg>,
     pub index: Option<Reg>,
     pub scale: u8,
+    // LATER(martin-t) This can be 64 bits in some special cases (using A* registers?)
     /// Displacement (offset)
-    /// LATER This can be 64 bit when using A* registers
     pub disp: i32,
 }
 
@@ -202,8 +205,6 @@ pub struct Sib {
     pub base: u8,
 }
 
-/// LATER This was originally meant for 8 or 32 bit disp
-/// but now we also support 64 bit imm here. Split the 2 types?
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Num {
     Num8(i8),
@@ -236,7 +237,7 @@ pub const MODRM_RM_DISP32: u8 = 0b101;
 /// This is `none` in the SIB table.
 /// The index register is not present.
 ///
-/// Same value as ESP/RSP.
+/// Same value as RSP/R12.
 ///
 /// There seems to be no way to use these registers as index,
 /// NASM on asm.x32.dev silently ignores instructions which do.
@@ -245,7 +246,7 @@ pub const SIB_INDEX_NONE: u8 = 0b100;
 /// This is `[*]` in the SIB table.
 /// If mod == 0b00 then there is no base register and disp is 32 bits.
 ///
-/// Same value as EBP/RBP
+/// Same value as RBP/R13.
 pub const SIB_BASE_SPECIAL: u8 = 0b101;
 
 impl Reg {
@@ -435,6 +436,7 @@ impl Reg {
 }
 
 impl Mem {
+    #[allow(dead_code)]
     pub fn base(reg: Reg) -> Mem {
         Mem {
             base: Some(reg),
@@ -487,7 +489,6 @@ impl Mem {
             index: Some(index),
             scale,
             disp,
-            ..Default::default()
         }
     }
 }
@@ -618,8 +619,7 @@ impl NumberExt for Option<Num> {
 /// except some instructions which are only formatted for humans. LATER
 ///
 /// Print numbers in decimal.
-/// LATER Mem should always spefiy size (dword/qword)
-/// and must use "ptr".
+/// LATER(martin-t) Always specify size (dword/qword) and use "ptr".
 impl Display for Instr {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {

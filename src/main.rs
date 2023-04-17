@@ -27,6 +27,8 @@ use crate::fml::TopLevelParser;
 use crate::jit::jit_with_memory_config;
 use crate::parser::AST;
 
+// LATER(martin-t) Replace most/all uses of HashMap with a faster variant like fnv/fxhash.
+
 #[derive(Parser, Debug)]
 #[clap(version, author)]
 enum Action {

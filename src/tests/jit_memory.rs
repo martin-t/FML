@@ -7,13 +7,40 @@
 
 use std::{arch::asm, mem};
 
-use crate::jit::{asm_encoding::print_hex, memory::JitMemory};
+use crate::jit::{
+    asm_encoding::{compile, print_hex},
+    asm_repr::{Instr, Reg},
+    memory::JitMemory,
+};
+
+use Instr::*;
+use Reg::*;
+
+#[test]
+fn test_fn_void() {
+    let instrs = [Ret];
+    let code = compile(&instrs).code;
+    let jit = JitMemory::new(&code);
+    let f: fn() = unsafe { mem::transmute(jit.code) };
+    f();
+    f();
+}
+
+#[test]
+fn test_fn_int() {
+    let instrs = [MovRI(Rax, 1337), Ret];
+    let code = compile(&instrs).code;
+    let jit = JitMemory::new(&code);
+    let f: fn() -> i32 = unsafe { mem::transmute(jit.code) };
+    let ret = f();
+    assert_eq!(ret, 1337);
+    let ret = f();
+    assert_eq!(ret, 1337);
+}
 
 #[test]
 fn return_args_1_6() {
     // 6 functions that return arguments 1-6.
-
-    // TODO Test windows, might need to specify calling convention.
 
     let code1 = [
         0x48, 0x89, 0xf8, // mov rax, rdi

@@ -19,6 +19,7 @@ mod feeny;
 #[rustfmt::skip]
 mod interpreter;
 
+#[cfg(not(target_os = "windows"))] // LATER(martin-t) Windows support.
 mod jit_memory;
 
 #[rustfmt::skip]

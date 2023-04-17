@@ -27,8 +27,8 @@ const IMMS32: [i32; 13] = [
     i16::MIN as i32,
     i16::MAX as i32 + 1,
     i16::MIN as i32 - 1,
-    i32::MAX as i32,
-    i32::MIN as i32,
+    i32::MAX,
+    i32::MIN,
 ];
 /// Interesting i32 values that can't fit in 8 bits.
 ///
@@ -41,8 +41,8 @@ const IMMS32_LITE: [i32; 8] = [
     i16::MIN as i32,
     i16::MAX as i32 + 1,
     i16::MIN as i32 - 1,
-    i32::MAX as i32,
-    i32::MIN as i32,
+    i32::MAX,
+    i32::MIN,
 ];
 /// Interesting i64 values
 const IMMS64: [i64; 17] = [
@@ -79,45 +79,19 @@ fn test_simple() {
 
 #[test]
 fn test_add_examples() {
-    let mut instrs = Vec::new();
-
-    // https://www.systutorials.com/beginners-guide-x86-64-instruction-encoding/
-    // add r8, [rdi + 0xa]
-    instrs.push(Instr::AddRM(
-        Reg::R8,
-        Mem {
-            base: Some(Reg::Rdi),
-            index: None,
-            scale: 1,
-            disp: 0xa,
-        },
-    ));
-
-    // https://stackoverflow.com/questions/28664856/how-to-interpret-x86-opcode-map
-    // The example would require address-size override prefix
-    // so we use 64 bit regs here:
-    // add edx, [rbx + rcx*4 + 0x15]
-    instrs.push(Instr::AddRM(
-        Reg::Edx,
-        Mem {
-            base: Some(Reg::Rbx),
-            index: Some(Reg::Rcx),
-            scale: 4,
-            disp: 0x15,
-        },
-    ));
-
-    // Based on https://stackoverflow.com/questions/52522544/rbp-not-allowed-as-sib-base
-    // add eax, [rbp+rcx]
-    instrs.push(Instr::AddRM(
-        Reg::Eax,
-        Mem {
-            base: Some(Reg::Rbp),
-            index: Some(Reg::Rcx),
-            scale: 1,
-            disp: 0,
-        },
-    ));
+    let instrs = vec![
+        // https://www.systutorials.com/beginners-guide-x86-64-instruction-encoding/
+        // add r8, [rdi + 0xa]
+        Instr::AddRM(Reg::R8, Mem::base_offset(Reg::Rdi, 0xa)),
+        // https://stackoverflow.com/questions/28664856/how-to-interpret-x86-opcode-map
+        // The example would require address-size override prefix
+        // so we use 64 bit regs here:
+        // add edx, [rbx + rcx*4 + 0x15]
+        Instr::AddRM(Reg::Edx, Mem::base_index_offset(Reg::Rbx, Reg::Rcx, 4, 0x15)),
+        // Based on https://stackoverflow.com/questions/52522544/rbp-not-allowed-as-sib-base
+        // add eax, [rbp+rcx]
+        Instr::AddRM(Reg::Eax, Mem::base_index(Reg::Rbp, Reg::Rcx, 1)),
+    ];
 
     let expecteds: &[&[u8]] = &[
         &[0x4c, 0x03, 0x47, 0x0a], // add r8, [rdi + 0xa]
@@ -438,49 +412,49 @@ fn test_addlike() {
     // These instructions are similar to ADD and AND
     // so the tests are less detailed.
 
-    let mut instrs = Vec::new();
-
-    instrs.push(Instr::CmpRR(Esp, Ebp));
-    instrs.push(Instr::CmpRR(Rsp, Rbp));
-    instrs.push(Instr::CmpMR(TEST_MEM, Esp));
-    instrs.push(Instr::CmpMR(TEST_MEM, Rsp));
-    instrs.push(Instr::CmpRM(Esp, TEST_MEM));
-    instrs.push(Instr::CmpRM(Rsp, TEST_MEM));
-    instrs.push(Instr::CmpRI(Esp, 420));
-    instrs.push(Instr::CmpRI(Rsp, 420));
-    instrs.push(Instr::CmpMI(TEST_MEM, 420));
-    instrs.push(Instr::CmpMI(TEST_MEM, 420));
-
-    instrs.push(Instr::OrRR(Esp, Ebp));
-    instrs.push(Instr::OrRR(Rsp, Rbp));
-    instrs.push(Instr::OrMR(TEST_MEM, Esp));
-    instrs.push(Instr::OrMR(TEST_MEM, Rsp));
-    instrs.push(Instr::OrRM(Esp, TEST_MEM));
-    instrs.push(Instr::OrRM(Rsp, TEST_MEM));
-    instrs.push(Instr::OrRI(Esp, 420));
-    instrs.push(Instr::OrRI(Rsp, 420));
-    instrs.push(Instr::OrMI(TEST_MEM, 420));
-    instrs.push(Instr::OrMI(TEST_MEM, 420));
-
-    instrs.push(Instr::SubRR(Esp, Ebp));
-    instrs.push(Instr::SubRR(Rsp, Rbp));
-    instrs.push(Instr::SubMR(TEST_MEM, Esp));
-    instrs.push(Instr::SubMR(TEST_MEM, Rsp));
-    instrs.push(Instr::SubRM(Esp, TEST_MEM));
-    instrs.push(Instr::SubRM(Rsp, TEST_MEM));
-    instrs.push(Instr::SubRI(Esp, 420));
-    instrs.push(Instr::SubRI(Rsp, 420));
-    instrs.push(Instr::SubMI(TEST_MEM, 420));
-    instrs.push(Instr::SubMI(TEST_MEM, 420));
-
-    instrs.push(Instr::TestRR(Esp, Ebp));
-    instrs.push(Instr::TestRR(Rsp, Rbp));
-    instrs.push(Instr::TestMR(TEST_MEM, Esp));
-    instrs.push(Instr::TestMR(TEST_MEM, Rsp));
-    instrs.push(Instr::TestRI(Esp, 420));
-    instrs.push(Instr::TestRI(Rsp, 420));
-    instrs.push(Instr::TestMI(TEST_MEM, 420));
-    instrs.push(Instr::TestMI(TEST_MEM, 420));
+    let instrs = [
+        Instr::CmpRR(Esp, Ebp),
+        Instr::CmpRR(Rsp, Rbp),
+        Instr::CmpMR(TEST_MEM, Esp),
+        Instr::CmpMR(TEST_MEM, Rsp),
+        Instr::CmpRM(Esp, TEST_MEM),
+        Instr::CmpRM(Rsp, TEST_MEM),
+        Instr::CmpRI(Esp, 420),
+        Instr::CmpRI(Rsp, 420),
+        Instr::CmpMI(TEST_MEM, 420),
+        Instr::CmpMI(TEST_MEM, 420),
+        //
+        Instr::OrRR(Esp, Ebp),
+        Instr::OrRR(Rsp, Rbp),
+        Instr::OrMR(TEST_MEM, Esp),
+        Instr::OrMR(TEST_MEM, Rsp),
+        Instr::OrRM(Esp, TEST_MEM),
+        Instr::OrRM(Rsp, TEST_MEM),
+        Instr::OrRI(Esp, 420),
+        Instr::OrRI(Rsp, 420),
+        Instr::OrMI(TEST_MEM, 420),
+        Instr::OrMI(TEST_MEM, 420),
+        //
+        Instr::SubRR(Esp, Ebp),
+        Instr::SubRR(Rsp, Rbp),
+        Instr::SubMR(TEST_MEM, Esp),
+        Instr::SubMR(TEST_MEM, Rsp),
+        Instr::SubRM(Esp, TEST_MEM),
+        Instr::SubRM(Rsp, TEST_MEM),
+        Instr::SubRI(Esp, 420),
+        Instr::SubRI(Rsp, 420),
+        Instr::SubMI(TEST_MEM, 420),
+        Instr::SubMI(TEST_MEM, 420),
+        //
+        Instr::TestRR(Esp, Ebp),
+        Instr::TestRR(Rsp, Rbp),
+        Instr::TestMR(TEST_MEM, Esp),
+        Instr::TestMR(TEST_MEM, Rsp),
+        Instr::TestRI(Esp, 420),
+        Instr::TestRI(Rsp, 420),
+        Instr::TestMI(TEST_MEM, 420),
+        Instr::TestMI(TEST_MEM, 420),
+    ];
 
     let expecteds: &[&[u8]] = &include!("data/addlike.in");
     assert_encoding_and_serialization(&instrs, expecteds);
@@ -488,8 +462,6 @@ fn test_addlike() {
 
 #[test]
 fn test_addressing_single_reg() {
-    // LATER Thesis: this would make a nice example
-
     let mem_regs = [
         Rax, Rcx, Rdx, Rbx, Rsp, Rbp, Rsi, Rdi, R8, R9, R10, R11, R12, R13, R14, R15,
     ];

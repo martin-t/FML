@@ -1,9 +1,12 @@
 use libc::{c_int, c_void, PROT_EXEC, PROT_READ, PROT_WRITE};
 
 /// Note this can't be tested by miri
-/// because it doesn't support some of the functions used.
+/// because miri doesn't support some of the functions used.
 ///
-/// LATER Windows support?
+/// LATER(martin-t) Windows support?
+///     - Windows doesn't have mprotect and other libc functions.
+///     - Might need to explicitly specify calling conventions in more places
+///       (e.g. when transmuting JitMemory::code).
 pub struct JitMemory {
     pub code: *mut u8,
     size: usize,
@@ -20,8 +23,8 @@ impl JitMemory {
         // beyond the end, we'll _always_ reach an INT3 instruction
         // and get SIGTRAP instead of SIGSEGV which is nice(r).
         // So I'll keep it this way.
-        // LATER Actually fix this or make it optional.
-        //       We could even add a dummy page full of INT3 in front.
+        // LATER(martin-t) Actually fix this or make it optional.
+        //      We could even add a dummy page full of INT3 in front to catch bad jumps.
         let num_pages = data.len() / PAGE_SIZE + 1;
         let size = num_pages * PAGE_SIZE;
 
@@ -65,39 +68,5 @@ impl Drop for JitMemory {
 
             libc::free(self.code as *mut c_void)
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::mem;
-
-    use crate::jit::asm_encoding::*;
-    use crate::jit::asm_repr::*;
-    use Instr::*;
-    use Reg::*;
-
-    use super::*;
-
-    #[test]
-    fn test_fn_void() {
-        let instrs = [Ret];
-        let code = compile(&instrs);
-        let jit = JitMemory::new(&code);
-        let f: fn() = unsafe { mem::transmute(jit.code) };
-        f();
-        f();
-    }
-
-    #[test]
-    fn test_fn_int() {
-        let instrs = [MovRI(Rax, 1337), Ret];
-        let code = compile(&instrs);
-        let jit = JitMemory::new(&code);
-        let f: fn() -> i32 = unsafe { mem::transmute(jit.code) };
-        let ret = f();
-        assert_eq!(ret, 1337);
-        let ret = f();
-        assert_eq!(ret, 1337);
     }
 }

@@ -31,9 +31,6 @@ impl Instr {
         //   https://stackoverflow.com/a/51347294/2468852
         // - Table 2-5. Special Cases of REX Encodings
 
-        // LATER some instrs don't need REX:
-        // https://wiki.osdev.org/X86-64_Instruction_Encoding#Usage
-
         match self {
             Instr::Nop => Encoding::just_opcode(0x90),
             Instr::AddRR(dst, src) => {
@@ -58,7 +55,7 @@ impl Instr {
             }
             Instr::AddMI(dst, imm) => {
                 // 81 /0 id             ADD r/m32, imm32
-                // REX.W + 81 /0 id     ADD r/m64, imm32 LATER?
+                // REX.W + 81 /0 id     ADD r/m64, imm32
                 Self::encode_mem_imm(0x81, 0, dst, imm)
             }
             Instr::AndRR(dst, src) => {
@@ -83,7 +80,7 @@ impl Instr {
             }
             Instr::AndMI(dst, imm) => {
                 // 81 /4 id             AND r/m32, imm32
-                // REX.W + 81 /4 id     AND r/m64, imm32 LATER?
+                // REX.W + 81 /4 id     AND r/m64, imm32
                 Self::encode_mem_imm(0x81, 4, dst, imm)
             }
             Instr::_CallRel(rel) => {
@@ -294,8 +291,8 @@ impl Instr {
                 }
             }
             Instr::MovMI(dst, imm) => {
-                // C7 /0 id             MOV r/m64, imm32
-                // REX.W + C7 /0 id     MOV r/m64, imm32 LATER?
+                // C7 /0 id             MOV r/m32, imm32
+                // REX.W + C7 /0 id     MOV r/m64, imm32
                 Self::encode_mem_imm(0xC7, 0, dst, imm)
             }
             Instr::OrRR(dst, src) => Self::encode_reg_reg(0x09, dst, src),
@@ -531,13 +528,10 @@ impl Instr {
 
 impl Mem {
     fn encode(self) -> EncodedMem {
-        // LATER we could allow a few more registers:
-        // https://stackoverflow.com/questions/52522544/rbp-not-allowed-as-sib-base
-
         // Make sure there is at least one register
         // because using only displacement is a special case in 64-bit mode
         // which enables RIP-relative addressing.
-        // LATER According to 2.2.1.6 RIP-Relative Addressing,
+        // LATER(martin-t) According to 2.2.1.6 RIP-Relative Addressing,
         // the solution is to always use a SIB byte.
         // However, NASM behaves weirdly when generating test-cases
         // and since I am unlikely to need this addressing mode,
@@ -546,8 +540,8 @@ impl Mem {
         // 32 vs 64 bits and it decodes into rip relative in 64 bit mode.
         assert!(self.base.is_some() || self.index.is_some());
 
-        // Only support 64 bit addressing for now.
-        // LATER What is needed to support 32 bits?
+        // Only support 64 bit registers for now.
+        // LATER(martin-t) What is needed to support 32 bit regs?
         //  - Add Address-size override prefix (0x67)
         //  - The code was written with the assumption that only 64 bit registers
         //    will be used, make sure 32 bit regs are handled everywhere correctly.
@@ -724,7 +718,7 @@ impl Encoding {
         }
     }
 
-    // LATER use Write?
+    // LATER(martin-t) Use Write?
     pub fn serialize(&self, buf: &mut Vec<u8>) {
         let old_len = buf.len();
 
@@ -760,19 +754,14 @@ impl Encoding {
 
     /// Returns the encoded instruction and the number of bytes read.
     pub fn deserialize(bytes: &[u8]) -> (Encoding, usize) {
-        assert!(bytes.len() >= 1);
+        assert!(!bytes.is_empty());
         let mut i = 0;
 
         // Legacy prefixes
         let mut legacy_prefixes = SmallVec::new();
-        loop {
-            match bytes[i] {
-                0xf0 | 0xf2 | 0xf3 | 0x2e | 0x36 | 0x3e | 0x26 | 0x64 | 0x65 | 0x66 | 0x67 => {
-                    legacy_prefixes.push(bytes[i]);
-                    i += 1;
-                }
-                _ => break,
-            };
+        while let 0xf0 | 0xf2 | 0xf3 | 0x2e | 0x36 | 0x3e | 0x26 | 0x64 | 0x65 | 0x66 | 0x67 = bytes[i] {
+            legacy_prefixes.push(bytes[i]);
+            i += 1;
         }
 
         // REX prefix
@@ -786,6 +775,7 @@ impl Encoding {
         let opcode = bytes[i];
         i += 1;
 
+        // LATER(martin-t) Decode lowest 3 bits of some instrucions as register.
         let mut encoding = Encoding::prefixes_opcode(legacy_prefixes, rex, opcode);
         match opcode {
             0x01 | 0x03 => {
@@ -870,7 +860,6 @@ impl Encoding {
             }
             0xB8..=0xBF => {
                 // MovRI
-                // LATER Lowest 3 bits encode the register.
                 let mut size = 4;
                 if let Some(rex) = rex {
                     if rex.w == 1 {
@@ -884,7 +873,7 @@ impl Encoding {
             }
             0xC7 => {
                 // MovRI
-                // LATER Modrm.reg is opcode extension (0 for MOV)
+                // LATER(martin-t) Modrm.reg is opcode extension (0 for MOV)
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
                 Self::deserialize_num(bytes, &mut i, &mut encoding, 4);
             }
@@ -919,7 +908,7 @@ impl Encoding {
             }
             0xFF => {
                 // CallAbs
-                // LATER Modrm.reg is opcode extension (2 for CALL)
+                // LATER(martin-t) Modrm.reg is opcode extension (2 for CALL)
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
             }
             _ => panic!("unknown opcode {:02x}", opcode),
@@ -984,6 +973,13 @@ impl Encoding {
         println!("{encoding}");
         (encoding, consumed)
     }
+
+    pub fn deserialize_and_print_all(mut bytes: &[u8]) {
+        while !bytes.is_empty() {
+            let (_, consumed) = Self::deserialize_and_print(bytes);
+            bytes = &bytes[consumed..];
+        }
+    }
 }
 
 impl Default for Encoding {
@@ -1001,6 +997,7 @@ impl Default for Encoding {
     }
 }
 
+#[allow(clippy::print_in_format_impl)] // Intentional so we notice it
 impl Display for Encoding {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if !self.legacy_prefixes.is_empty() {
@@ -1107,18 +1104,16 @@ pub struct Compiled {
     pub label_offsets: HashMap<usize, usize>,
 }
 
-// TODO merge with compile
-pub fn compile2(instrs: &[Instr]) -> Compiled {
+pub fn compile(instrs: &[Instr]) -> Compiled {
     use Instr::*;
 
-    // LATER Optimize jumps to use 2 byte encoding where possible.
+    // LATER(martin-t) Optimize jumps to use 2 byte encoding where possible.
     // Ideas:
     //  - do backwards jumps first
     //  - calculate min and max length in bytes, only jumps between them
     //    are undecided, the rest has to be 2 or 6 bytes
 
     let mut code = Vec::new();
-    // LATER Fx / Fnv
     let mut label_offsets = HashMap::new();
     // Only 32 bit replacements here, 8 bit require different handling
     let mut replace32 = Vec::new();
@@ -1178,10 +1173,6 @@ pub fn compile2(instrs: &[Instr]) -> Compiled {
     print_hex(&code);
 
     Compiled { code, label_offsets }
-}
-
-pub fn compile(instrs: &[Instr]) -> Vec<u8> {
-    compile2(instrs).code
 }
 
 #[allow(dead_code)]
