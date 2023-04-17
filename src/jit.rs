@@ -14,11 +14,9 @@ use std::{fmt::Write, path::PathBuf};
 
 use anyhow::Result;
 
-use crate::{
-    bytecode::{
-        program::Program,
-        state::{Output, State},
-    },
+use crate::bytecode::{
+    program::Program,
+    state::{Output, State},
 };
 
 pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
