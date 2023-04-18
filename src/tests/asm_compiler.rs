@@ -349,9 +349,11 @@ fn call_functions() {
     let entry: fn() = unsafe { mem::transmute(jit.code.add(entry_offset)) };
 
     // Just a quick experiment to see if it's possible
-    // to use a relative call from JIT back into Rust.
+    // to use a relative call from jitted code back into Rust.
     // It's not, at least on my machine, the difference is too large
     // so we have to save the address to a register and do an absolute call.
+    // Disassembling functions like this one reveals that
+    // calling from Rust into jitted code also uses this method.
     println!("jit.code: {:#x}", jit.code as usize);
     println!("take_9_args: {:#x}", take_9_args as usize);
     let diff = (jit.code as usize).abs_diff(take_9_args as usize);

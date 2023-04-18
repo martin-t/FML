@@ -81,11 +81,13 @@ fn run_assembler() {
     use Instr::*;
     use Reg::*;
 
-    let instr = AddRM(R8, Mem::base_offset(Rdi, 0xa));
-    let bytes = instr.encode().to_bytes();
+    let instrs = [Ret];
+    let bytes = compile(&instrs).code;
     Encoding::deserialize_and_print(&bytes);
 
-    let _jit = memory::JitMemory::new(&bytes);
+    let jit = memory::JitMemory::new(&bytes);
+    let f: extern "sysv64" fn() -> () = unsafe { std::mem::transmute(jit.code) };
+    f();
 
     println!("\n===================\n");
 

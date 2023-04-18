@@ -746,7 +746,8 @@ impl Encoding {
         assert!(buf.len() - old_len <= 15);
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
+    #[allow(dead_code)]
+    pub fn serialize_to_vec(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         self.serialize(&mut buf);
         buf

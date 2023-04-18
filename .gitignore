@@ -2,6 +2,10 @@
 /tests/*/*.out
 /tests/*/*.diff
 
+# Debugging
+.gdb_history
+peda-session-fml.txt
+
 # Configs for faster builds - see readme / example configs
 /.cargo/config.toml
 /rust-toolchain.toml

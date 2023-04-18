@@ -675,7 +675,7 @@ fn assert_encoding_and_serialization(instrs: &[Instr], expecteds: &[&[u8]]) {
 
         println!("Got:");
         let got_encoding1 = instr.encode();
-        let got = got_encoding1.to_bytes();
+        let got = got_encoding1.serialize_to_vec();
         print_asm(&got);
         let (got_encoding2, got_consumed) = Encoding::deserialize(&got);
         println!("{got_encoding2}");
