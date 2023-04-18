@@ -6,6 +6,7 @@
 // Some parts are more readable with long lines but rustfmt would split them up.
 
 mod asm_encoding;
+mod asm_compiler;
 
 #[rustfmt::skip]
 mod bytecode;

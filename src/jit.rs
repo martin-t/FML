@@ -19,6 +19,23 @@ use crate::bytecode::{
     state::{Output, State},
 };
 
+pub trait ToAddr {
+    /// Intentionally named "const" to avoid using it accidentally
+    /// instead of "to_addr_mut".
+    fn take_addr_const(&self) -> i64;
+    fn take_addr_mut(&mut self) -> i64;
+}
+
+impl<T> ToAddr for T {
+    fn take_addr_const(&self) -> i64 {
+        self as *const _ as i64
+    }
+
+    fn take_addr_mut(&mut self) -> i64 {
+        self as *mut _ as i64
+    }
+}
+
 pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
