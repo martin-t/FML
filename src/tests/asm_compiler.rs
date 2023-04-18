@@ -244,6 +244,7 @@ fn call_functions() {
     let label_entry = 2;
     let label_reverse = 3;
 
+    // LATER(martin-t) would be nice to have PushI
     let instrs = [
         // fn start():
         // Allocate space for 2 i32s.
@@ -283,7 +284,7 @@ fn call_functions() {
         MovRI(R8, 5),
         MovRI(R9, 6),
         MovRI(Rax, 9),
-        Push(Rax), // LATER would be nice to have PushI
+        Push(Rax),
         MovRI(Rax, 8),
         Push(Rax),
         MovRI(Rax, 7),
@@ -303,7 +304,7 @@ fn call_functions() {
         MovRI(R9, 6),
         // Args 7-9 on the stack in reverse order
         MovRI(Rax, 9),
-        Push(Rax), // LATER would be nice to have PushI
+        Push(Rax),
         MovRI(Rax, 8),
         Push(Rax),
         MovRI(Rax, 7),
