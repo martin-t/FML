@@ -7,6 +7,13 @@ use libc::{c_int, c_void, PROT_EXEC, PROT_READ, PROT_WRITE};
 ///     - Windows doesn't have mprotect and other libc functions.
 ///     - Might need to explicitly specify calling conventions in more places
 ///       (e.g. when transmuting JitMemory::code).
+///
+/// LATER(martin-t) Test unwinding.
+///     AFAIK unwinding through non-rust functions used to be UB
+///     but according to the nomicon it's guaranteed to safely abort now:
+///     https://doc.rust-lang.org/nomicon/ffi.html#ffi-and-unwinding.
+///     If this is true than nothing needs to be done,
+///     otherwise we might need to investigate catch_unwind or "sysv64-unwind".
 pub struct JitMemory {
     pub code: *mut u8,
     size: usize,

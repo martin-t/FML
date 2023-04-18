@@ -1,10 +1,15 @@
 //! A simple x86-64 assembler.
 //!
-//! Takes an instruction described using the Instr enum (there's no ASM parser),
-//! converts it into an Encoding and then serializes it into bytes.
-//! Can also deserialize bytes back into an Encoding for easier debugging.
+//! Takes an instruction described using the `Instr` enum (there's no assembly parser),
+//! converts it into an `Encoding` and then serializes it into bytes.
+//! Can also deserialize bytes back into an `Encoding` for easier debugging.
 //!
-//! The Intel manual can be downloaded here:
+//! `Encoding` serves as an intermediate representation which can be inspected
+//! to find the meaning of individual bytes.
+//!
+//! # Reference
+//!
+//! The Intel x86 manual can be downloaded here:
 //! https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
 //!
 //! Most useful parts of the Intel manual - Volume 2:
@@ -14,6 +19,26 @@
 //!     - Diagrams explaining the REX prefix and tables with special cases in 64 bit mode.
 //! - 3.1.1.1 Opcode Column in the Instruction Summary Table (Instructions without VEX Prefix)
 //!     - Explains how to read the pages describing individual instructions.
+//!
+//! # Online assemblers
+//!
+//! It might be interesting to compare the output with real assemblers.
+//! Some are available online, they support a much larger set of instructions
+//! but don't provide an inspetable intermediate representation like our `Encoding`.
+//!
+//! - https://asm.x32.dev/
+//!     - instant feedback
+//!     - still works without internet connection
+//!     - can silently ignore instructions
+//!         - e.g. when using the wrong syntax like `dword ptr` vs `dword`
+//!     - sometimes gets stuck (and even block other tabs)
+//!     - treats numbers as hex, no way to specify decimal
+//!     - recommended usage: switch syntax to 64bit (NASM), output to C array
+//! - https://defuse.ca/online-x86-assembler.htm
+//! - https://disasm.pro/
+//!     - instant feedback
+//!     - requires network
+//!     - will silently stop updating if indirect addressing doesn't use "ptr"
 
 use std::{
     collections::HashMap,

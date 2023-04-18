@@ -1,3 +1,7 @@
+//! Tests for encoding and serialization of instructions.
+//!
+//! Most of the expected output was generated using https://asm.x32.dev/.
+
 use crate::jit::asm_encoding::*;
 use crate::jit::asm_repr::*;
 
