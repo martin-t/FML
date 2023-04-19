@@ -254,6 +254,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "smallvec",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
