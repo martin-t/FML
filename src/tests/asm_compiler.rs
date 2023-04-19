@@ -1,7 +1,5 @@
-use std::mem;
-
 use crate::{
-    fn_addr,
+    export_fn, fn_addr,
     jit::{asm_encoding::*, asm_repr::*, memory::JitMemory, VariableAddr},
 };
 
@@ -204,7 +202,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
 fn test_factorial(instrs: &[Instr]) {
     let code = compile(instrs).code;
     let jit = JitMemory::new(&code);
-    let f: extern "sysv64" fn(i32) -> i32 = unsafe { mem::transmute(jit.code) };
+    let f = export_fn!(jit, fn(i32) -> i32);
 
     let expected = [
         1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600,
@@ -346,9 +344,9 @@ fn call_functions() {
 
     let compiled = compile(&instrs);
     let jit = JitMemory::new(&compiled.code);
-    let start: extern "sysv64" fn() = unsafe { mem::transmute(jit.code) };
+    let start = export_fn!(jit, fn());
     let entry_offset = compiled.label_offsets[&label_entry];
-    let entry: extern "sysv64" fn() = unsafe { mem::transmute(jit.code.add(entry_offset)) };
+    let entry = export_fn!(jit, fn(), entry_offset);
 
     // Just a quick experiment to see if it's possible
     // to use a relative call from jitted code back into Rust.

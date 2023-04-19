@@ -3,11 +3,6 @@ use libc::{c_int, c_void, PROT_EXEC, PROT_READ, PROT_WRITE};
 /// Note this can't be tested by miri
 /// because miri doesn't support some of the functions used.
 ///
-/// LATER(martin-t) Windows support?
-///     - Windows doesn't have mprotect and other libc functions.
-///     - Might need to explicitly specify calling conventions in more places
-///       (e.g. when transmuting JitMemory::code).
-///
 /// LATER(martin-t) Test unwinding.
 ///     AFAIK unwinding through non-rust functions used to be UB
 ///     but according to the nomicon it's guaranteed to safely abort now:

@@ -1,21 +1,9 @@
-#![cfg_attr(target_os = "windows", allow(dead_code))] // LATER(martin-t) Remove
-
 pub mod asm_encoding;
 pub mod asm_repr;
 
-#[cfg(target_os = "windows")]
-mod memory_windows;
-#[cfg(target_os = "windows")]
-pub mod memory {
-    pub use super::memory_windows::*;
-}
-
-#[cfg(not(target_os = "windows"))]
-mod memory_unix;
-#[cfg(not(target_os = "windows"))]
-pub mod memory {
-    pub use super::memory_unix::*;
-}
+#[cfg_attr(unix, path = "jit/memory_unix.rs")]
+#[cfg_attr(windows, path = "jit/memory_windows.rs")]
+pub mod memory;
 
 use std::{fmt::Write, path::PathBuf};
 
@@ -61,6 +49,35 @@ macro_rules! fn_addr {
     };
 }
 
+/// Create a function pointer to jitted code.
+///
+/// Use this instead of raw transmute or casts to make sure
+/// the returned fn has the correct calling convention
+/// on all supported platforms.
+///
+/// By default this points to the beginning of JIT memory
+/// but you can optionally specify an offset.
+#[macro_export]
+macro_rules! export_fn {
+    // There's no way to take the whole fn signature like `$f:ty`
+    // and just put calling convention in front of it using something like
+    // `extern "sysv64" $f:ty`.
+    // So we have to match the individual parts instead,
+    // even the optional return type.
+    ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )? ) => {
+        unsafe {
+            type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
+            ::std::mem::transmute::<_, F>($jit.code)
+        }
+    };
+    ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )?, $offset:expr ) => {
+        unsafe {
+            type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
+            ::std::mem::transmute::<_, F>($jit.code.add($offset))
+        }
+    }
+}
+
 pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
@@ -71,17 +88,7 @@ pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, he
     jit_with(program, &mut state, &mut output)
 }
 
-#[allow(unused_variables)] // LATER(martin-t) remove
-#[cfg(target_os = "windows")]
-fn jit_with<W>(program: &Program, state: &mut State, output: &mut W) -> Result<()>
-where
-    W: Write,
-{
-    unimplemented!("Windows is currently not supported")
-}
-
 #[allow(unused_variables)] // TODO remove
-#[cfg(not(target_os = "windows"))]
 fn jit_with<W>(program: &Program, state: &mut State, output: &mut W) -> Result<()>
 where
     W: Write,
@@ -110,7 +117,7 @@ fn run_assembler() {
     Encoding::deserialize_and_print(&bytes);
 
     let jit = memory::JitMemory::new(&bytes);
-    let f: extern "sysv64" fn() -> () = unsafe { std::mem::transmute(jit.code) };
+    let f = export_fn!(jit, fn());
     f();
 
     println!("\n===================\n");

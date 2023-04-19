@@ -5,12 +5,15 @@
 //! - to test out assumptions about assembly on multiple platforms
 //! - as examples of simple assembly functions
 
-use std::{arch::asm, mem};
+use std::arch::asm;
 
-use crate::jit::{
-    asm_encoding::{compile, print_hex},
-    asm_repr::{Instr, Reg},
-    memory::JitMemory,
+use crate::{
+    export_fn,
+    jit::{
+        asm_encoding::{compile, print_hex},
+        asm_repr::{Instr, Reg},
+        memory::JitMemory,
+    },
 };
 
 use Instr::*;
@@ -21,7 +24,7 @@ fn test_fn_void() {
     let instrs = [Ret];
     let code = compile(&instrs).code;
     let jit = JitMemory::new(&code);
-    let f: fn() = unsafe { mem::transmute(jit.code) };
+    let f = export_fn!(jit, fn());
     f();
     f();
 }
@@ -31,7 +34,7 @@ fn test_fn_int() {
     let instrs = [MovRI(Rax, 1337), Ret];
     let code = compile(&instrs).code;
     let jit = JitMemory::new(&code);
-    let f: fn() -> i32 = unsafe { mem::transmute(jit.code) };
+    let f = export_fn!(jit, fn() -> i32);
     let ret = f();
     assert_eq!(ret, 1337);
     let ret = f();
@@ -71,7 +74,7 @@ fn return_args_1_6() {
     for (i, code) in codes.iter().enumerate() {
         print_hex(code);
         let jit = JitMemory::new(code);
-        let func: fn(i32, i32, i32, i32, i32, i32) -> i32 = unsafe { mem::transmute(jit.code) };
+        let func = export_fn!(jit, fn(i32, i32, i32, i32, i32, i32) -> i32);
         let ret = func(1001, 1002, 1003, 1004, 1005, 1006);
         assert_eq!(ret, i as i32 + 1001);
     }
@@ -93,7 +96,7 @@ fn add4() {
     print_hex(&code);
 
     let jit = JitMemory::new(&code);
-    let add4: fn(i32, i32, i32, i32) -> i32 = unsafe { mem::transmute(jit.code) };
+    let add4 = export_fn!(jit, fn(i32, i32, i32, i32) -> i32);
 
     let ret = add4(1, 2, 3, 4);
     assert_eq!(ret, 1 + 2 + 3 + 4);
@@ -229,7 +232,7 @@ fn add_squares_jit_asm() {
     ];
 
     let jit = JitMemory::new(&code);
-    let add_squares: fn(i32, i32, i32, i32) -> i32 = unsafe { std::mem::transmute(jit.code) };
+    let add_squares = export_fn!(jit, fn(i32, i32, i32, i32) -> i32);
 
     for (a, b, c, d) in LIST4 {
         print!("a={}, b={}, c={}, d={}", a, b, c, d);
@@ -269,7 +272,7 @@ fn call_square_sysv64() {
     print_hex(&code);
 
     let jit = JitMemory::new(&code);
-    let asm_square: fn(i32) -> i32 = unsafe { std::mem::transmute(jit.code) };
+    let asm_square = export_fn!(jit, fn(i32) -> i32);
 
     let ret = asm_square(7);
     assert_eq!(ret, 49);
@@ -341,7 +344,7 @@ fn add_squares_square_sysv64() {
     print_hex(&code);
 
     let jit = JitMemory::new(&code);
-    let add_squares: fn(i32, i32, i32, i32) -> i32 = unsafe { std::mem::transmute(jit.code) };
+    let add_squares = export_fn!(jit, fn(i32, i32, i32, i32) -> i32);
 
     for (a, b, c, d) in LIST4 {
         print!("a={}, b={}, c={}, d={}", a, b, c, d);

@@ -10,6 +10,7 @@ pub struct JitMemory {
 
 impl JitMemory {
     pub fn new(data: &[u8]) -> Self {
+        // Inspiration: https://github.com/mrowqa/brainfuck-jit/blob/master/src/vm/jitmem.rs
         let vec = data.to_vec();
         let size = vec.len();
         let code = vec.leak().as_mut_ptr();
