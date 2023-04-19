@@ -41,6 +41,7 @@ impl JitMemory {
         unsafe {
             // Despite the name, this allocates.
             // OS X requires alignment: https://www.jntrnr.com/building-a-simple-jit-in-rust/
+            // Interestingly, memmap2 (used by dynasmrt) doesn't use this function.
             let ret = libc::posix_memalign(&mut memptr, PAGE_SIZE, size);
             assert_eq!(ret, 0);
 

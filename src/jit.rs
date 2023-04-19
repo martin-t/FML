@@ -3,6 +3,13 @@
 pub mod asm_encoding;
 pub mod asm_repr;
 
+#[cfg(target_os = "windows")]
+mod memory_windows;
+#[cfg(target_os = "windows")]
+pub mod memory {
+    pub use super::memory_windows::*;
+}
+
 #[cfg(not(target_os = "windows"))]
 mod memory_unix;
 #[cfg(not(target_os = "windows"))]
@@ -19,21 +26,39 @@ use crate::bytecode::{
     state::{Output, State},
 };
 
-pub trait ToAddr {
-    /// Intentionally named "const" to avoid using it accidentally
-    /// instead of "to_addr_mut".
-    fn take_addr_const(&self) -> i64;
-    fn take_addr_mut(&mut self) -> i64;
-}
-
-impl<T> ToAddr for T {
-    fn take_addr_const(&self) -> i64 {
-        self as *const _ as i64
-    }
-
-    fn take_addr_mut(&mut self) -> i64 {
+pub trait VariableAddr: Sized {
+    /// Take the address of an lvalue.
+    ///
+    /// Do **NOT** use this on rvalues or functions.
+    /// - For evalues, it'll return an address but it'll be useless
+    ///   becuse it'll be invalid by the time you can use it.
+    /// - Functions are already pointers so taking then by reference
+    ///   creates a temporary and therefore useless address.
+    fn var_addr_mut(&mut self) -> i64 {
         self as *mut _ as i64
     }
+
+    /// Similar to `var_addr_mut`.
+    ///
+    /// Intentionally named "const" and not just `take_addr`
+    /// to avoid using it accidentally instead of `take_addr_mut`.
+    fn var_addr_const(&self) -> i64 {
+        self as *const _ as i64
+    }
+}
+
+impl<T> VariableAddr for T {}
+
+/// Take the address of a function.
+///
+/// Use this for functions instead of `.var_addr_mut()`.
+#[macro_export]
+macro_rules! fn_addr {
+    ($f:expr) => {
+        // We could cast directly to i64
+        // but outside a macro that triggers a clippy lint.
+        $f as usize as i64
+    };
 }
 
 pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
@@ -72,7 +97,6 @@ where
     todo!();
 }
 
-#[cfg(not(target_os = "windows"))]
 fn run_assembler() {
     println!("Using assembler to avoid dead code warns");
 

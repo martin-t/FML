@@ -1,9 +1,9 @@
 use std::mem;
 
-use crate::jit::asm_encoding::*;
-use crate::jit::asm_repr::*;
-use crate::jit::memory::JitMemory;
-use crate::jit::ToAddr;
+use crate::{
+    fn_addr,
+    jit::{asm_encoding::*, asm_repr::*, memory::JitMemory, VariableAddr},
+};
 
 use Instr::*;
 use Reg::*;
@@ -156,8 +156,8 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
     let mut before: usize = 10;
     let mut after: usize = 11;
 
-    let before_addr = before.take_addr_mut();
-    let after_addr = after.take_addr_mut();
+    let before_addr = before.var_addr_mut();
+    let after_addr = after.var_addr_mut();
 
     let instrs = vec![
         // factorial_outer(i32) -> i32:
@@ -202,7 +202,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
 }
 
 fn test_factorial(instrs: &[Instr]) {
-    let code = compile(&instrs).code;
+    let code = compile(instrs).code;
     let jit = JitMemory::new(&code);
     let f: fn(i32) -> i32 = unsafe { mem::transmute(jit.code) };
 
@@ -226,18 +226,20 @@ fn call_functions() {
 
     let mut heap = Vec::<u8>::new();
 
-    // We have to cast the reference to the whole Vec to a usize,
+    // We have to cast a reference to the whole Vec to a usize,
     // not use `as_mut_ptr` because we wanna pass the whole Vec through jitted code,
     // not just its data.
     // Also the vector hasn't even allocated yet so `as_mut_ptr` would return
     // something useless, for example 1.
+    let heap_addr = heap.var_addr_mut();
     let heap_addr2 = &mut heap as *mut _ as i64;
-    let heap_addr = heap.take_addr_mut();
     assert_eq!(heap_addr, heap_addr2);
     println!("heap_addr {:#x}", heap_addr);
 
-    let allocate_addr = allocate1 as i64;
-    let f9_addr = take_9_args as i64;
+    let allocate_addr = fn_addr!(allocate1);
+    let take_9_args_addr = fn_addr!(take_9_args);
+    println!("allocate_addr {:#x}", allocate_addr);
+    println!("take_9_args_addr {:#x}", take_9_args_addr);
 
     let label_start = 0;
     let label_alloc = 1;
@@ -289,7 +291,7 @@ fn call_functions() {
         Push(Rax),
         MovRI(Rax, 7),
         Push(Rax),
-        MovRI(R14, f9_addr),
+        MovRI(R14, take_9_args_addr),
         CallAbsR(R14),
         AddRI(Rsp, 24),
         // Save the result to the second slot.
@@ -335,7 +337,7 @@ fn call_functions() {
         MovRR(Rax, Rcx),
         MovRR(Rcx, R9),
         MovRR(R9, Rax),
-        MovRI(R11, f9_addr),
+        MovRI(R11, take_9_args_addr),
         CallAbsR(R11),
         AddRI(Rsp, 32),
         Pop(Rbp),
