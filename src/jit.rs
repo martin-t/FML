@@ -1,3 +1,28 @@
+// x64 calling conventions:
+// - https://en.m.wikipedia.org/wiki/X86_calling_conventions#x86-64_calling_conventions
+//
+// Microsoft x64 calling convention:
+// Return value: RAX if fits, otherwise dest pointer passed in RCX
+// Args 1-4: RCX, RDX, R8, R9
+// Caller-saved / volatile: RAX, RCX, RDX, R8-11
+// Callee-saved / nonvolatile: RBX, RBP, RSP, RDI, RSI, R12-R15
+// Caller must allocate 32 bytes of shadow space
+//
+// System V AMD64 ABI:
+// Return value: RAX, RDX if fits, otherwise dest pointer passed in RDI
+// Args 1-6: RDI, RSI, RDX, RCX, R8, R9
+// Caller-saved / volatile: RAX, RCX, RDX, RDI, RSI, R8-R11
+// Callee-saved / nonvolatile: RBX, RBP, RSP, R12–R15
+// No shadow space
+// Source: https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf p22-4
+//
+// Common:
+// Order of args on the stack: right to left
+// Caller cleanup
+//
+// Jit uses the System V calling convention even on Windows for simplicity.
+// It also has the advantage that 2 values can be returned in registers.
+
 pub mod asm_encoding;
 pub mod asm_repr;
 
@@ -21,7 +46,7 @@ pub trait VariableAddr: Sized {
     /// - For evalues, it'll return an address but it'll be useless
     ///   becuse it'll be invalid by the time you can use it.
     /// - Functions are already pointers so taking then by reference
-    ///   creates a temporary and therefore useless address.
+    ///   also creates a temporary and therefore useless address.
     fn var_addr_mut(&mut self) -> i64 {
         self as *mut _ as i64
     }

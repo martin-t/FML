@@ -4,11 +4,10 @@ use std::collections::{HashMap, HashSet};
 
 use anyhow::{ensure, Result};
 
-use crate::parser::*;
-
-use super::opcodes::OpCode;
-use super::program::Program;
-use crate::bytecode::program::*;
+use crate::{
+    bytecode::{opcodes::OpCode, program::*},
+    parser::*,
+};
 
 pub struct ProgramGenerator {
     pub constant_pool: ConstantPool,

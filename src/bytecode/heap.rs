@@ -23,12 +23,33 @@ pub struct Heap {
     memory: Vec<HeapObject>,
 }
 
-impl Eq for Heap {}
-impl PartialEq for Heap {
-    fn eq(&self, other: &Self) -> bool {
-        self.memory.eq(&other.memory)
-    }
+#[derive(Eq, PartialEq, Debug, Clone)]
+pub enum HeapObject {
+    Array(ArrayInstance),
+    Object(ObjectInstance),
 }
+
+#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
+pub struct ArrayInstance(Vec<Pointer>);
+
+#[derive(Eq, PartialEq, Debug, Clone, Default)]
+pub struct ObjectInstance {
+    pub parent: Pointer,
+    pub fields: IndexMap<String, Pointer>,        // LATER(kondziu) make private
+    pub methods: IndexMap<String, ProgramObject>, // LATER(kondziu) make private
+}
+
+#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd, Default)]
+pub enum Pointer {
+    #[default]
+    Null,
+    Integer(i32),
+    Boolean(bool),
+    Reference(HeapIndex),
+}
+
+#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd)]
+pub struct HeapIndex(usize);
 
 impl Heap {
     pub fn new() -> Self {
@@ -257,6 +278,14 @@ impl Heap {
     }
 }
 
+impl PartialEq for Heap {
+    fn eq(&self, other: &Self) -> bool {
+        self.memory.eq(&other.memory)
+    }
+}
+
+impl Eq for Heap {}
+
 impl From<Vec<HeapObject>> for Heap {
     fn from(objects: Vec<HeapObject>) -> Self {
         Heap {
@@ -266,12 +295,6 @@ impl From<Vec<HeapObject>> for Heap {
             memory: objects,
         }
     }
-}
-
-#[derive(Eq, PartialEq, Debug, Clone)]
-pub enum HeapObject {
-    Array(ArrayInstance),
-    Object(ObjectInstance),
 }
 
 impl HeapObject {
@@ -367,9 +390,6 @@ impl Display for HeapObject {
     }
 }
 
-#[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
-pub struct ArrayInstance(Vec<Pointer>);
-
 impl ArrayInstance {
     #[allow(dead_code)]
     pub fn new() -> Self {
@@ -436,13 +456,6 @@ impl Display for ArrayInstance {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, Clone, Default)]
-pub struct ObjectInstance {
-    pub parent: Pointer,
-    pub fields: IndexMap<String, Pointer>,        // LATER(kondziu) make private
-    pub methods: IndexMap<String, ProgramObject>, // LATER(kondziu) make private
-}
-
 impl ObjectInstance {
     #[allow(dead_code)]
     pub fn new() -> Self {
@@ -499,58 +512,6 @@ impl Display for ObjectInstance {
             None => write!(f, "object({})", fields.join(", ")),
         }
     }
-}
-
-#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd)]
-pub struct HeapIndex(usize);
-
-impl From<usize> for HeapIndex {
-    fn from(n: usize) -> Self {
-        HeapIndex(n)
-    }
-}
-
-impl From<&Pointer> for HeapIndex {
-    fn from(p: &Pointer) -> Self {
-        match p {
-            Pointer::Reference(p) => *p,
-            Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
-            Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
-            Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
-        }
-    }
-}
-
-impl From<Pointer> for HeapIndex {
-    fn from(p: Pointer) -> Self {
-        match p {
-            Pointer::Reference(p) => p,
-            Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
-            Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
-            Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
-        }
-    }
-}
-
-impl HeapIndex {
-    pub fn as_usize(&self) -> usize {
-        self.0
-    }
-}
-
-impl Display for HeapIndex {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "0x{:x>8}", self.0)
-    }
-}
-
-#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd, Default)]
-pub enum Pointer {
-    #[default]
-    Null,
-    Integer(i32),
-    Boolean(bool),
-    Reference(HeapIndex),
 }
 
 impl Pointer {
@@ -725,5 +686,45 @@ impl Display for Pointer {
             Pointer::Boolean(b) => write!(f, "{b}"),
             Pointer::Reference(p) => write!(f, "{p}"),
         }
+    }
+}
+
+impl From<usize> for HeapIndex {
+    fn from(n: usize) -> Self {
+        HeapIndex(n)
+    }
+}
+
+impl From<&Pointer> for HeapIndex {
+    fn from(p: &Pointer) -> Self {
+        match p {
+            Pointer::Reference(p) => *p,
+            Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
+            Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
+            Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
+        }
+    }
+}
+
+impl From<Pointer> for HeapIndex {
+    fn from(p: Pointer) -> Self {
+        match p {
+            Pointer::Reference(p) => p,
+            Pointer::Null => panic!("Cannot create heap reference from a null-tagged pointer"),
+            Pointer::Integer(_) => panic!("Cannot create heap reference from an integer-tagged pointer"),
+            Pointer::Boolean(_) => panic!("Cannot create heap reference from a boolean-tagged pointer"),
+        }
+    }
+}
+
+impl HeapIndex {
+    pub fn as_usize(&self) -> usize {
+        self.0
+    }
+}
+
+impl Display for HeapIndex {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{:x>8}", self.0)
     }
 }
