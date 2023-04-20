@@ -26,7 +26,6 @@ pub struct ConstantPool(Vec<ProgramObject>);
 #[derive(Eq, PartialEq, Debug)]
 pub struct Globals(Vec<ConstantPoolIndex>);
 
-// LATER(martin-t) This probably shouldn't be an Option
 #[derive(Eq, PartialEq, Debug)]
 pub struct Entry(Option<ConstantPoolIndex>);
 

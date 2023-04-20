@@ -41,8 +41,10 @@ pub struct Frame {
     locals: Vec<Pointer>,
 }
 
+/// This is None when there are no more instrctions to execute
+/// (the entry method is empty, we execute its last instruction or we return from it).
+/// The ast case should never happen because entry doesn't have a return at the end.
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Copy)]
-// LATER(martin-t) It should be possible to avoid the Option here.
 pub struct InstructionPointer(Option<Address>);
 
 impl State {
