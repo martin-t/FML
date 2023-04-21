@@ -583,8 +583,8 @@ impl Compiled for AST {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 }
 
-                let arguments = Arity::from_usize(arguments.len());
-                active_buffer.emit(OpCode::Print { format, arity: arguments });
+                let arity = Arity::from_usize(arguments.len());
+                active_buffer.emit(OpCode::Print { format, arity });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 

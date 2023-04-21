@@ -266,17 +266,17 @@ pub fn eval_call_method(
     program: &Program,
     state: &mut State,
     name_index: &ConstantPoolIndex,
-    arguments: &Arity,
+    arity: &Arity,
 ) -> Result<()> {
     ensure!(
-        arguments.to_usize() > 0,
+        arity.to_usize() > 0,
         "All method calls require at least 1 parameter (receiver)"
     );
 
     let name_object = program.constant_pool.get(name_index)?;
     let method_name = name_object.as_str()?;
 
-    let arguments = state.operand_stack.pop_sequence(arguments.to_usize() - 1)?;
+    let arguments = state.operand_stack.pop_sequence(arity.to_usize() - 1)?;
     let receiver = state.operand_stack.pop()?;
 
     dispatch_method(program, state, receiver, method_name, arguments)
