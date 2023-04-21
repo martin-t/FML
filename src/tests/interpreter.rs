@@ -100,7 +100,7 @@ const TEST_ADDRESS_RANGE: AddressRange = AddressRange::from(0, 1);
 
 #[test] fn get_local() {
     let code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        OpCode::GetLocal { index: LocalIndex::new(0) },
         OpCode::Return,
     ));
 
@@ -134,7 +134,7 @@ const TEST_ADDRESS_RANGE: AddressRange = AddressRange::from(0, 1);
 
 #[test] fn set_local() {
     let code = Code::from(vec!(
-        OpCode::SetLocal { index: LocalFrameIndex::new(0) },
+        OpCode::SetLocal { index: LocalIndex::new(0) },
         OpCode::Return,
     ));
 

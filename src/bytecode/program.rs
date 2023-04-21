@@ -122,7 +122,7 @@ pub struct Method {
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct ConstantPoolIndex(u16);
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
-pub struct LocalFrameIndex(u16);
+pub struct LocalIndex(u16);
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Arity(u8);
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
@@ -526,19 +526,19 @@ impl From<usize> for ConstantPoolIndex {
     }
 }
 
-impl LocalFrameIndex {
+impl LocalIndex {
     #[allow(dead_code)]
-    pub fn new(value: u16) -> LocalFrameIndex {
-        LocalFrameIndex(value)
+    pub fn new(value: u16) -> LocalIndex {
+        LocalIndex(value)
     }
 
     pub fn value(&self) -> u16 {
         self.0
     }
 
-    pub fn from_usize(value: usize) -> LocalFrameIndex {
+    pub fn from_usize(value: usize) -> LocalIndex {
         assert!(value <= 65535usize);
-        LocalFrameIndex(value as u16)
+        LocalIndex(value as u16)
     }
 }
 
@@ -753,12 +753,12 @@ impl Serializable for ConstantPoolIndex {
     }
 }
 
-impl Serializable for LocalFrameIndex {
+impl Serializable for LocalIndex {
     fn serialize<W: Write>(&self, sink: &mut W) -> anyhow::Result<()> {
         serializable::write_u16(sink, self.0)
     }
     fn from_bytes<R: Read>(input: &mut R) -> Self {
-        LocalFrameIndex(serializable::read_u16(input))
+        LocalIndex(serializable::read_u16(input))
     }
 }
 
@@ -866,7 +866,7 @@ impl Display for ConstantPoolIndex {
     }
 }
 
-impl Display for LocalFrameIndex {
+impl Display for LocalIndex {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "::{}", self.0)
     }

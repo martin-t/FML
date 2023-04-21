@@ -35,7 +35,7 @@ pub trait PrettyPrintWithContext: UglyPrintWithContext {
 }
 
 impl PrettyPrint for ConstantPoolIndex {}
-impl PrettyPrint for LocalFrameIndex {}
+impl PrettyPrint for LocalIndex {}
 impl PrettyPrint for Address {}
 impl PrettyPrint for Size {}
 impl PrettyPrint for Arity {}
@@ -110,7 +110,7 @@ impl UglyPrint for ConstantPoolIndex {
     }
 }
 
-impl UglyPrint for LocalFrameIndex {
+impl UglyPrint for LocalIndex {
     fn ugly_print<W: Write>(&self, sink: &mut W, indent: usize, prefix_first_line: bool) {
         write_string!(sink, first!(indent, prefix_first_line), self.value())
     }

@@ -48,7 +48,7 @@ pub enum OpCode {
      * [LocalFrame]: ../interpreter/struct.LocalFrame.html
      * [OperandStack]: ../interpreter/struct.OperandStack.html
      */
-    GetLocal { index: LocalFrameIndex },
+    GetLocal { index: LocalIndex },
 
     /**
      * ## Set the value local variable to top value from stack
@@ -58,7 +58,7 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x09`.
      */
-    SetLocal { index: LocalFrameIndex },
+    SetLocal { index: LocalIndex },
 
     /**
      * ## Push the value of global variable onto stack
@@ -374,8 +374,8 @@ impl Serializable for OpCode {
                                    arity: Arity::from_bytes(input)              },
             0x08 => CallFunction { name:  ConstantPoolIndex::from_bytes(input),
                                    arity: Arity::from_bytes(input)              },
-            0x09 => SetLocal     { index:     LocalFrameIndex::from_bytes(input)    },
-            0x0A => GetLocal     { index:     LocalFrameIndex::from_bytes(input)    },
+            0x09 => SetLocal     { index:     LocalIndex::from_bytes(input)    },
+            0x0A => GetLocal     { index:     LocalIndex::from_bytes(input)    },
             0x0B => SetGlobal    { name:      ConstantPoolIndex::from_bytes(input)  },
             0x0C => GetGlobal    { name:      ConstantPoolIndex::from_bytes(input)  },
             0x0D => Branch       { label:     ConstantPoolIndex::from_bytes(input)  },

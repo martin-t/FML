@@ -62,20 +62,20 @@ Entry : #11"#}
 
 fn feeny_method_argument_order_program() -> Program {
     let code = Code::from(vec!(
-        /*  0 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(1) },
+        /*  0 */ OpCode::GetLocal { index: LocalIndex::from_usize(1) },
         /*  1 */ OpCode::Print { format: ConstantPoolIndex::from_usize(1), arity: Arity::from_usize(1) },
         /*  2 */ OpCode::Drop,
-        /*  3 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(2) },
+        /*  3 */ OpCode::GetLocal { index: LocalIndex::from_usize(2) },
         /*  4 */ OpCode::Print { format: ConstantPoolIndex::from_usize(1), arity: Arity::from_usize(1) },
         /*  5 */ OpCode::Drop,
-        /*  6 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(3) },
+        /*  6 */ OpCode::GetLocal { index: LocalIndex::from_usize(3) },
         /*  7 */ OpCode::Print { format: ConstantPoolIndex::from_usize(1), arity: Arity::from_usize(1) },
         /*  8 */ OpCode::Return,
         /*  9 */ OpCode::Literal { index: ConstantPoolIndex::from_usize(0) },
         /* 10 */ OpCode::Object { class: ConstantPoolIndex::from_usize(4) },
-        /* 11 */ OpCode::SetLocal { index: LocalFrameIndex::from_usize(0) },
+        /* 11 */ OpCode::SetLocal { index: LocalIndex::from_usize(0) },
         /* 12 */ OpCode::Drop,
-        /* 13 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        /* 13 */ OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         /* 14 */ OpCode::Literal { index: ConstantPoolIndex::from_usize(5) },
         /* 15 */ OpCode::Literal { index: ConstantPoolIndex::from_usize(6) },
         /* 16 */ OpCode::Literal { index: ConstantPoolIndex::from_usize(7) },
@@ -240,15 +240,15 @@ Entry : #17"#}
 
 fn feeny_object_member_order_program() -> Program {
     let code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         OpCode::GetField { name: ConstantPoolIndex::from_usize(4) },
         OpCode::Print { format: ConstantPoolIndex::from_usize(10), arity: Arity::from_usize(1) },
         OpCode::Drop,
-        OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         OpCode::GetField { name: ConstantPoolIndex::from_usize(6) },
         OpCode::Print { format: ConstantPoolIndex::from_usize(10), arity: Arity::from_usize(1) },
         OpCode::Drop,
-        OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         OpCode::GetField { name: ConstantPoolIndex::from_usize(8) },
         OpCode::Print { format: ConstantPoolIndex::from_usize(10), arity: Arity::from_usize(1) },
         OpCode::Return,
@@ -257,9 +257,9 @@ fn feeny_object_member_order_program() -> Program {
         OpCode::Literal { index: ConstantPoolIndex::from_usize(2) },
         OpCode::Literal { index: ConstantPoolIndex::from_usize(3) },
         OpCode::Object { class: ConstantPoolIndex::from_usize(13) },
-        OpCode::SetLocal { index: LocalFrameIndex::from_usize(0) },
+        OpCode::SetLocal { index: LocalIndex::from_usize(0) },
         OpCode::Drop,
-        OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         OpCode::CallMethod { name: ConstantPoolIndex::from_usize(11), arity: Arity::from_usize(1) },
         OpCode::Return,
         OpCode::CallFunction { name: ConstantPoolIndex::from_usize(14), arity: Arity::from_usize(0) },
@@ -528,13 +528,13 @@ Entry : #10"#}
 
 fn feeny_function_argument_order_program() -> Program {
     let code = Code::from(vec!(
-        /*  0 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(0) },
+        /*  0 */ OpCode::GetLocal { index: LocalIndex::from_usize(0) },
         /*  1 */ OpCode::Print { format: ConstantPoolIndex::from_usize(0), arity: Arity::from_usize(1) },
         /*  2 */ OpCode::Drop,
-        /*  3 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(1) },
+        /*  3 */ OpCode::GetLocal { index: LocalIndex::from_usize(1) },
         /*  4 */ OpCode::Print { format: ConstantPoolIndex::from_usize(0), arity: Arity::from_usize(1) },
         /*  5 */ OpCode::Drop,
-        /*  6 */ OpCode::GetLocal { index: LocalFrameIndex::from_usize(2) },
+        /*  6 */ OpCode::GetLocal { index: LocalIndex::from_usize(2) },
         /*  7 */ OpCode::Print { format: ConstantPoolIndex::from_usize(0), arity: Arity::from_usize(1) },
         /*  8 */ OpCode::Return,
         /*  9 */ OpCode::Literal { index: ConstantPoolIndex::from_usize(3) },
@@ -887,49 +887,49 @@ fn feeny_fibonacci_bytes() -> Vec<u8> {
 fn feeny_fibonacci_program () -> Program {
     let code = Code::from(vec!(
         /* method fib: start: 0, length: 39 */
-        /* 00 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // arg0
+        /* 00 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // arg0
         /* 01 */ OpCode::Literal { index: ConstantPoolIndex::new(2) },  // 0
         /* 02 */ OpCode::CallMethod {                                   // 0.eq(arg0)
             name: ConstantPoolIndex::new(3),
             arity: Arity::new(2) },
         /* 03 */ OpCode::Branch { label: ConstantPoolIndex::new(0) },   // branch conseq39
-        /* 04 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // also x
+        /* 04 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // also x
         /* 05 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },  // 1
         /* 06 */ OpCode::CallMethod {                                   // arg0.eq(1)
             name: ConstantPoolIndex::new(3),
             arity: Arity::new(2) },
         /* 07 */ OpCode::Branch { label: ConstantPoolIndex::new(4) },   // branch conseq41
         /* 08 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },  // 1
-        /* 09 */ OpCode::SetLocal { index: LocalFrameIndex::new(1) },   // var1 = 1
+        /* 09 */ OpCode::SetLocal { index: LocalIndex::new(1) },   // var1 = 1
         /* 10 */ OpCode::Drop,
         /* 11 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },  // 1
-        /* 12 */ OpCode::SetLocal { index: LocalFrameIndex::new(2) },   // var2 = 1
+        /* 12 */ OpCode::SetLocal { index: LocalIndex::new(2) },   // var2 = 1
         /* 13 */ OpCode::Drop,
         /* 14 */ OpCode::Jump { label: ConstantPoolIndex::new(7) },     // goto test43
 
         /* 15 */ OpCode::Label { name: ConstantPoolIndex::new(8) },     // label loop44
-        /* 16 */ OpCode::GetLocal { index: LocalFrameIndex::new(1) },   // var1
-        /* 17 */ OpCode::GetLocal { index: LocalFrameIndex::new(2) },   // var2
+        /* 16 */ OpCode::GetLocal { index: LocalIndex::new(1) },   // var1
+        /* 17 */ OpCode::GetLocal { index: LocalIndex::new(2) },   // var2
         /* 18 */ OpCode::CallMethod {                                   // var1.add(var2) -> result1
             name: ConstantPoolIndex::new(9),
             arity: Arity::new(2) },
-        /* 19 */ OpCode::SetLocal { index: LocalFrameIndex::new(3) },   // var3 = result1
+        /* 19 */ OpCode::SetLocal { index: LocalIndex::new(3) },   // var3 = result1
         /* 20 */ OpCode::Drop,
-        /* 21 */ OpCode::GetLocal { index: LocalFrameIndex::new(2) },   // var2
-        /* 22 */ OpCode::SetLocal { index: LocalFrameIndex::new(1) },   // var1 = var2
+        /* 21 */ OpCode::GetLocal { index: LocalIndex::new(2) },   // var2
+        /* 22 */ OpCode::SetLocal { index: LocalIndex::new(1) },   // var1 = var2
         /* 23 */ OpCode::Drop,
-        /* 24 */ OpCode::GetLocal { index: LocalFrameIndex::new(3) },   // var3
-        /* 25 */ OpCode::SetLocal { index: LocalFrameIndex::new(2) },   // var2 = var3
+        /* 24 */ OpCode::GetLocal { index: LocalIndex::new(3) },   // var3
+        /* 25 */ OpCode::SetLocal { index: LocalIndex::new(2) },   // var2 = var3
         /* 26 */ OpCode::Drop,
-        /* 27 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // arg0
+        /* 27 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // arg0
         /* 28 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },  // 1
         /* 29 */ OpCode::CallMethod {                                   // arg0.sub(1) -> result2
             name: ConstantPoolIndex::new(10),
             arity: Arity::new(2) },
-        /* 30 */ OpCode::SetLocal { index: LocalFrameIndex::new(0) },   // arg0 = result2
+        /* 30 */ OpCode::SetLocal { index: LocalIndex::new(0) },   // arg0 = result2
         /* 31 */ OpCode::Drop,
         /* 32 */ OpCode::Label { name: ConstantPoolIndex::new(7) },     // label test43
-        /* 33 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // arg0
+        /* 33 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // arg0
         /* 34 */ OpCode::Literal { index: ConstantPoolIndex::new(11) }, // 2
         /* 35 */ OpCode::CallMethod {                                   // arg0.ge(2) -> result3
             name: ConstantPoolIndex::new(12),
@@ -937,7 +937,7 @@ fn feeny_fibonacci_program () -> Program {
         /* 36 */ OpCode::Branch { label: ConstantPoolIndex::new(8) },   // loop44
         /* 37 */ OpCode::Literal { index: ConstantPoolIndex::new(13) }, // null
         /* 38 */ OpCode::Drop,
-        /* 39 */ OpCode::GetLocal { index: LocalFrameIndex::new(2) },   // arg2 (return arg2)
+        /* 39 */ OpCode::GetLocal { index: LocalIndex::new(2) },   // arg2 (return arg2)
         /* 40 */ OpCode::Jump { label: ConstantPoolIndex::new(5) },     // goto end42
         /* 41 */ OpCode::Label { name: ConstantPoolIndex::new(4) },     // label conseq41
         /* 42 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },  // 1 (return 1)
@@ -950,12 +950,12 @@ fn feeny_fibonacci_program () -> Program {
 
         /* method main: start: 49, length: 22 */
         /* 49 */ OpCode::Literal { index: ConstantPoolIndex::new(2) },  // 0
-        /* 50 */ OpCode::SetLocal { index: LocalFrameIndex::new(0) },   // var0 = 0
+        /* 50 */ OpCode::SetLocal { index: LocalIndex::new(0) },   // var0 = 0
         /* 51 */ OpCode::Drop,
         /* 52 */ OpCode::Jump { label: ConstantPoolIndex::new(16) },    // goto loop45
         /* 53 */ OpCode::Label { name: ConstantPoolIndex::new(17) },    // label loop46
-        /* 54 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // var0
-        /* 55 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },   // var0 ... again?
+        /* 54 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // var0
+        /* 55 */ OpCode::GetLocal { index: LocalIndex::new(0) },   // var0 ... again?
         /* 56 */ OpCode::CallFunction {                                 // fib(var0) -> result1
             name: ConstantPoolIndex::new(14),
             arity: Arity::new(1) },
@@ -963,15 +963,15 @@ fn feeny_fibonacci_program () -> Program {
             format: ConstantPoolIndex::new(18),
             arity: Arity::new(2) },
         /* 58 */ OpCode::Drop,
-        /* 59 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },    // var0
+        /* 59 */ OpCode::GetLocal { index: LocalIndex::new(0) },    // var0
         /* 60 */ OpCode::Literal { index: ConstantPoolIndex::new(6) },   // 1
         /* 61 */ OpCode::CallMethod {                                    // var0.add(1) -> result2
             name: ConstantPoolIndex::new(9),
             arity: Arity::new(2) },
-        /* 62 */ OpCode::SetLocal { index: LocalFrameIndex::new(0) },    // var0 = result2
+        /* 62 */ OpCode::SetLocal { index: LocalIndex::new(0) },    // var0 = result2
         /* 63 */ OpCode::Drop,
         /* 64 */ OpCode::Label { name: ConstantPoolIndex::new(16) },     // label test45
-        /* 65 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },    // var0
+        /* 65 */ OpCode::GetLocal { index: LocalIndex::new(0) },    // var0
         /* 66 */ OpCode::Literal { index: ConstantPoolIndex::new(19) },  // 20
         /* 67 */ OpCode::CallMethod {                                    // var0.lt(20) -> result3
             name: ConstantPoolIndex::new(20),

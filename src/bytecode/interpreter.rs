@@ -102,27 +102,26 @@ where
 #[inline(always)]
 pub fn eval_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) -> Result<()> {
     let literal_object = program.constant_pool.get(literal_index)?;
-    let pointer = Pointer::from_literal(literal_object)?;
-    state.operand_stack.push(pointer);
+    let value = Pointer::from_literal(literal_object)?;
+    state.operand_stack.push(value);
     state.instruction_pointer.bump(program);
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_get_local(program: &Program, state: &mut State, index: &LocalFrameIndex) -> Result<()> {
-    // LATER(kondziu) rename LocalFrameIndex to FrameIndex
+pub fn eval_get_local(program: &Program, state: &mut State, local_index: &LocalIndex) -> Result<()> {
     let frame = state.frame_stack.get_locals()?;
-    let pointer = *frame.get(index)?;
-    state.operand_stack.push(pointer);
+    let value = *frame.get(local_index)?;
+    state.operand_stack.push(value);
     state.instruction_pointer.bump(program);
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_set_local(program: &Program, state: &mut State, index: &LocalFrameIndex) -> Result<()> {
-    let pointer = *state.operand_stack.peek()?;
+pub fn eval_set_local(program: &Program, state: &mut State, local_index: &LocalIndex) -> Result<()> {
+    let new_value = *state.operand_stack.peek()?;
     let frame = state.frame_stack.get_locals_mut()?;
-    frame.set(index, pointer)?;
+    frame.set(local_index, new_value)?;
     state.instruction_pointer.bump(program);
     Ok(())
 }

@@ -148,7 +148,7 @@ use crate::bytecode::compiler::*;
 
     let expected_code = Code::from(vec!(
         OpCode::Literal { index: ConstantPoolIndex::new(0) },    // value
-        OpCode::SetLocal { index: LocalFrameIndex::new(0) }
+        OpCode::SetLocal { index: LocalIndex::new(0) }
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -212,7 +212,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["x".to_string(), "y".to_string()]);
 
     let expected_code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) }
+        OpCode::GetLocal { index: LocalIndex::new(0) }
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![]);
@@ -240,7 +240,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["x".to_string(), "y".to_string()]);
 
     let expected_code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(1) }
+        OpCode::GetLocal { index: LocalIndex::new(1) }
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![]);
@@ -461,37 +461,37 @@ use crate::bytecode::compiler::*;
 
     let expected_code = Code::from(vec!(
         OpCode::Literal { index: ConstantPoolIndex::new(0) },                                  // 10
-        OpCode::SetLocal { index: LocalFrameIndex::new(0) },                                   // size = 10
+        OpCode::SetLocal { index: LocalIndex::new(0) },                                   // size = 10
         OpCode::Drop,
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },                                   // ?size = 10
+        OpCode::GetLocal { index: LocalIndex::new(0) },                                   // ?size = 10
         OpCode::Literal { index: ConstantPoolIndex::new(1) },                                  // null
         OpCode::Array,                                                                               // array(size = 10, null)
-        OpCode::SetLocal { index: LocalFrameIndex::new(1) },                                   // arr = array(size = 10, null)
+        OpCode::SetLocal { index: LocalIndex::new(1) },                                   // arr = array(size = 10, null)
         OpCode::Drop,
 
         OpCode::Literal { index: ConstantPoolIndex::new(2) },                                  // 0
-        OpCode::SetLocal { index: LocalFrameIndex::new(2) },                                   // i = 0
+        OpCode::SetLocal { index: LocalIndex::new(2) },                                   // i = 0
         OpCode::Drop,
         OpCode::Jump { label: ConstantPoolIndex::new(4) },                                     // jump to loop_condition_0
 
         OpCode::Label { name: ConstantPoolIndex::new(3) },                                     // label loop_body_0:
-        OpCode::GetLocal { index: LocalFrameIndex::new(1) },                                   // arr
-        OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
+        OpCode::GetLocal { index: LocalIndex::new(1) },                                   // arr
+        OpCode::GetLocal { index: LocalIndex::new(2) },                                   // i
         OpCode::CallFunction { name: ConstantPoolIndex::new(5),arity: Arity::new(0)},// call f() -> result on stack
         OpCode::CallMethod { name: ConstantPoolIndex::new(6), arity: Arity::new(3) },// call arr.set(i, result of f())
         OpCode::Drop,
-        OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
+        OpCode::GetLocal { index: LocalIndex::new(2) },                                   // i
         OpCode::Literal { index: ConstantPoolIndex::new(8) },                                  // 1
         OpCode::CallMethod { name: ConstantPoolIndex::new(7), arity: Arity::new(2) },// i + 1
-        OpCode::SetLocal { index: LocalFrameIndex::new(2) },                                   // i = i + 1
+        OpCode::SetLocal { index: LocalIndex::new(2) },                                   // i = i + 1
         OpCode::Drop,
 
         OpCode::Label { name: ConstantPoolIndex::new(4) },                                     // label loop_condition_0:
-        OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },                                   // size
+        OpCode::GetLocal { index: LocalIndex::new(2) },                                   // i
+        OpCode::GetLocal { index: LocalIndex::new(0) },                                   // size
         OpCode::CallMethod { name: ConstantPoolIndex::new(9), arity: Arity::new(2) },// i < size
         OpCode::Branch { label: ConstantPoolIndex::new(3) },                                   // conditional jump to loop_body_0
-        OpCode::GetLocal { index: LocalFrameIndex::new(1) },                                   // arr
+        OpCode::GetLocal { index: LocalIndex::new(1) },                                   // arr
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -538,7 +538,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["x".to_string()]);
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        /* 0 */ OpCode::GetLocal { index: LocalIndex::new(0) },
         /* 1 */ OpCode::Literal { index: ConstantPoolIndex::new(0) },
         /* 2 */ OpCode::CallMethod { name: ConstantPoolIndex::new(1), arity: Arity::new(2) },
     ));
@@ -575,7 +575,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["x".to_string()]);
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        /* 0 */ OpCode::GetLocal { index: LocalIndex::new(0) },
         /* 1 */ OpCode::Literal { index: ConstantPoolIndex::new(0) },
         /* 2 */ OpCode::Literal { index: ConstantPoolIndex::new(1) },
         /* 3 */ OpCode::CallMethod { name: ConstantPoolIndex::new(2), arity: Arity::new(3) },
@@ -767,7 +767,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::new();
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        /* 0 */ OpCode::GetLocal { index: LocalIndex::new(0) },
         /* 1 */ OpCode::Return,
     ));
 
@@ -866,7 +866,7 @@ use crate::bytecode::compiler::*;
         /*  5 */ OpCode::Return,
 
         /* and (method) */
-        /*  6 */ OpCode::GetLocal { index: LocalFrameIndex::new(1) },    // x
+        /*  6 */ OpCode::GetLocal { index: LocalIndex::new(1) },    // x
         /*  7 */ OpCode::Return,
 
         /* + (method) */
@@ -874,11 +874,11 @@ use crate::bytecode::compiler::*;
         /*  9 */ OpCode::Return,
 
         /* * (method) */
-        /* 10 */ OpCode::GetLocal { index: LocalFrameIndex::new(1) },    // x
+        /* 10 */ OpCode::GetLocal { index: LocalIndex::new(1) },    // x
         /* 11 */ OpCode::Return,
 
         /* + (me) */
-        /* 12 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },    // this
+        /* 12 */ OpCode::GetLocal { index: LocalIndex::new(0) },    // this
         /* 13 */ OpCode::Return,
 
         /* object parent, fields: id, hash */
@@ -1112,7 +1112,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["obj".to_string()]);
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        /* 0 */ OpCode::GetLocal { index: LocalIndex::new(0) },
         /* 1 */ OpCode::GetField { name: ConstantPoolIndex::new(0) },
     ));
 
@@ -1147,7 +1147,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["obj".to_string()]);
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        /* 0 */ OpCode::GetLocal { index: LocalIndex::new(0) },
         /* 1 */ OpCode::Literal { index: ConstantPoolIndex::new(0) },
         /* 2 */ OpCode::SetField { name: ConstantPoolIndex::new(1) },
     ));
@@ -1186,7 +1186,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["obj".to_string()]);
 
     let expected_code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        OpCode::GetLocal { index: LocalIndex::new(0) },
 
         OpCode::Literal { index: ConstantPoolIndex::new(1) },
         OpCode::Literal { index: ConstantPoolIndex::new(2) },
@@ -1229,7 +1229,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["obj".to_string()]);
 
     let expected_code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        OpCode::GetLocal { index: LocalIndex::new(0) },
         OpCode::Literal { index: ConstantPoolIndex::new(1) },
         OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(2) },
     ));
@@ -1266,7 +1266,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::from_locals(vec!["obj".to_string()]);
 
     let expected_code = Code::from(vec!(
-        OpCode::GetLocal { index: LocalFrameIndex::new(0) },
+        OpCode::GetLocal { index: LocalIndex::new(0) },
         OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(1) },
     ));
 

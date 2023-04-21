@@ -40,13 +40,13 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 }
 
 #[test] fn deserialize_get_local () {
-    let expected = OpCode::GetLocal { index: LocalFrameIndex::new(1) };
+    let expected = OpCode::GetLocal { index: LocalIndex::new(1) };
     let bytes = vec!(0x0A, 0x01, 0x00, 0x00, 0x00);
     deserialize_test(expected, bytes);
 }
 
 #[test] fn deserialize_set_local () {
-    let expected = OpCode::SetLocal { index: LocalFrameIndex::new(1) };
+    let expected = OpCode::SetLocal { index: LocalIndex::new(1) };
     let bytes = vec!(0x09, 0x01, 0x00, 0x00, 0x00);
     deserialize_test(expected, bytes);
 }
@@ -143,13 +143,13 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 
 #[test] fn serialize_get_local () {
     let expected = vec!(0x0A, 0x01, 0x00, );
-    let object = OpCode::GetLocal { index: LocalFrameIndex::new(1) };
+    let object = OpCode::GetLocal { index: LocalIndex::new(1) };
     serialize_test(expected, object);
 }
 
 #[test] fn serialize_set_local () {
     let expected = vec!(0x09, 0x01, 0x00,);
-    let object = OpCode::SetLocal { index: LocalFrameIndex::new(1) };
+    let object = OpCode::SetLocal { index: LocalIndex::new(1) };
     serialize_test(expected, object);
 }
 

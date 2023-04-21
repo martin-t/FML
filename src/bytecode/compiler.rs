@@ -157,7 +157,7 @@ impl Frame {
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Environment {
-    locals: HashMap<(Scope, String), LocalFrameIndex>,
+    locals: HashMap<(Scope, String), LocalIndex>,
     scopes: Vec<Scope>,
     scope_sequence: Scope,
     unique_number: usize,
@@ -174,10 +174,10 @@ impl Environment {
     }
 
     pub fn from_locals(locals: Vec<String>) -> Self {
-        let mut local_map: HashMap<(Scope, String), LocalFrameIndex> = HashMap::new();
+        let mut local_map: HashMap<(Scope, String), LocalIndex> = HashMap::new();
 
         for (i, local) in locals.into_iter().enumerate() {
-            local_map.insert((0, local), LocalFrameIndex::from_usize(i));
+            local_map.insert((0, local), LocalIndex::from_usize(i));
         }
 
         Environment {
@@ -189,10 +189,10 @@ impl Environment {
     }
 
     pub fn from_locals_at(locals: Vec<String>, level: usize) -> Self {
-        let mut local_map: HashMap<(Scope, String), LocalFrameIndex> = HashMap::new();
+        let mut local_map: HashMap<(Scope, String), LocalIndex> = HashMap::new();
 
         for (i, local) in locals.into_iter().enumerate() {
-            local_map.insert((level, local), LocalFrameIndex::from_usize(i));
+            local_map.insert((level, local), LocalIndex::from_usize(i));
         }
 
         Environment {
@@ -213,7 +213,7 @@ impl Environment {
         number
     }
 
-    fn register_new_local(&mut self, id: &str) -> Result<LocalFrameIndex, String> {
+    fn register_new_local(&mut self, id: &str) -> Result<LocalIndex, String> {
         let key = (self.current_scope(), id.to_string());
 
         if let Some(index) = self.locals.get(&key) {
@@ -222,13 +222,13 @@ impl Environment {
             ));
         }
 
-        let index = LocalFrameIndex::from_usize(self.locals.len());
+        let index = LocalIndex::from_usize(self.locals.len());
         let previous = self.locals.insert(key, index);
         assert!(previous.is_none());
         Ok(index)
     }
 
-    fn register_local(&mut self, id: &str) -> LocalFrameIndex {
+    fn register_local(&mut self, id: &str) -> LocalIndex {
         for scope in self.scopes.iter().rev() {
             let key = (*scope, id.to_owned());
             if let Some(index) = self.locals.get(&key) {
@@ -237,7 +237,7 @@ impl Environment {
         }
 
         let key = (self.current_scope(), id.to_string());
-        let index = LocalFrameIndex::from_usize(self.locals.len());
+        let index = LocalIndex::from_usize(self.locals.len());
         self.locals.insert(key, index);
         index
     }

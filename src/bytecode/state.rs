@@ -333,14 +333,14 @@ impl Frame {
     pub fn locals_mut(&mut self) -> &mut Vec<Pointer> {
         &mut self.locals
     }
-    pub fn get(&self, index: &LocalFrameIndex) -> Result<&Pointer> {
+    pub fn get(&self, index: &LocalIndex) -> Result<&Pointer> {
         let index = index.value() as usize;
         if index >= self.locals.len() {
             bail!("Local frame index {} out of range (0..{})", index, self.locals.len());
         }
         Ok(&self.locals[index])
     }
-    pub fn set(&mut self, index: &LocalFrameIndex, pointer: Pointer) -> Result<()> {
+    pub fn set(&mut self, index: &LocalIndex, pointer: Pointer) -> Result<()> {
         let index = index.value() as usize;
         if index >= self.locals.len() {
             bail!("Local frame index {} out of range (0..{})", index, self.locals.len());
