@@ -152,7 +152,7 @@ pub enum OpCode {
     /**
      * ## Call a member method
      *
-     * Pops `arguments` values from the `OperandStack` for the arguments to the call. The last popped
+     * Pops `arity` values from the `OperandStack` for the arguments to the call. The last popped
      *`RuntimeObject` from the `OperandStack` will be used as the method call's receiver.
      * Afterwards, a `ProgramObject::String` object representing the name of the method to call is
      * retrieved from the `ConstantPool` from the index specified by `name`.
@@ -172,16 +172,16 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x07`.
      */
-    CallMethod { name: ConstantPoolIndex, arguments: Arity },
+    CallMethod { name: ConstantPoolIndex, arity: Arity },
 
     /**
      * ## Call a global function
      *
-     * Pops `arguments` values from the `OperandStack` for the arguments to the call. Then, a
+     * Pops `arity` values from the `OperandStack` for the arguments to the call. Then, a
      * `ProgramObject::Method` object representing the function to call is retrieved from the
      * `ConstantPool` from the index specified by `function`.
      *
-     * The first `arguments` slots in the frame hold argument values starting with the deepest value
+     * The first `arity` slots in the frame hold argument values starting with the deepest value
      * on the stack (last popped) and ending with the shallowest value on the stack (first popped).
      * The new `LocalFrame` has the current frame as its parent, and the current
      * `InstructionPointer` as the return address. Execution proceeds by registering the newly
@@ -190,7 +190,7 @@ pub enum OpCode {
      *
      * Serialized as opcode `0x08`.
      */
-    CallFunction { name: ConstantPoolIndex, arguments: Arity },
+    CallFunction { name: ConstantPoolIndex, arity: Arity },
 
     /**
      * ## Define a new label here
@@ -208,7 +208,7 @@ pub enum OpCode {
     /**
      * ## Print a formatted string
      *
-     * Pops `arguments` values from the `OperandStack`. Then retrieves a `ProgramObject::String`
+     * Pops `arity` values from the `OperandStack`. Then retrieves a `ProgramObject::String`
      * object referenced by the given `format` index. Then, prints out all the values retrieved from
      * the `OperandStack` out according to the given retrieved format string. `Null` is then pushed
      * onto the `OperandStack`.
@@ -221,7 +221,7 @@ pub enum OpCode {
     Print {
         /// String
         format: ConstantPoolIndex,
-        arguments: Arity,
+        arity: Arity,
     },
 
     /**
@@ -326,7 +326,7 @@ impl Serializable for OpCode {
         match self {
             Label { name } => name.serialize(sink),
             Literal { index } => index.serialize(sink),
-            Print { format, arguments } => {
+            Print { format, arity: arguments } => {
                 format.serialize(sink)?;
                 arguments.serialize(sink)
             }
@@ -334,13 +334,13 @@ impl Serializable for OpCode {
             Object { class } => class.serialize(sink),
             GetField { name } => name.serialize(sink),
             SetField { name } => name.serialize(sink),
-            CallMethod { name, arguments } => {
+            CallMethod { name, arity: arguments } => {
                 name.serialize(sink)?;
                 arguments.serialize(sink)
             }
             CallFunction {
                 name: function,
-                arguments,
+                arity: arguments,
             } => {
                 function.serialize(sink)?;
                 arguments.serialize(sink)
@@ -365,15 +365,15 @@ impl Serializable for OpCode {
             0x00 => Label        { name:      ConstantPoolIndex::from_bytes(input)  },
             0x01 => Literal      { index:     ConstantPoolIndex::from_bytes(input)  },
             0x02 => Print        { format:    ConstantPoolIndex::from_bytes(input),
-                                   arguments: Arity::from_bytes(input)              },
+                                   arity: Arity::from_bytes(input)              },
             0x03 => Array        {                                                  },
             0x04 => Object       { class:     ConstantPoolIndex::from_bytes(input)  },
             0x05 => GetField     { name:      ConstantPoolIndex::from_bytes(input)  },
             0x06 => SetField     { name:      ConstantPoolIndex::from_bytes(input)  },
             0x07 => CallMethod   { name:      ConstantPoolIndex::from_bytes(input),
-                                   arguments: Arity::from_bytes(input)              },
+                                   arity: Arity::from_bytes(input)              },
             0x08 => CallFunction { name:  ConstantPoolIndex::from_bytes(input),
-                                   arguments: Arity::from_bytes(input)              },
+                                   arity: Arity::from_bytes(input)              },
             0x09 => SetLocal     { index:     LocalFrameIndex::from_bytes(input)    },
             0x0A => GetLocal     { index:     LocalFrameIndex::from_bytes(input)    },
             0x0B => SetGlobal    { name:      ConstantPoolIndex::from_bytes(input)  },
@@ -399,9 +399,9 @@ impl Display for OpCode {
             OpCode::Array => write!(f, "array"),
             OpCode::GetField { name } => write!(f, "get slot {name}"),
             OpCode::SetField { name } => write!(f, "set slot {name}"),
-            OpCode::CallMethod { name, arguments } => write!(f, "call slot {name} {arguments}"),
-            OpCode::CallFunction { name, arguments } => write!(f, "call {name} {arguments}"),
-            OpCode::Print { format, arguments } => write!(f, "printf {format} {arguments}"),
+            OpCode::CallMethod { name, arity: arguments } => write!(f, "call slot {name} {arguments}"),
+            OpCode::CallFunction { name, arity: arguments } => write!(f, "call {name} {arguments}"),
+            OpCode::Print { format, arity: arguments } => write!(f, "printf {format} {arguments}"),
             OpCode::Label { name } => write!(f, "label {name}"),
             OpCode::Jump { label } => write!(f, "goto {label}"),
             OpCode::Branch { label } => write!(f, "branch {label}"),

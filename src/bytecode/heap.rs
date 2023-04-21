@@ -11,7 +11,7 @@ use anyhow::{anyhow, bail, ensure, Context, Result};
 use indexmap::IndexMap;
 
 use crate::bytecode::{
-    program::{AddressRange, Arity, ConstantPoolIndex, ProgramObject, Size},
+    program::{ConstantPoolIndex, ProgramObject},
     state::{FrameStack, OperandStack},
 };
 
@@ -35,10 +35,11 @@ pub struct ArrayInstance(Vec<Pointer>);
 #[derive(Eq, PartialEq, Debug, Clone, Default)]
 pub struct ObjectInstance {
     pub parent: Pointer,
-    pub fields: IndexMap<String, Pointer>,        // LATER(kondziu) make private
-    pub methods: IndexMap<String, ProgramObject>, // LATER(kondziu) make private
+    pub fields: IndexMap<String, Pointer>,            // LATER(kondziu) make private
+    pub methods: IndexMap<String, ConstantPoolIndex>, // LATER(kondziu) make private
 }
 
+/// This should really be called a Value but the reference calls it a Pointer.
 #[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Ord, PartialOrd, Default)]
 pub enum Pointer {
     #[default]
@@ -302,7 +303,7 @@ impl HeapObject {
     pub fn new_object(
         parent: Pointer,
         fields: IndexMap<String, Pointer>,
-        methods: IndexMap<String, ProgramObject>,
+        methods: IndexMap<String, ConstantPoolIndex>,
     ) -> Self {
         HeapObject::Object(ObjectInstance {
             parent,
@@ -334,7 +335,11 @@ impl HeapObject {
         HeapObject::Array(ArrayInstance::from(v))
     }
     #[allow(dead_code)]
-    pub fn from(parent: Pointer, fields: IndexMap<String, Pointer>, methods: IndexMap<String, ProgramObject>) -> Self {
+    pub fn from(
+        parent: Pointer,
+        fields: IndexMap<String, Pointer>,
+        methods: IndexMap<String, ConstantPoolIndex>,
+    ) -> Self {
         HeapObject::Object(ObjectInstance {
             parent,
             fields,
@@ -355,25 +360,12 @@ impl HeapObject {
                 let fields: usize = object
                     .fields
                     .iter()
-                    .map(|(string, _pointer)| string.len() + mem::size_of::<Pointer>())
+                    .map(|(name, pointer)| name.len() + mem::size_of_val(pointer))
                     .sum();
                 let methods: usize = object
                     .methods
                     .iter()
-                    .map(|(string, program_object)| {
-                        string.len()
-                            + match program_object {
-                                // TODO Maybe this should store just const pool index?
-                                // TODO Maybe simplify - check variant and do mem::size_of on program_object?
-                                ProgramObject::Method { .. } => {
-                                    mem::size_of::<ConstantPoolIndex>()
-                                        + mem::size_of::<Arity>()
-                                        + mem::size_of::<Size>()
-                                        + mem::size_of::<AddressRange>()
-                                }
-                                _ => unreachable!(),
-                            }
-                    })
+                    .map(|(name, index)| name.len() + mem::size_of_val(index))
                     .sum();
                 header + fields + methods
             }

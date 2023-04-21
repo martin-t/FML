@@ -477,19 +477,19 @@ use crate::bytecode::compiler::*;
         OpCode::Label { name: ConstantPoolIndex::new(3) },                                     // label loop_body_0:
         OpCode::GetLocal { index: LocalFrameIndex::new(1) },                                   // arr
         OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
-        OpCode::CallFunction { name: ConstantPoolIndex::new(5),arguments: Arity::new(0)},// call f() -> result on stack
-        OpCode::CallMethod { name: ConstantPoolIndex::new(6), arguments: Arity::new(3) },// call arr.set(i, result of f())
+        OpCode::CallFunction { name: ConstantPoolIndex::new(5),arity: Arity::new(0)},// call f() -> result on stack
+        OpCode::CallMethod { name: ConstantPoolIndex::new(6), arity: Arity::new(3) },// call arr.set(i, result of f())
         OpCode::Drop,
         OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
         OpCode::Literal { index: ConstantPoolIndex::new(8) },                                  // 1
-        OpCode::CallMethod { name: ConstantPoolIndex::new(7), arguments: Arity::new(2) },// i + 1
+        OpCode::CallMethod { name: ConstantPoolIndex::new(7), arity: Arity::new(2) },// i + 1
         OpCode::SetLocal { index: LocalFrameIndex::new(2) },                                   // i = i + 1
         OpCode::Drop,
 
         OpCode::Label { name: ConstantPoolIndex::new(4) },                                     // label loop_condition_0:
         OpCode::GetLocal { index: LocalFrameIndex::new(2) },                                   // i
         OpCode::GetLocal { index: LocalFrameIndex::new(0) },                                   // size
-        OpCode::CallMethod { name: ConstantPoolIndex::new(9), arguments: Arity::new(2) },// i < size
+        OpCode::CallMethod { name: ConstantPoolIndex::new(9), arity: Arity::new(2) },// i < size
         OpCode::Branch { label: ConstantPoolIndex::new(3) },                                   // conditional jump to loop_body_0
         OpCode::GetLocal { index: LocalFrameIndex::new(1) },                                   // arr
     ));
@@ -540,7 +540,7 @@ use crate::bytecode::compiler::*;
     let expected_code = Code::from(vec!(
         /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
         /* 1 */ OpCode::Literal { index: ConstantPoolIndex::new(0) },
-        /* 2 */ OpCode::CallMethod { name: ConstantPoolIndex::new(1), arguments: Arity::new(2) },
+        /* 2 */ OpCode::CallMethod { name: ConstantPoolIndex::new(1), arity: Arity::new(2) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -578,7 +578,7 @@ use crate::bytecode::compiler::*;
         /* 0 */ OpCode::GetLocal { index: LocalFrameIndex::new(0) },
         /* 1 */ OpCode::Literal { index: ConstantPoolIndex::new(0) },
         /* 2 */ OpCode::Literal { index: ConstantPoolIndex::new(1) },
-        /* 3 */ OpCode::CallMethod { name: ConstantPoolIndex::new(2), arguments: Arity::new(3) },
+        /* 3 */ OpCode::CallMethod { name: ConstantPoolIndex::new(2), arity: Arity::new(3) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -618,7 +618,7 @@ use crate::bytecode::compiler::*;
     let expected_code = Code::from(vec!(
         /* 0 */ OpCode::Literal { index:  ConstantPoolIndex::new(1) },
         /* 1 */ OpCode::Literal { index:  ConstantPoolIndex::new(2) },
-        /* 2 */ OpCode::Print   { format: ConstantPoolIndex::new(0), arguments: Arity::new(2) },
+        /* 2 */ OpCode::Print   { format: ConstantPoolIndex::new(0), arity: Arity::new(2) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -660,7 +660,7 @@ use crate::bytecode::compiler::*;
         /* 0 */ OpCode::Literal { index:  ConstantPoolIndex::new(1) },
         /* 1 */ OpCode::Literal { index:  ConstantPoolIndex::new(2) },
         /* 2 */ OpCode::Literal { index:  ConstantPoolIndex::new(3) },
-        /* 3 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(3) },
+        /* 3 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(3) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -697,7 +697,7 @@ use crate::bytecode::compiler::*;
 
     let expected_code = Code::from(vec!(
         /* 0 */ OpCode::Literal { index:  ConstantPoolIndex::new(1) },
-        /* 1 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        /* 1 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(1) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -731,7 +731,7 @@ use crate::bytecode::compiler::*;
     let expected_current_frame = Frame::new();
 
     let expected_code = Code::from(vec!(
-        /* 0 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(0) },
+        /* 0 */ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(0) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -775,7 +775,7 @@ use crate::bytecode::compiler::*;
         /* 0 */ ProgramObject::String("project_right".to_string()),
         /* 1 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(0),
-            parameters: Arity::new(3),
+            arity: Arity::new(3),
             locals: Size::new(0),
             code: AddressRange::from(0, 2),
         }),
@@ -894,7 +894,7 @@ use crate::bytecode::compiler::*;
         /* 01 */ ProgramObject::from_str("implies"),
         /* 02 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(1),    // "implies"
-            parameters: Arity::new(1+1),
+            arity: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(0, 2),     // opcodes: 0, 1
         }),
@@ -906,7 +906,7 @@ use crate::bytecode::compiler::*;
         /* 06 */ ProgramObject::from_str("identity"),
         /* 07 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(6),    // identity
-            parameters: Arity::new(0+1),
+            arity: Arity::new(0+1),
             locals: Size::new(0),
             code: AddressRange::from(2, 2),     // addresses: 2, 3
         }),
@@ -914,7 +914,7 @@ use crate::bytecode::compiler::*;
         /* 08 */ ProgramObject::from_str("or"),
         /* 09 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(8),    // or
-            parameters: Arity::new(1+1),
+            arity: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(4, 2),     // addresses: 5, 6
         }),
@@ -922,7 +922,7 @@ use crate::bytecode::compiler::*;
         /* 10 */ ProgramObject::from_str("and"),
         /* 11 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(10),    // and
-            parameters: Arity::new(1+1),
+            arity: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(6, 2),     // addresses: 7, 8
         }),
@@ -933,7 +933,7 @@ use crate::bytecode::compiler::*;
         /* 14 */ ProgramObject::from_str("+"),
         /* 15 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(14),          // +
-            parameters: Arity::new(1+1),
+            arity: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(8, 2),           // addresses: 7, 8
         }),
@@ -941,7 +941,7 @@ use crate::bytecode::compiler::*;
         /* 16 */ ProgramObject::from_str("*"),
         /* 17 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(16),          // *
-            parameters: Arity::new(1+1),
+            arity: Arity::new(1+1),
             locals: Size::new(0),
             code: AddressRange::from(10, 2),           // addresses: 9, 10
         }),
@@ -949,7 +949,7 @@ use crate::bytecode::compiler::*;
         /* 18 */ ProgramObject::from_str("me"),
         /* 19 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::new(18),          // *
-            parameters: Arity::new(1),
+            arity: Arity::new(1),
             locals: Size::new(0),
             code: AddressRange::from(12, 2),
         }),
@@ -1192,7 +1192,7 @@ use crate::bytecode::compiler::*;
         OpCode::Literal { index: ConstantPoolIndex::new(2) },
         OpCode::Literal { index: ConstantPoolIndex::new(3) },
 
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(4) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(4) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -1231,7 +1231,7 @@ use crate::bytecode::compiler::*;
     let expected_code = Code::from(vec!(
         OpCode::GetLocal { index: LocalFrameIndex::new(0) },
         OpCode::Literal { index: ConstantPoolIndex::new(1) },
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(2) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(2) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -1267,7 +1267,7 @@ use crate::bytecode::compiler::*;
 
     let expected_code = Code::from(vec!(
         OpCode::GetLocal { index: LocalFrameIndex::new(0) },
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(1) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -1303,7 +1303,7 @@ use crate::bytecode::compiler::*;
     let expected_code = Code::from(vec!(
         OpCode::Literal { index: ConstantPoolIndex::new(1) },
         OpCode::Literal { index: ConstantPoolIndex::new(2) },
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(2) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(2) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![
@@ -1341,7 +1341,7 @@ use crate::bytecode::compiler::*;
     let expected_code = Code::from(vec!(
         OpCode::Literal { index: ConstantPoolIndex::new(1) },
         OpCode::Literal { index: ConstantPoolIndex::new(2) },
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(2) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(2) },
     ));
 
     let expected_constants = <ConstantPool as From<Vec<ProgramObject>>>::from(vec![

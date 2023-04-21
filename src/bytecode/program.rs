@@ -114,7 +114,7 @@ pub enum ProgramObject {
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
 pub struct Method {
     pub name: ConstantPoolIndex,
-    pub parameters: Arity,
+    pub arity: Arity,
     pub locals: Size,
     pub code: AddressRange,
 }
@@ -398,7 +398,7 @@ impl ProgramObject {
             _ => anyhow::bail!("Expecting a program object representing a String, found `{}`", self),
         }
     }
-    pub fn as_class_definition(&self) -> anyhow::Result<&Vec<ConstantPoolIndex>> {
+    pub fn as_class_members(&self) -> anyhow::Result<&Vec<ConstantPoolIndex>> {
         match self {
             ProgramObject::Class(members) => Ok(members),
             _ => anyhow::bail!("Expecting a program object representing a Class, found `{}`", self),
@@ -587,7 +587,7 @@ impl Address {
         Address(value)
     }
 
-    pub fn from_usize(value: usize) -> Address {
+    pub const fn from_usize(value: usize) -> Address {
         assert!(value <= 4_294_967_295usize);
         Address(value as u32)
     }
@@ -612,7 +612,7 @@ impl AddressRange {
     }
 
     #[allow(dead_code)]
-    pub fn from(start: usize, length: usize) -> Self {
+    pub const fn from(start: usize, length: usize) -> Self {
         AddressRange {
             start: Address::from_usize(start),
             length,
@@ -714,7 +714,7 @@ impl SerializableWithContext for ProgramObject {
 
             ProgramObject::Method(method) => {
                 method.name.serialize(sink)?;
-                method.parameters.serialize(sink)?;
+                method.arity.serialize(sink)?;
                 method.locals.serialize(sink)?;
                 OpCode::write_opcode_vector(sink, &code.materialize(&method.code)?)
             }
@@ -730,7 +730,7 @@ impl SerializableWithContext for ProgramObject {
             0x02 => ProgramObject::String(serializable::read_utf8(input)),
             0x03 => ProgramObject::Method(Method {
                 name: ConstantPoolIndex::from_bytes(input),
-                parameters: Arity::from_bytes(input),
+                arity: Arity::from_bytes(input),
                 locals: Size::from_bytes(input),
                 code: code.append(OpCode::read_opcode_vector(input)),
             }),
@@ -849,7 +849,7 @@ impl Display for ProgramObject {
                 write!(
                     f,
                     "method {} args:{} locals:{} {}",
-                    method.name, method.parameters, method.locals, method.code
+                    method.name, method.arity, method.locals, method.code
                 )
             }
             ProgramObject::Class(members) => {

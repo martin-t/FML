@@ -88,19 +88,19 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 }
 
 #[test] fn deserialize_call_method () {
-    let expected = OpCode::CallMethod { name: ConstantPoolIndex::new(1), arguments: Arity::new(1) };
+    let expected = OpCode::CallMethod { name: ConstantPoolIndex::new(1), arity: Arity::new(1) };
     let bytes = vec!(0x07, 0x01, 0x00, 0x01);
     deserialize_test(expected, bytes);
 }
 
 #[test] fn deserialize_call_function () {
-    let expected = OpCode::CallFunction { name: ConstantPoolIndex::new(1), arguments: Arity::new(2) };
+    let expected = OpCode::CallFunction { name: ConstantPoolIndex::new(1), arity: Arity::new(2) };
     let bytes = vec!(0x08, 0x01, 0x00, 0x02);
     deserialize_test(expected, bytes);
 }
 
 #[test] fn deserialize_print () {
-    let expected = OpCode::Print { format: ConstantPoolIndex::new(1), arguments: Arity::new(2) };
+    let expected = OpCode::Print { format: ConstantPoolIndex::new(1), arity: Arity::new(2) };
     let bytes = vec!(0x02, 0x01, 0x00, 0x02);
     deserialize_test(expected, bytes);
 }
@@ -191,19 +191,19 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 
 #[test] fn serialize_call_method () {
     let expected = vec!(0x07, 0x01, 0x00, 0x01);
-    let object = OpCode::CallMethod { name: ConstantPoolIndex::new(1), arguments: Arity::new(1) };
+    let object = OpCode::CallMethod { name: ConstantPoolIndex::new(1), arity: Arity::new(1) };
     serialize_test(expected, object);
 }
 
 #[test] fn serialize_call_function () {
     let expected = vec!(0x08, 0x01, 0x00, 0x02);
-    let object = OpCode::CallFunction { name: ConstantPoolIndex::new(1), arguments: Arity::new(2) };
+    let object = OpCode::CallFunction { name: ConstantPoolIndex::new(1), arity: Arity::new(2) };
     serialize_test(expected, object);
 }
 
 #[test] fn serialize_print () {
     let expected = vec!(0x02, 0x01, 0x00, 0x02);
-    let object = OpCode::Print { format: ConstantPoolIndex::new(1), arguments: Arity::new(2) };
+    let object = OpCode::Print { format: ConstantPoolIndex::new(1), arity: Arity::new(2) };
     serialize_test(expected, object);
 }
 
@@ -285,7 +285,7 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 
     let object = ProgramObject::Method(Method {
         name: ConstantPoolIndex::new(255),
-        parameters: Arity::new(3),
+        arity: Arity::new(3),
         locals: Size::new(15),
         code: AddressRange::from(0, 2),
     });
@@ -343,7 +343,7 @@ fn serialize_with_context_test<S>(expected: Vec<u8>, object: S, code: Code) wher
 
 #[test] fn method () {
     let object = ProgramObject::Method(Method { name: ConstantPoolIndex::new(255),
-                                         parameters: Arity::new(3),
+                                         arity: Arity::new(3),
                                          locals: Size::new(15),
                                          code: AddressRange::from(0, 2)});
 

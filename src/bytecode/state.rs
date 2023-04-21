@@ -391,15 +391,19 @@ impl From<usize> for InstructionPointer {
     }
 }
 
-pub struct Output();
+/// A fmt::Write implementor that prints to stdout.
+///
+/// Anything implementing fmt::Write can be used as output
+/// so use a String if you want to process output in code.
+pub struct StdOutput();
 
-impl Output {
+impl StdOutput {
     pub fn new() -> Self {
-        Output()
+        StdOutput()
     }
 }
 
-impl fmt::Write for Output {
+impl fmt::Write for StdOutput {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         match std::io::stdout().write_all(s.as_bytes()) {
             Ok(_) => Ok(()),

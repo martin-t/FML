@@ -36,7 +36,7 @@ use anyhow::Result;
 
 use crate::bytecode::{
     program::Program,
-    state::{Output, State},
+    state::{StdOutput, State},
 };
 
 pub trait VariableAddr: Sized {
@@ -109,7 +109,7 @@ pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, he
     if let Some(log) = heap_log {
         state.heap.set_log(log);
     }
-    let mut output = Output::new();
+    let mut output = StdOutput::new();
     jit_with(program, &mut state, &mut output)
 }
 

@@ -555,7 +555,7 @@ impl Compiled for AST {
 
                 active_buffer.emit(OpCode::CallMethod {
                     name,
-                    arguments: Arity::new(2),
+                    arity: Arity::new(2),
                 });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
@@ -569,7 +569,7 @@ impl Compiled for AST {
 
                 active_buffer.emit(OpCode::CallMethod {
                     name,
-                    arguments: Arity::new(3),
+                    arity: Arity::new(3),
                 });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
@@ -584,7 +584,7 @@ impl Compiled for AST {
                 }
 
                 let arguments = Arity::from_usize(arguments.len());
-                active_buffer.emit(OpCode::Print { format, arguments });
+                active_buffer.emit(OpCode::Print { format, arity: arguments });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
@@ -635,7 +635,7 @@ impl Compiled for AST {
                 let method = ProgramObject::Method(Method {
                     name: name_index,
                     locals: Size::from_usize(locals_in_frame - parameters.len()),
-                    parameters: Arity::from_usize(parameters.len()),
+                    arity: Arity::from_usize(parameters.len()),
                     code: AddressRange::new(start_address, function_length),
                 });
 
@@ -654,7 +654,7 @@ impl Compiled for AST {
                 let arity = Arity::from_usize(arguments.len());
                 active_buffer.emit(OpCode::CallFunction {
                     name: index,
-                    arguments: arity,
+                    arity,
                 });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
@@ -752,7 +752,7 @@ impl Compiled for AST {
                 let arity = Arity::from_usize(arguments.len() + 1);
                 active_buffer.emit(OpCode::CallMethod {
                     name: index,
-                    arguments: arity,
+                    arity,
                 });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
@@ -780,7 +780,7 @@ impl Compiled for AST {
                 let method = ProgramObject::Method(Method {
                     name: function_name_index,
                     locals: Size::from_usize(global_environment.count_locals()),
-                    parameters: Arity::from_usize(0),
+                    arity: Arity::from_usize(0),
                     code: AddressRange::new(start_address, function_length),
                 });
 
@@ -849,7 +849,7 @@ fn compile_function_definition(
     let method = ProgramObject::Method(Method {
         name: name_index,
         locals: Size::from_usize(locals_in_frame - expected_arguments),
-        parameters: Arity::from_usize(expected_arguments),
+        arity: Arity::from_usize(expected_arguments),
         code: AddressRange::new(start_address, length),
     });
 

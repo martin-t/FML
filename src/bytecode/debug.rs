@@ -170,7 +170,7 @@ impl UglyPrintWithContext for ProgramObject {
 
             ProgramObject::Method(Method {
                 name,
-                parameters: arguments,
+                arity: arguments,
                 locals,
                 code: range,
             }) => {
@@ -231,17 +231,17 @@ impl UglyPrint for OpCode {
                 write_string!(sink, indent, "set slot ");
                 name.pretty_print_no_indent(sink);
             }
-            OpCode::CallMethod { name, arguments } => {
+            OpCode::CallMethod { name, arity: arguments } => {
                 write_string!(sink, indent, "call slot ");
                 name.pretty_print_no_indent(sink);
                 arguments.pretty_print_indent(sink, 1);
             }
-            OpCode::CallFunction { name, arguments } => {
+            OpCode::CallFunction { name, arity: arguments } => {
                 write_string!(sink, indent, "call ");
                 name.pretty_print_no_indent(sink);
                 arguments.pretty_print_indent(sink, 1);
             }
-            OpCode::Print { format, arguments } => {
+            OpCode::Print { format, arity: arguments } => {
                 write_string!(sink, indent, "printf ");
                 format.pretty_print_no_indent(sink);
                 arguments.pretty_print_indent(sink, 1);

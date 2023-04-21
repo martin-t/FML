@@ -36,6 +36,12 @@ macro_rules! indexmap {
     }};
 }
 
+/// The code's a mess so sometimes this is really a dummy range,
+/// the method is not there and this points into the middle of something random.
+/// However, sometimes there's a single Return opcode at the beginning
+/// of the code vector which represents the method.
+const TEST_ADDRESS_RANGE: AddressRange = AddressRange::from(0, 1);
+
 #[test] fn literal() {
     let code = Code::from(vec!(
         OpCode::Literal { index: ConstantPoolIndex::new(0) },
@@ -358,7 +364,7 @@ macro_rules! indexmap {
 
 #[test] fn print() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(0) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(0) },
         OpCode::Return,
     ));
 
@@ -386,7 +392,7 @@ macro_rules! indexmap {
 
 #[test] fn print_tilda() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         OpCode::Return,
     ));
 
@@ -416,7 +422,7 @@ macro_rules! indexmap {
 
 #[test] fn print_one() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         OpCode::Return,
     ));
 
@@ -446,7 +452,7 @@ macro_rules! indexmap {
 
 #[test] fn print_two() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(2) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(2) },
         OpCode::Return,
     ));
 
@@ -477,7 +483,7 @@ macro_rules! indexmap {
 
 #[test] fn print_array() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         OpCode::Return,
     ));
 
@@ -510,7 +516,7 @@ macro_rules! indexmap {
 
 #[test] fn print_object_with_parent() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         OpCode::Return,
     ));
 
@@ -551,7 +557,7 @@ macro_rules! indexmap {
 
 #[test] fn print_object_without_parent() {
     let code = Code::from(vec!(
-        OpCode::Print { format: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        OpCode::Print { format: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         OpCode::Return,
     ));
 
@@ -691,16 +697,16 @@ macro_rules! indexmap {
 #[test] fn call_function_zero() {
     let code = Code::from(vec!(
         /*0*/ OpCode::Return,
-        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(0) },
+        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(0) },
         /*2*/ OpCode::Return,
     ));
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("bar".to_string()),
         ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-            parameters: Arity::new(0),
+            arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) })]);
+            code: TEST_ADDRESS_RANGE })]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -741,16 +747,16 @@ macro_rules! indexmap {
 #[test] fn call_function_one() {
     let code = Code::from(vec!(
         /*0*/ OpCode::Return,
-        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(1) },
+        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(1) },
         /*2*/ OpCode::Return,
     ));
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("foo".to_string()),
         ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-            parameters: Arity::new(1),
+            arity: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) })]);
+            code: TEST_ADDRESS_RANGE })]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -784,15 +790,15 @@ macro_rules! indexmap {
 #[test] fn call_function_three() {
     let code = Code::from(vec!(
         /*0*/ OpCode::Return,
-        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arguments: Arity::new(3) },
+        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(0), arity: Arity::new(3) },
         /*2*/ OpCode::Return,
     ));
 
     let constants = ConstantPool::from(vec![ ProgramObject::String("fun".to_string()),
                                              ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-                                                 parameters: Arity::new(3),
+                                                 arity: Arity::new(3),
                                                  locals: Size::new(0),
-                                                 code: AddressRange::from(0,1) })]);
+                                                 code: TEST_ADDRESS_RANGE })]);
     let globals = Globals::new();
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -833,16 +839,16 @@ macro_rules! indexmap {
 #[test] fn returns() {
     let code = Code::from(vec!(
         /*0*/ OpCode::Return,
-        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(1), arguments: Arity::new(3) },
+        /*1*/ OpCode::CallFunction { name: ConstantPoolIndex::new(1), arity: Arity::new(3) },
         /*2*/ OpCode::Drop,
     ));
 
     let constants = ConstantPool::from(vec![
         ProgramObject::String("xxx".to_string()),
         ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-            parameters: Arity::new(3),
+            arity: Arity::new(3),
             locals: Size::new(0),
-            code: AddressRange::from(0,1) })]);
+            code: TEST_ADDRESS_RANGE })]);
 
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
     let entry = Entry::from(0);
@@ -877,9 +883,9 @@ macro_rules! indexmap {
     let constants = ConstantPool::from(vec![
         /*0*/ ProgramObject::String ("+".to_string()),
         /*1*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-            parameters: Arity::new(1),
+            arity: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)}),
+            code: TEST_ADDRESS_RANGE}),
         /*2*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1)))]);
 
     let globals = Globals::new();
@@ -894,18 +900,11 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method(Method {
-        name: ConstantPoolIndex::new(0),
-        parameters: Arity::new(1),
-        locals: Size::new(0),
-        code: AddressRange::from(0, 1)
-    });
-
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
     let expected_instruction_pointer = InstructionPointer::from(1u32);
     let expected_heap = Heap::from(vec![HeapObject::from(Pointer::Null, IndexMap::new(),
-                                              indexmap!(("+".to_string(), method)))]);
+                                              indexmap!(("+".to_string(), ConstantPoolIndex::new(1))))]);
 
     assert_eq!(&output, "", "test output");
     assert_eq!(state.operand_stack, expected_operand_stack, "test operands");
@@ -926,9 +925,9 @@ macro_rules! indexmap {
 
         /*2*/ ProgramObject::String ("+".to_string()),
         /*3*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(2),
-            parameters: Arity::new(1),
+            arity: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)}),
+            code: TEST_ADDRESS_RANGE}),
 
         /*4*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1),
                                         ConstantPoolIndex::new(3)))
@@ -947,19 +946,12 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method(Method {
-        name: ConstantPoolIndex::new(2),
-        parameters: Arity::new(1),
-        locals: Size::new(0),
-        code: AddressRange::from(0, 1)
-    });
-
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
     let expected_instruction_pointer = InstructionPointer::from(1u32);
     let expected_heap = Heap::from(vec![HeapObject::from(Pointer::Null,
                                                          indexmap!(("x".to_owned(), Pointer::from(0i32))),
-                                                         indexmap!(("+".to_string(), method)))]);
+                                                         indexmap!(("+".to_string(), ConstantPoolIndex::new(3))))]);
 
     assert_eq!(&output, "", "test output");
     assert_eq!(state.operand_stack, expected_operand_stack, "test operands");
@@ -983,9 +975,9 @@ macro_rules! indexmap {
 
         /*4*/ ProgramObject::String ("+".to_string()),
         /*5*/ ProgramObject::Method(Method { name: ConstantPoolIndex::new(4),
-            parameters: Arity::new(1),
+            arity: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 1)}),
+            code: TEST_ADDRESS_RANGE}),
 
         /*6*/ ProgramObject::Class(vec!(ConstantPoolIndex::new(1),
                                         ConstantPoolIndex::new(3),
@@ -1005,20 +997,13 @@ macro_rules! indexmap {
 
     step_with(&program, &mut state, &mut output).unwrap();
 
-    let method = ProgramObject::Method(Method {
-        name: ConstantPoolIndex::new(4),
-        parameters: Arity::new(1),
-        locals: Size::new(0),
-        code: AddressRange::from(0, 1)
-    });
-
     let expected_operand_stack = OperandStack::from(vec![Pointer::from(HeapIndex::from(0))]);
     let expected_frame_stack = FrameStack::from(Frame::new());
     let expected_instruction_pointer = InstructionPointer::from(1u32);
     let expected_heap = Heap::from(vec![HeapObject::from(Pointer::Null,
                                                          indexmap!(("x".to_owned(), Pointer::from(0)),
                                                                    ("y".to_owned(), Pointer::from(2))),
-                                                         indexmap!(("+".to_string(), method)))]);
+                                                         indexmap!(("+".to_string(), ConstantPoolIndex::new(5))))]);
 
     assert_eq!(&output, "", "test output");
     assert_eq!(state.operand_stack, expected_operand_stack, "test operands");
@@ -1102,15 +1087,34 @@ macro_rules! indexmap {
     assert_eq!(state.heap, expected_heap, "test memory");
 }
 
+// LATER(martin-t) Are these tests even working properly?
+//  The const pool doesn't contain the method at all.
+//  They're also overly complex and changing anything in the impl
+//  requires changing 10-20 tests.
+//  One was commented out before i ever touched it which is telling.
+//  Nuke them and replace with parsing+executing a tiny program,
+//  then check the result.
+//
+//  If we keep them:
+//  - Here DUMMY_ADDRESS_RANGE is not dummy - the return is the called method.
+//  - There's still the extra return at the end which normally compiled code
+//    wouldn't have.
 #[allow(clippy::identity_op)]
 #[test] fn call_method_zero() {
     let code = Code::from(vec!(
         OpCode::Return,
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(0 + 1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(0 + 1) },
         OpCode::Return,
     ));
 
-    let constants = ConstantPool::from(vec!["f"]);
+    let constants = ConstantPool::from(vec![
+        ProgramObject::String("f".to_string()),
+        ProgramObject::Method(Method {
+            name: ConstantPoolIndex::new(0),
+            arity: Arity::new(0 + 1),
+            locals: Size::new(0),
+            code: TEST_ADDRESS_RANGE }),
+    ]);
     let globals = Globals::new();
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -1120,10 +1124,7 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::Null,
                                     IndexMap::new(),
-                                    indexmap!(("f".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-                                                                                        parameters: Arity::new(0 + 1),
-                                                                                        locals: Size::new(0),
-                                                                                        code: AddressRange::from(0, 1) }))));
+                                    indexmap!(("f".to_string(), ConstantPoolIndex::new(1))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
@@ -1149,11 +1150,18 @@ macro_rules! indexmap {
 #[test] fn call_method_one() {
     let code = Code::from(vec!(
         OpCode::Return,
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(1 + 1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(1 + 1) },
         OpCode::Return,
     ));
 
-    let constants = ConstantPool::from(vec!["+"]);
+    let constants = ConstantPool::from(vec![
+        ProgramObject::String("+".to_string()),
+        ProgramObject::Method(Method {
+            name: ConstantPoolIndex::new(0),
+            arity: Arity::new(1 + 1),
+            locals: Size::new(0),
+            code: TEST_ADDRESS_RANGE }),
+    ]);
     let globals = Globals::new();
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -1163,10 +1171,7 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::from(0),
                                     IndexMap::new(),
-                                    indexmap!(("+".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-                                                                                        parameters: Arity::new(1 + 1),
-                                                                                        locals: Size::new(0),
-                                                                                        code: AddressRange::from(0, 1) }))));
+                                    indexmap!(("+".to_string(), ConstantPoolIndex::new(1))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
 
@@ -1194,11 +1199,18 @@ macro_rules! indexmap {
 #[test] fn call_method_three() {
     let code = Code::from(vec!(
         OpCode::Return,
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(3 + 1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(3 + 1) },
         OpCode::Return,
     ));
 
-    let constants = ConstantPool::from(vec!["g"]);
+    let constants = ConstantPool::from(vec![
+        ProgramObject::String("g".to_string()),
+        ProgramObject::Method(Method {
+            name: ConstantPoolIndex::new(0),
+            arity: Arity::new(3 + 1),
+            locals: Size::new(0),
+            code: TEST_ADDRESS_RANGE }),
+    ]);
     let globals = Globals::new();
     let entry = Entry::from(0);
     let program = Program::from(code, constants, globals, entry).unwrap();
@@ -1208,10 +1220,7 @@ macro_rules! indexmap {
 
     let receiver = HeapObject::from(Pointer::from(0),
                                     IndexMap::new(),
-                                    indexmap!(("g".to_string(), ProgramObject::Method(Method { name: ConstantPoolIndex::new(0),
-                                                                                      parameters: Arity::new(3 + 1),
-                                                                                      locals: Size::new(0),
-                                                                                      code: AddressRange::from(0, 1) }))));
+                                    indexmap!(("g".to_string(), ConstantPoolIndex::new(1))));
 
     state.instruction_pointer.set(Some(Address::from_usize(1)));
     let pointer = Pointer::from(state.heap.allocate(&mut state.frame_stack, &mut state.operand_stack, receiver.clone()));
@@ -1298,7 +1307,7 @@ macro_rules! indexmap {
 
 fn call_method_on_pointers(receiver: Pointer, argument: Pointer, operation: &str, result: Pointer) {
     let code = Code::from(vec!(
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(1 + 1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(1 + 1) },
         OpCode::Return,
     ));
 
@@ -1466,7 +1475,7 @@ fn call_method_boolean(receiver: bool, argument: bool, operation: &str, result: 
 
 #[test] fn call_method_array_get() {
     let code = Code::from(vec!(
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(1 + 1) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(1 + 1) },
         OpCode::Return,
     ));
 
@@ -1506,7 +1515,7 @@ fn call_method_boolean(receiver: bool, argument: bool, operation: &str, result: 
 // after:  array(1,42,3)
 #[test] fn call_method_array_set() {
     let code = Code::from(vec!(
-        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arguments: Arity::new(3) },
+        OpCode::CallMethod { name: ConstantPoolIndex::new(0), arity: Arity::new(3) },
         OpCode::Return
     ));
 
