@@ -165,7 +165,7 @@ pub fn eval_object(program: &Program, state: &mut State, class_index: &ConstantP
                 // LATER(kondziu), probably don't need to store methods, tbh, just the class, which would simplify this a lot
                 let name_object = program.constant_pool.get(&method.name)?;
                 let name = name_object.as_str()?;
-                let previous = methods.insert(name.to_owned(), member_index.clone());
+                let previous = methods.insert(name.to_owned(), *member_index);
                 ensure!(
                     previous.is_none(),
                     "Member method `{}` has a non-unique name within object.",
@@ -506,7 +506,7 @@ fn dispatch_object_method(
 
     match method_option {
         Some(method_index) => {
-            let method = program.constant_pool.get(&method_index)?.as_method()?;
+            let method = program.constant_pool.get(method_index)?.as_method()?;
             eval_call_object_method(program, state, method, method_name, receiver, arguments)
         }
         None if object_instance.parent.is_null() => {
