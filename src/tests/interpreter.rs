@@ -8,26 +8,6 @@ use crate::bytecode::heap::*;
 use crate::bytecode::state::*;
 use indexmap::map::IndexMap;
 
-#[allow(unused_macros)]
-macro_rules! hashmap {
-    ($key: expr, $value: expr) => {{
-        let mut map = HashMap::new();
-        map.insert($key, $value);
-        map
-    }};
-    ($key1: expr, $value1: expr, $key2: expr, $value2: expr) => {{
-        let mut map = HashMap::new();
-        map.insert($key1, $value1);
-        map.insert($key2, $value2);
-        map
-    }};
-    ($(($key: expr, $value: expr)),+) => {{
-        let mut map = HashMap::new();
-        $(map.insert($key, $value);)+
-        map
-    }};
-}
-
 macro_rules! indexmap {
     ($(($key: expr, $value: expr)),+) => {{
         let mut map = IndexMap::new();
