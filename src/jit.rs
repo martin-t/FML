@@ -36,7 +36,7 @@ use anyhow::Result;
 
 use crate::bytecode::{
     program::Program,
-    state::{StdOutput, State},
+    state::{State, StdOutput},
 };
 
 pub trait VariableAddr: Sized {

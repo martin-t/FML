@@ -87,10 +87,10 @@ where
         OpCode::Array => eval_array(program, state),
         OpCode::GetField { name } => eval_get_field(program, state, name),
         OpCode::SetField { name } => eval_set_field(program, state, name),
-        OpCode::CallMethod { name, arity: arguments } => eval_call_method(program, state, name, arguments),
-        OpCode::CallFunction { name, arity: arguments } => eval_call_function(program, state, name, arguments),
+        OpCode::CallMethod { name, arity } => eval_call_method(program, state, name, arity),
+        OpCode::CallFunction { name, arity } => eval_call_function(program, state, name, arity),
         OpCode::Label { .. } => eval_label(program, state),
-        OpCode::Print { format, arity: arguments } => eval_print(program, state, output, format, arguments),
+        OpCode::Print { format, arity } => eval_print(program, state, output, format, arity),
         OpCode::Jump { label } => eval_jump(program, state, label),
         OpCode::Branch { label } => eval_branch(program, state, label),
         OpCode::Return => eval_return(program, state),
@@ -306,9 +306,7 @@ fn dispatch_method(
                 dispatch_array_method(array, method_name, arguments)?.push_onto(&mut state.operand_stack);
                 state.instruction_pointer.bump(program);
             }
-            HeapObject::Object(_) => {
-                dispatch_object_method(program, state, receiver, method_name, arguments)?
-            }
+            HeapObject::Object(_) => dispatch_object_method(program, state, receiver, method_name, arguments)?,
         },
     }
     Ok(())
@@ -456,11 +454,7 @@ fn dispatch_boolean_method(receiver: &bool, method_name: &str, arguments: Vec<Po
     Ok(pointer)
 }
 
-fn dispatch_array_method(
-    array: &mut ArrayInstance,
-    method_name: &str,
-    arguments: Vec<Pointer>,
-) -> Result<Pointer> {
+fn dispatch_array_method(array: &mut ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
     match method_name {
         "get" => dispatch_array_get_method(array, method_name, arguments),
         "set" => dispatch_array_set_method(array, method_name, arguments),
@@ -469,11 +463,7 @@ fn dispatch_array_method(
     }
 }
 
-fn dispatch_array_get_method(
-    array: &mut ArrayInstance,
-    method_name: &str,
-    arguments: Vec<Pointer>,
-) -> Result<Pointer> {
+fn dispatch_array_get_method(array: &mut ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
     ensure!(
         arguments.len() == 1,
         "Invalid number of arguments for method `{}` in array `{}`, expecting 1",
@@ -486,11 +476,7 @@ fn dispatch_array_get_method(
     array.get_element(index).map(|e| *e)
 }
 
-fn dispatch_array_set_method(
-    array: &mut ArrayInstance,
-    method_name: &str,
-    arguments: Vec<Pointer>,
-) -> Result<Pointer> {
+fn dispatch_array_set_method(array: &mut ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
     ensure!(
         arguments.len() == 2,
         "Invalid number of arguments for method `{}` in array `{}`, expecting 2",
@@ -587,10 +573,7 @@ pub fn eval_call_function(
     let local_pointers = vec![Pointer::Null; function.locals.to_usize()];
 
     state.instruction_pointer.bump(program);
-    let frame = Frame::from(
-        state.instruction_pointer.get(),
-        veccat!(arguments, local_pointers),
-    );
+    let frame = Frame::from(state.instruction_pointer.get(), veccat!(arguments, local_pointers));
     state.frame_stack.push(frame);
     state.instruction_pointer.set(Some(*function.code.start()));
     Ok(())

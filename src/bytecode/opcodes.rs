@@ -326,24 +326,21 @@ impl Serializable for OpCode {
         match self {
             Label { name } => name.serialize(sink),
             Literal { index } => index.serialize(sink),
-            Print { format, arity: arguments } => {
+            Print { format, arity } => {
                 format.serialize(sink)?;
-                arguments.serialize(sink)
+                arity.serialize(sink)
             }
             Array => Ok(()),
             Object { class } => class.serialize(sink),
             GetField { name } => name.serialize(sink),
             SetField { name } => name.serialize(sink),
-            CallMethod { name, arity: arguments } => {
+            CallMethod { name, arity } => {
                 name.serialize(sink)?;
-                arguments.serialize(sink)
+                arity.serialize(sink)
             }
-            CallFunction {
-                name: function,
-                arity: arguments,
-            } => {
-                function.serialize(sink)?;
-                arguments.serialize(sink)
+            CallFunction { name, arity } => {
+                name.serialize(sink)?;
+                arity.serialize(sink)
             }
             SetLocal { index } => index.serialize(sink),
             GetLocal { index } => index.serialize(sink),
@@ -399,9 +396,9 @@ impl Display for OpCode {
             OpCode::Array => write!(f, "array"),
             OpCode::GetField { name } => write!(f, "get slot {name}"),
             OpCode::SetField { name } => write!(f, "set slot {name}"),
-            OpCode::CallMethod { name, arity: arguments } => write!(f, "call slot {name} {arguments}"),
-            OpCode::CallFunction { name, arity: arguments } => write!(f, "call {name} {arguments}"),
-            OpCode::Print { format, arity: arguments } => write!(f, "printf {format} {arguments}"),
+            OpCode::CallMethod { name, arity } => write!(f, "call slot {name} {arity}"),
+            OpCode::CallFunction { name, arity } => write!(f, "call {name} {arity}"),
+            OpCode::Print { format, arity } => write!(f, "printf {format} {arity}"),
             OpCode::Label { name } => write!(f, "label {name}"),
             OpCode::Jump { label } => write!(f, "goto {label}"),
             OpCode::Branch { label } => write!(f, "branch {label}"),

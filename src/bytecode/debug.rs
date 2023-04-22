@@ -170,14 +170,14 @@ impl UglyPrintWithContext for ProgramObject {
 
             ProgramObject::Method(Method {
                 name,
-                arity: arguments,
+                arity,
                 locals,
                 code: range,
             }) => {
                 write_string!(sink, first!(indent, prefix_first_line), "Method(");
                 name.pretty_print_no_indent(sink);
                 write_string!(sink, 0, ", nargs:");
-                arguments.pretty_print_no_indent(sink);
+                arity.pretty_print_no_indent(sink);
                 write_string!(sink, 0, ", nlocals:");
                 locals.pretty_print_no_indent(sink);
                 write_string!(sink, 0, ") :");
@@ -231,20 +231,20 @@ impl UglyPrint for OpCode {
                 write_string!(sink, indent, "set slot ");
                 name.pretty_print_no_indent(sink);
             }
-            OpCode::CallMethod { name, arity: arguments } => {
+            OpCode::CallMethod { name, arity } => {
                 write_string!(sink, indent, "call slot ");
                 name.pretty_print_no_indent(sink);
-                arguments.pretty_print_indent(sink, 1);
+                arity.pretty_print_indent(sink, 1);
             }
-            OpCode::CallFunction { name, arity: arguments } => {
+            OpCode::CallFunction { name, arity } => {
                 write_string!(sink, indent, "call ");
                 name.pretty_print_no_indent(sink);
-                arguments.pretty_print_indent(sink, 1);
+                arity.pretty_print_indent(sink, 1);
             }
-            OpCode::Print { format, arity: arguments } => {
+            OpCode::Print { format, arity } => {
                 write_string!(sink, indent, "printf ");
                 format.pretty_print_no_indent(sink);
-                arguments.pretty_print_indent(sink, 1);
+                arity.pretty_print_indent(sink, 1);
             }
             OpCode::Label { name } => {
                 write_string!(sink, in_margin!(indent), "label ");

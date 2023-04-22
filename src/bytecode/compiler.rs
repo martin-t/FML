@@ -652,10 +652,7 @@ impl Compiled for AST {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 }
                 let arity = Arity::from_usize(arguments.len());
-                active_buffer.emit(OpCode::CallFunction {
-                    name: index,
-                    arity,
-                });
+                active_buffer.emit(OpCode::CallFunction { name: index, arity });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
@@ -750,10 +747,7 @@ impl Compiled for AST {
                     argument.compile_into(program, active_buffer, global_environment, current_frame, true)?;
                 }
                 let arity = Arity::from_usize(arguments.len() + 1);
-                active_buffer.emit(OpCode::CallMethod {
-                    name: index,
-                    arity,
-                });
+                active_buffer.emit(OpCode::CallMethod { name: index, arity });
                 active_buffer.emit_unless(OpCode::Drop, keep_result);
             }
 
