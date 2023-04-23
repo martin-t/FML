@@ -199,8 +199,8 @@ pub fn is_jittable(program: &Program) -> bool {
     for opcode in program.code.iter() {
         match opcode {
             Literal { .. } => {}
-            GetLocal { .. } => {},
-            SetLocal { .. } => {},
+            GetLocal { .. } => {}
+            SetLocal { .. } => {}
             GetGlobal { .. } => {}
             SetGlobal { .. } => {}
             Object { .. } => {}
@@ -234,6 +234,7 @@ where
 
     let mut instrs = Vec::new();
     instrs.push(Push(Rax)); // Align stack for calls
+
     // TODO keep program and state in non-volatile registers?
     #[allow(unused_variables)] // TODO remove
     for opcode in program.code.iter() {
@@ -350,6 +351,7 @@ where
             }
         }
     }
+
     instrs.push(Pop(Rcx)); // Unalign stack
     instrs.push(Ret);
 

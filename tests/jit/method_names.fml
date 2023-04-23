@@ -16,3 +16,8 @@ begin
     print("~\n", obj1 + 5);
     print("~\n", obj2 + 6);
 end
+
+// > 1
+// > 2
+// > 6
+// > 8

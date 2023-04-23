@@ -8,12 +8,12 @@
 use std::arch::asm;
 
 use crate::{
-    jit_fn,
     jit::{
         asm_encoding::{compile, print_hex},
         asm_repr::{Instr, Reg},
         memory::JitMemory,
     },
+    jit_fn,
 };
 
 use Instr::*;

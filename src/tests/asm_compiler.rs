@@ -1,6 +1,7 @@
 use crate::{
-    jit_fn, fn_to_addr,
+    fn_to_addr,
     jit::{asm_encoding::*, asm_repr::*, memory::JitMemory, VariableAddr},
+    jit_fn,
 };
 
 use Instr::*;
