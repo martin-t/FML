@@ -47,9 +47,11 @@ jobs:
       # LATER(martin-t) Regenerate BC test files here, check nothing changed
       # so that the .fml files are the only source of truth.
       # Need to specify shell, otherwise this always succeeds on windows without running any tests
-      - run: tests/test_run.sh
-        shell: bash
-      - run: tests/test_execute.sh
+      - run: |
+          tests/test_run.sh --debug
+          tests/test_run.sh --release
+          tests/test_execute.sh --debug
+          tests/test_execute.sh --release
         shell: bash
 
   format:

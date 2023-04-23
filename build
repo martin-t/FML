@@ -1,9 +1,17 @@
 #!/bin/bash
 
+# Accepts --debug and --release as arguments,
+# release mode is the default.
+
 which curl  1>/dev/null 2>/dev/null || sudo apt install curl
 which cargo 1>/dev/null 2>/dev/null || (curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh)
 
-# TODO This is called from test scripts - make release optional, default on
-
-#cargo build --release
-cargo build
+if [[ "$1" == "--debug" ]]; then
+  shift
+  cargo build "$@"
+elif [[ "$1" == "--release" ]]; then
+  shift
+  cargo build --release "$@"
+else
+  cargo build --release "$@"
+fi

@@ -1,0 +1,153 @@
+Constant Pool:
+0: "λ:"
+1: 1
+2: "a"
+3: slot #2
+4: 2
+5: "b"
+6: slot #5
+7: 3
+8: "c"
+9: slot #8
+10: 4
+11: "d"
+12: slot #11
+13: -1
+14: "t"
+15: slot #14
+16: 5
+17: 6
+18: 7
+19: 8
+20: "~ ~ ~ ~\n"
+21: method #0 args:0 locals:0 0000-0115
+Globals:
+0: #3
+1: #6
+2: #9
+3: #12
+4: #15
+Entry: #21
+Code:
+0: lit #1
+1: set global #2
+2: drop
+3: lit #4
+4: set global #5
+5: drop
+6: lit #7
+7: set global #8
+8: drop
+9: lit #10
+10: set global #11
+11: drop
+12: lit #13
+13: set global #14
+14: drop
+15: lit #16
+16: set global #2
+17: drop
+18: lit #17
+19: set global #5
+20: drop
+21: lit #18
+22: set global #8
+23: drop
+24: lit #19
+25: set global #11
+26: drop
+27: get global #2
+28: get global #5
+29: get global #8
+30: get global #11
+31: printf #20 4
+32: drop
+33: get global #2
+34: set global #14
+35: drop
+36: get global #5
+37: set global #2
+38: drop
+39: get global #8
+40: set global #5
+41: drop
+42: get global #11
+43: set global #8
+44: drop
+45: get global #14
+46: set global #11
+47: drop
+48: get global #2
+49: get global #5
+50: get global #8
+51: get global #11
+52: printf #20 4
+53: drop
+54: get global #2
+55: set global #14
+56: drop
+57: get global #5
+58: set global #2
+59: drop
+60: get global #8
+61: set global #5
+62: drop
+63: get global #11
+64: set global #8
+65: drop
+66: get global #14
+67: set global #11
+68: drop
+69: get global #2
+70: get global #5
+71: get global #8
+72: get global #11
+73: printf #20 4
+74: drop
+75: get global #2
+76: set global #14
+77: drop
+78: get global #5
+79: set global #2
+80: drop
+81: get global #8
+82: set global #5
+83: drop
+84: get global #11
+85: set global #8
+86: drop
+87: get global #14
+88: set global #11
+89: drop
+90: get global #2
+91: get global #5
+92: get global #8
+93: get global #11
+94: printf #20 4
+95: drop
+96: get global #2
+97: set global #14
+98: drop
+99: get global #5
+100: set global #2
+101: drop
+102: get global #8
+103: set global #5
+104: drop
+105: get global #11
+106: set global #8
+107: drop
+108: get global #14
+109: set global #11
+110: drop
+111: get global #2
+112: get global #5
+113: get global #8
+114: get global #11
+115: printf #20 4
+
+// > 5 6 7 8
+// > 6 7 8 5
+// > 7 8 5 6
+// > 8 5 6 7
+// > 5 6 7 8

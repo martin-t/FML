@@ -1,5 +1,5 @@
 use crate::{
-    export_fn, fn_addr,
+    jit_fn, fn_to_addr,
     jit::{asm_encoding::*, asm_repr::*, memory::JitMemory, VariableAddr},
 };
 
@@ -202,7 +202,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
 fn test_factorial(instrs: &[Instr]) {
     let code = compile(instrs).code;
     let jit = JitMemory::new(&code);
-    let f = export_fn!(jit, fn(i32) -> i32);
+    let f = jit_fn!(jit, fn(i32) -> i32);
 
     let expected = [
         1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600,
@@ -234,8 +234,8 @@ fn call_functions() {
     assert_eq!(heap_addr, heap_addr2);
     println!("heap_addr {:#x}", heap_addr);
 
-    let allocate_addr = fn_addr!(allocate1);
-    let take_9_args_addr = fn_addr!(take_9_args);
+    let allocate_addr = fn_to_addr!(allocate1);
+    let take_9_args_addr = fn_to_addr!(take_9_args);
     println!("allocate_addr {:#x}", allocate_addr);
     println!("take_9_args_addr {:#x}", take_9_args_addr);
 
@@ -344,9 +344,9 @@ fn call_functions() {
 
     let compiled = compile(&instrs);
     let jit = JitMemory::new(&compiled.code);
-    let start = export_fn!(jit, fn());
+    let start = jit_fn!(jit, fn());
     let entry_offset = compiled.label_offsets[&label_entry];
-    let entry = export_fn!(jit, fn(), entry_offset);
+    let entry = jit_fn!(jit, fn(), entry_offset);
 
     // Just a quick experiment to see if it's possible
     // to use a relative call from jitted code back into Rust.

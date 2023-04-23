@@ -1184,7 +1184,7 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
             _ => instr.encode().serialize(&mut code),
         }
     }
-    print_hex(&code);
+    //print_hex(&code);
 
     for (offset, label) in replace32 {
         let label_offset = label_offsets[&label];
@@ -1196,7 +1196,7 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
         assert_eq!(dest, &[0, 0, 0, 0]);
         dest.copy_from_slice(&imm);
     }
-    print_hex(&code);
+    //print_hex(&code);
 
     Compiled { code, label_offsets }
 }

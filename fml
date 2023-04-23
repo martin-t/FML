@@ -1,11 +1,14 @@
 #!/bin/bash
 
+# Accepts --debug and --release as arguments,
+# release mode is the default.
+
 # rlwrap with cargo breaks output of the test scripts.
 #rlwrap cargo run --quiet -- "$@"
 
 # Option 1 is hardcoding target/debug/fml
 # Downsides:
-# - it's not guaranteed to be the same everywhere
+# - it's not guaranteed to be the same everywhere (the target dir is configurable)
 # - it's easier to forget to recompile
 # - it makes it harder to switch between debug and release
 # - Not available on linux and macOS CI, installing it complicates the config
@@ -19,6 +22,15 @@
 #cargo run --quiet -- "$@"
 
 # Option 3 - simply call the binary
-target/debug/fml "$@"
+#target/debug/fml "$@"
 
-# TODO Make release default but optional.
+if [[ "$1" == "--debug" ]]; then
+  shift
+  target/debug/fml "$@"
+elif [[ "$1" == "--release" ]]; then
+  shift
+  target/release/fml "$@"
+else
+  target/release/fml "$@"
+fi
+

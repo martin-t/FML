@@ -353,6 +353,9 @@ impl Code {
             Err(anyhow!("Code address {} out of bounds (0..{})", address, self.0.len()))
         }
     }
+    pub fn iter(&self) -> impl Iterator<Item = &OpCode> + '_ {
+        self.0.iter()
+    }
 }
 
 impl From<Vec<OpCode>> for Code {

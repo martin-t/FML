@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Accepts --debug and --release as arguments,
+# release mode is the default.
+
 # Build as a separate step so it prints the output and it doesn't look like the tests are stuck
-./build
+./build "$@"
 
 i=0
 n=$(find tests -name '*.fml' | wc -l)
@@ -24,7 +27,7 @@ do
     echo -n " "
   done
 
-  ./fml run     "$test" 1> "$outfile" 2> "$outfile"
+  ./fml "$@" run           "$test" 1> "$outfile" 2> "$outfile"
 
   diff <(grep -e '// > ' < "$test"    | sed 's| *\/\/ > ||') "$outfile" > "$difffile"
   if test "$?" -eq 0

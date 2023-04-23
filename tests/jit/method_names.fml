@@ -1,0 +1,18 @@
+begin
+    let obj1 = object
+    begin
+        function f() -> 1;
+        function +(other) -> this.f() + other;
+    end;
+
+    let obj2 = object
+    begin
+        function f() -> 2;
+        function +(other) -> this.f() + other;
+    end;
+
+    print("~\n", obj1.f());
+    print("~\n", obj2.f());
+    print("~\n", obj1 + 5);
+    print("~\n", obj2 + 6);
+end

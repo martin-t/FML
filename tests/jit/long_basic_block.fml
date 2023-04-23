@@ -1,0 +1,44 @@
+let a = 1;
+let b = 2;
+let c = 3;
+let d = 4;
+let t = -1;
+
+a <- 5;
+b <- 6;
+c <- 7;
+d <- 8;
+
+print("~ ~ ~ ~\n", a, b, c, d);
+
+t <- a;
+a <- b;
+b <- c;
+c <- d;
+d <- t;
+
+print("~ ~ ~ ~\n", a, b, c, d);
+
+t <- a;
+a <- b;
+b <- c;
+c <- d;
+d <- t;
+
+print("~ ~ ~ ~\n", a, b, c, d);
+
+t <- a;
+a <- b;
+b <- c;
+c <- d;
+d <- t;
+
+print("~ ~ ~ ~\n", a, b, c, d);
+
+t <- a;
+a <- b;
+b <- c;
+c <- d;
+d <- t;
+
+print("~ ~ ~ ~\n", a, b, c, d);

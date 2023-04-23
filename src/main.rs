@@ -97,6 +97,8 @@ struct BytecodeInterpreterAction {
         help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
+    #[clap(long = "jit", help = "Use the JIT compiler if possible")]
+    pub jit: bool,
 }
 
 #[derive(Args, Debug)]
@@ -202,7 +204,8 @@ impl RunAction {
             .as_ref()
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
-        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("Interpreter error");
+        // TODO(martin-t) Jit?
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), false).expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -248,7 +251,7 @@ impl BytecodeInterpreterAction {
             .as_ref()
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
-        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("Interpreter error");
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), self.jit).expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -613,6 +616,9 @@ impl Debug for NamedSink {
 }
 
 fn main() {
+    // use cpu_time::ProcessTime;
+    // let start = ProcessTime::now();
+
     match Action::parse() {
         Action::Run(action) => action.run(),
         Action::Jit(action) => action.jit(),
@@ -621,4 +627,6 @@ fn main() {
         Action::Compile(action) => action.compile(),
         Action::Parse(action) => action.parse(),
     }
+
+    // println!("Elapsed: {:?}", start.elapsed());
 }

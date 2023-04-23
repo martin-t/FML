@@ -1,16 +1,15 @@
 use std::fmt::Write;
+use std::path::PathBuf;
+
+use anyhow::{bail, ensure, Context, Result};
+use indexmap::map::IndexMap;
 
 use crate::bytecode::heap::*;
 use crate::bytecode::opcodes::OpCode;
-
-use anyhow::{bail, ensure, Context, Result};
-
-use crate::veccat;
-
 use crate::bytecode::program::*;
 use crate::bytecode::state::*;
-use indexmap::map::IndexMap;
-use std::path::PathBuf;
+use crate::jit::*;
+use crate::veccat;
 
 trait OpCodeEvaluationResult<T> {
     fn attach(self, opcode: &OpCode) -> Result<T>;
@@ -34,6 +33,7 @@ pub fn evaluate_with_memory_config(
     program: &Program,
     heap_gc_size: Option<usize>,
     heap_log: Option<PathBuf>,
+    jit: bool,
 ) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
@@ -41,18 +41,30 @@ pub fn evaluate_with_memory_config(
         state.heap.set_log(log);
     }
     let mut output = StdOutput::new();
-    evaluate_with(program, &mut state, &mut output)
+    evaluate_with_jit(program, &mut state, &mut output, jit)
 }
 
 pub fn evaluate_with<W>(program: &Program, state: &mut State, output: &mut W) -> Result<()>
 where
     W: Write,
 {
+    evaluate_with_jit(program, state, output, false)
+}
+
+pub fn evaluate_with_jit<W>(program: &Program, state: &mut State, output: &mut W, jit: bool) -> Result<()>
+where
+    W: Write,
+{
     // eprintln!("Program:");
     // eprintln!("{}", program);
-    while let Some(address) = state.instruction_pointer.get() {
-        let opcode = program.code.get(address)?;
-        eval_opcode(program, state, output, opcode)?;
+
+    if jit && is_jittable(program) {
+        jit_program(program, state, output);
+    } else {
+        while let Some(address) = state.instruction_pointer.get() {
+            let opcode = program.code.get(address)?;
+            eval_opcode(program, state, output, opcode)?;
+        }
     }
     Ok(())
 }
@@ -92,7 +104,7 @@ where
         OpCode::Label { .. } => eval_label(program, state),
         OpCode::Print { format, arity } => eval_print(program, state, output, format, arity),
         OpCode::Jump { label } => eval_jump(program, state, label),
-        OpCode::Branch { label } => eval_branch(program, state, label),
+        OpCode::Branch { label } => eval_branch(program, state, label).map(drop),
         OpCode::Return => eval_return(program, state),
         OpCode::Drop => eval_drop(program, state),
     }
@@ -579,7 +591,6 @@ pub fn eval_call_function(
     Ok(())
 }
 
-#[rustfmt::skip] // This should apply just to the match but attributes are not allowed on exprs yet
 #[inline(always)]
 pub fn eval_print<W>(
     program: &Program,
@@ -593,24 +604,45 @@ where
 {
     let format_object = program.constant_pool.get(format_index)?;
     let format = format_object.as_str()?;
-    let mut arguments = state
-        .operand_stack
-        .pop_reverse_sequence(arity.to_usize())?;
+    let mut arguments = state.operand_stack.pop_reverse_sequence(arity.to_usize())?;
 
     let mut escaped = false;
 
     for character in format.chars() {
         match (escaped, character) {
-            (true,  '~' ) => { output.write_char('~')?;  escaped = false; },
-            (true,  '\\') => { output.write_char('\\')?; escaped = false; },
-            (true,  '"' ) => { output.write_char('"')?;  escaped = false; },
-            (true,  'n' ) => { output.write_char('\n')?; escaped = false; },
-            (true,  't' ) => { output.write_char('\t')?; escaped = false; },
-            (true,  'r' ) => { output.write_char('\r')?; escaped = false; },
-            (true,  chr  ) => { bail!("Unknown control sequence \\{}", chr) },
-            (false, '\\') => {                           escaped = true;  },
-            (_,    '~'  ) => {
-                let argument = arguments.pop()
+            (true, '~') => {
+                output.write_char('~')?;
+                escaped = false;
+            }
+            (true, '\\') => {
+                output.write_char('\\')?;
+                escaped = false;
+            }
+            (true, '"') => {
+                output.write_char('"')?;
+                escaped = false;
+            }
+            (true, 'n') => {
+                output.write_char('\n')?;
+                escaped = false;
+            }
+            (true, 't') => {
+                output.write_char('\t')?;
+                escaped = false;
+            }
+            (true, 'r') => {
+                output.write_char('\r')?;
+                escaped = false;
+            }
+            (true, chr) => {
+                bail!("Unknown control sequence \\{}", chr)
+            }
+            (false, '\\') => {
+                escaped = true;
+            }
+            (_, '~') => {
+                let argument = arguments
+                    .pop()
                     .with_context(|| "Not enough arguments for format `{}`")?;
                 output.write_str(argument.evaluate_as_string(&state.heap)?.as_str())?
             }
@@ -645,17 +677,18 @@ pub fn eval_jump(program: &Program, state: &mut State, label_index: &ConstantPoo
 }
 
 #[inline(always)]
-pub fn eval_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> Result<bool> {
     let label_object = program.constant_pool.get(label_index)?;
     let label_name = label_object.as_str()?;
     let value = state.operand_stack.pop()?;
-    if !value.evaluate_as_condition() {
+    let truthy = value.evaluate_as_condition();
+    if !truthy {
         state.instruction_pointer.bump(program);
     } else {
         let address = *program.labels.get(label_name)?;
         state.instruction_pointer.set(Some(address));
     }
-    Ok(())
+    Ok(truthy)
 }
 
 #[inline(always)]

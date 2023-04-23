@@ -27,7 +27,7 @@ do
     echo -n " "
   done
 
-  ./fml "$@" execute       "$test" 1> "$outfile" 2> "$outfile"
+  ./fml "$@" execute --jit "$test" 1> "$outfile" 2> "$outfile"
 
   diff <(grep -e '// > ' < "$txtfile" | sed 's| *\/\/ > ||') "$outfile" > "$difffile"
   if test "$?" -eq 0
