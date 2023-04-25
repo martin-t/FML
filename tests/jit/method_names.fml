@@ -7,17 +7,37 @@ begin
 
     let obj2 = object
     begin
+        // Same name but different behavior.
         function f() -> 2;
+        // Same name and same behavior.
         function +(other) -> this.f() + other;
+
+        // Some conditions to check labels for functions
+        // and for jumps don't collide.
+        function conditions() ->
+        begin
+            if 123456 % 3 == 0 then print("mod 3\n");
+            if 123456 % 5 == 0 then print("mod 5\n");
+        end
     end;
 
     print("~\n", obj1.f());
     print("~\n", obj2.f());
     print("~\n", obj1 + 5);
     print("~\n", obj2 + 6);
-end
+    obj2.conditions();
+end;
+
+if 123456 % 3 == 0 then print("global mod 3\n");
+if 123456 % 5 == 0 then print("global mod 5\n");
+
+function f() -> 10;
+print("~\n", f());
 
 // > 1
 // > 2
 // > 6
 // > 8
+// > mod 3
+// > global mod 3
+// > 10

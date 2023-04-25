@@ -185,8 +185,7 @@ impl ConstantPool {
     pub fn iter(&self) -> impl Iterator<Item = &ProgramObject> {
         self.0.iter()
     }
-    #[allow(dead_code)]
-    pub fn size(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
 }
@@ -273,7 +272,7 @@ impl Code {
     }
     pub fn extend(&mut self, code: Code) -> (Address, usize) {
         let first = self.upcoming_address();
-        let length = code.length();
+        let length = code.len();
         // println!("code {} {} {:?}", first, length, code.0);
         self.0.extend(code.0.into_iter());
         (first, length)
@@ -293,7 +292,7 @@ impl Code {
         }
     }
     #[allow(dead_code)]
-    pub fn length(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.0.len()
     }
     pub fn materialize(&self, range: &AddressRange) -> Result<Vec<&OpCode>> {

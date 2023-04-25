@@ -10,13 +10,35 @@ Constant Pool:
 8: 2
 9: method #3 args:1 locals:0 0007-0008
 10: method #5 args:2 locals:0 0009-0013
-11: class #9,#10
-12: "~\n"
-13: 5
-14: 6
-15: method #0 args:0 locals:2 0014-0038
+11: "if:consequent:0"
+12: "if:end:0"
+13: "=="
+14: "%"
+15: 123456
+16: 3
+17: 0
+18: "mod 3\n"
+19: "if:consequent:1"
+20: "if:end:1"
+21: 5
+22: "mod 5\n"
+23: "conditions"
+24: method #23 args:1 locals:0 0014-0038
+25: class #9,#10,#24
+26: "~\n"
+27: 6
+28: "if:consequent:2"
+29: "if:end:2"
+30: "global mod 3\n"
+31: "if:consequent:3"
+32: "if:end:3"
+33: "global mod 5\n"
+34: 10
+35: method #3 args:0 locals:0 0039-0040
+36: method #0 args:0 locals:2 0041-0097
 Globals:
-Entry: #15
+0: #35
+Entry: #36
 Code:
 0: lit #2
 1: return
@@ -32,33 +54,95 @@ Code:
 11: get local ::1
 12: call slot #5 2
 13: return
-14: lit #1
-15: object #7
-16: set local ::0
-17: drop
-18: lit #1
-19: object #11
-20: set local ::1
+14: lit #15
+15: lit #16
+16: call slot #14 2
+17: lit #17
+18: call slot #13 2
+19: branch #11
+20: lit #1
 21: drop
-22: get local ::0
-23: call slot #3 1
-24: printf #12 1
+22: goto #12
+23: label #11
+24: printf #18 0
 25: drop
-26: get local ::1
-27: call slot #3 1
-28: printf #12 1
-29: drop
-30: get local ::0
-31: lit #13
-32: call slot #5 2
-33: printf #12 1
-34: drop
-35: get local ::1
-36: lit #14
-37: call slot #5 2
-38: printf #12 1
+26: label #12
+27: lit #15
+28: lit #21
+29: call slot #14 2
+30: lit #17
+31: call slot #13 2
+32: branch #19
+33: lit #1
+34: goto #20
+35: label #19
+36: printf #22 0
+37: label #20
+38: return
+39: lit #34
+40: return
+41: lit #1
+42: object #7
+43: set local ::0
+44: drop
+45: lit #1
+46: object #25
+47: set local ::1
+48: drop
+49: get local ::0
+50: call slot #3 1
+51: printf #26 1
+52: drop
+53: get local ::1
+54: call slot #3 1
+55: printf #26 1
+56: drop
+57: get local ::0
+58: lit #21
+59: call slot #5 2
+60: printf #26 1
+61: drop
+62: get local ::1
+63: lit #27
+64: call slot #5 2
+65: printf #26 1
+66: drop
+67: get local ::1
+68: call slot #23 1
+69: drop
+70: lit #15
+71: lit #16
+72: call slot #14 2
+73: lit #17
+74: call slot #13 2
+75: branch #28
+76: lit #1
+77: drop
+78: goto #29
+79: label #28
+80: printf #30 0
+81: drop
+82: label #29
+83: lit #15
+84: lit #21
+85: call slot #14 2
+86: lit #17
+87: call slot #13 2
+88: branch #31
+89: lit #1
+90: drop
+91: goto #32
+92: label #31
+93: printf #33 0
+94: drop
+95: label #32
+96: call #3 0
+97: printf #26 1
 
 // > 1
 // > 2
 // > 6
 // > 8
+// > mod 3
+// > global mod 3
+// > 10

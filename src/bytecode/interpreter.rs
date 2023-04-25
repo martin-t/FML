@@ -58,6 +58,7 @@ where
     // eprintln!("Program:");
     // eprintln!("{}", program);
 
+    // TODO
     if jit && is_jittable(program) {
         jit_program(program, state, output);
     } else {
@@ -99,8 +100,8 @@ where
         OpCode::Array => eval_array(program, state),
         OpCode::GetField { name } => eval_get_field(program, state, name),
         OpCode::SetField { name } => eval_set_field(program, state, name),
-        OpCode::CallMethod { name, arity } => eval_call_method(program, state, name, arity),
-        OpCode::CallFunction { name, arity } => eval_call_function(program, state, name, arity),
+        OpCode::CallMethod { name, arity } => eval_call_method(program, state, name, arity).map(drop),
+        OpCode::CallFunction { name, arity } => eval_call_function(program, state, name, arity).map(drop),
         OpCode::Label { .. } => eval_label(program, state),
         OpCode::Print { format, arity } => eval_print(program, state, output, format, arity),
         OpCode::Jump { label } => eval_jump(program, state, label),
@@ -278,7 +279,7 @@ pub fn eval_call_method(
     state: &mut State,
     name_index: &ConstantPoolIndex,
     arity: &Arity,
-) -> Result<()> {
+) -> Result<Option<ConstantPoolIndex>> {
     ensure!(
         arity.to_usize() > 0,
         "All method calls require at least 1 parameter (receiver)"
@@ -299,29 +300,32 @@ fn dispatch_method(
     receiver: Pointer,
     method_name: &str,
     arguments: Vec<Pointer>,
-) -> Result<()> {
+) -> Result<Option<ConstantPoolIndex>> {
     match receiver {
         Pointer::Null => {
             dispatch_null_method(method_name, arguments)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
+            Ok(None)
         }
         Pointer::Integer(i) => {
             dispatch_integer_method(&i, method_name, arguments)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
+            Ok(None)
         }
         Pointer::Boolean(b) => {
             dispatch_boolean_method(&b, method_name, arguments)?.push_onto(&mut state.operand_stack);
             state.instruction_pointer.bump(program);
+            Ok(None)
         }
         Pointer::Reference(index) => match state.heap.dereference_mut(&index)? {
             HeapObject::Array(array) => {
                 dispatch_array_method(array, method_name, arguments)?.push_onto(&mut state.operand_stack);
                 state.instruction_pointer.bump(program);
+                Ok(None)
             }
-            HeapObject::Object(_) => dispatch_object_method(program, state, receiver, method_name, arguments)?,
+            HeapObject::Object(_) => dispatch_object_method(program, state, receiver, method_name, arguments),
         },
     }
-    Ok(())
 }
 
 fn dispatch_null_method(method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
@@ -508,7 +512,7 @@ fn dispatch_object_method(
     receiver: Pointer,
     method_name: &str,
     arguments: Vec<Pointer>,
-) -> Result<()> {
+) -> Result<Option<ConstantPoolIndex>> {
     let heap_reference = receiver.into_heap_reference()?; // Should never fail.
     let heap_object = state.heap.dereference_mut(&heap_reference)?; // Should never fail.
     let object_instance = heap_object.as_object_instance_mut()?; // Should never fail.
@@ -517,9 +521,10 @@ fn dispatch_object_method(
     let method_option = object_instance.methods.get(method_name);
 
     match method_option {
-        Some(method_index) => {
-            let method = program.constant_pool.get(method_index)?.as_method()?;
-            eval_call_object_method(program, state, method, method_name, receiver, arguments)
+        Some(&method_index) => {
+            let method = program.constant_pool.get(&method_index)?.as_method()?;
+            eval_call_object_method(program, state, method, method_name, receiver, arguments)?;
+            Ok(Some(method_index))
         }
         None if object_instance.parent.is_null() => {
             // LATER(martin-t) Would be nice to print arguments as well
@@ -567,11 +572,11 @@ pub fn eval_call_function(
     state: &mut State,
     name_index: &ConstantPoolIndex,
     arity: &Arity,
-) -> Result<()> {
+) -> Result<ConstantPoolIndex> {
     let name_object = program.constant_pool.get(name_index)?;
     let function_name = name_object.as_str()?;
-    let function_index = state.frame_stack.functions.get(function_name)?;
-    let function = program.constant_pool.get(function_index)?.as_method()?;
+    let function_index = *state.frame_stack.functions.get(function_name)?;
+    let function = program.constant_pool.get(&function_index)?.as_method()?;
 
     ensure!(
         arity == &function.arity,
@@ -588,7 +593,8 @@ pub fn eval_call_function(
     let frame = Frame::from(state.instruction_pointer.get(), veccat!(arguments, local_pointers));
     state.frame_stack.push(frame);
     state.instruction_pointer.set(Some(*function.code.start()));
-    Ok(())
+
+    Ok(function_index)
 }
 
 #[inline(always)]

@@ -190,6 +190,7 @@ impl Instr {
                     ..Default::default()
                 }
             }
+            Instr::Hlt => Encoding::just_opcode(0xF4),
             Instr::IdivR(op) => {
                 // F7 /7            IDIV r/m32
                 // REX.W + F7 /7    IDIV r/m64
@@ -226,6 +227,8 @@ impl Instr {
                     ..Self::encode_mem_reg(0x0F, src, dst)
                 }
             }
+            Instr::Int3 => Encoding::just_opcode(0xCC),
+            Instr::Int1 => Encoding::just_opcode(0xF1),
             Instr::_Je(rel) => Self::encode_jump(0x74, 0x0F, Some(0x84), rel),
             Instr::_Jg(rel) => Self::encode_jump(0x7F, 0x0F, Some(0x8F), rel),
             Instr::_Jge(rel) => Self::encode_jump(0x7D, 0x0F, Some(0x8D), rel),
@@ -346,6 +349,11 @@ impl Instr {
             Instr::TestMR(dst, src) => Self::encode_mem_reg(0x85, dst, src),
             Instr::TestRI(dst, imm) => Self::encode_reg_imm(0xF7, 0, dst, imm),
             Instr::TestMI(dst, imm) => Self::encode_mem_imm(0xF7, 0, dst, imm),
+            Instr::Ud2 => Encoding {
+                opcode: 0x0F,
+                opcode2: Some(0x0B),
+                ..Default::default()
+            },
 
             Instr::Label(_)
             | Instr::CallLabel(_)
@@ -819,6 +827,9 @@ impl Encoding {
                 encoding.opcode2 = Some(opcode2);
 
                 match opcode2 {
+                    0x0B => {
+                        // Ud2
+                    }
                     0x84 | 0x8F | 0x8D | 0x8C | 0x8E | 0x85 => {
                         // Jcc - 32 bit offset
                         Self::deserialize_num(bytes, &mut i, &mut encoding, 4)
@@ -879,10 +890,10 @@ impl Encoding {
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
             }
             0x90 => {
-                // NOP
+                // Nop
             }
             0x99 => {
-                // CDQ, CQO
+                // Cdq, Cqo
             }
             0xB8..=0xBF => {
                 // MovRI
@@ -903,6 +914,9 @@ impl Encoding {
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
                 Self::deserialize_num(bytes, &mut i, &mut encoding, 4);
             }
+            0xCC => {
+                // Int3
+            }
             0xE8 => {
                 // CallRel
                 Self::deserialize_num(bytes, &mut i, &mut encoding, 4);
@@ -914,6 +928,12 @@ impl Encoding {
             0xEB => {
                 // JmpRel 8 bit offset
                 Self::deserialize_num(bytes, &mut i, &mut encoding, 1);
+            }
+            0xF1 => {
+                // Int1
+            }
+            0xF4 => {
+                // Hlt
             }
             0xF7 => {
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
@@ -1056,6 +1076,7 @@ impl Display for Encoding {
             0x03 => writeln!(f, "add r32, r/m32 | r64, r/m64")?,
             0x09 => writeln!(f, "or r/m32, r32 | r/m64, r64")?,
             0x0f => match self.opcode2.unwrap() {
+                0x0b => writeln!(f, "ud2")?,
                 0x84 => writeln!(f, "je rel32")?,
                 0x8F => writeln!(f, "jg rel32")?,
                 0x8D => writeln!(f, "jge rel32")?,
@@ -1096,9 +1117,12 @@ impl Display for Encoding {
             0xb8..=0xbf => writeln!(f, "mov r32, imm32 | r64, imm32")?,
             0xc3 => writeln!(f, "ret")?,
             0xc7 => writeln!(f, "mov r/m32, imm32 | r/m64, imm32")?,
+            0xcc => writeln!(f, "int3")?,
             0xe8 => writeln!(f, "call rel32")?,
             0xe9 => writeln!(f, "jmp rel32")?,
             0xeb => writeln!(f, "jmp rel8")?,
+            0xc1 => writeln!(f, "int1")?,
+            0xf4 => writeln!(f, "hlt")?,
             0xf7 => match self.modrm.unwrap().reg {
                 0 => writeln!(f, "test r/32, imm32 | r/m64, imm32")?,
                 5 => writeln!(f, "imul r/m32 | r/m64")?,
@@ -1144,10 +1168,16 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
     // Only 32 bit replacements here, 8 bit require different handling
     let mut replace32 = Vec::new();
 
-    for &instr in instrs.iter() {
+    // println!("Compiling instrs:");
+    // for &instr in instrs {
+    //     println!("{:x?}", instr);
+    // }
+
+    for &instr in instrs {
         match instr {
             Label(label) => {
-                label_offsets.insert(label, code.len());
+                let prev = label_offsets.insert(label, code.len());
+                assert_eq!(prev, None); // FIXME 1
             }
             CallLabel(label) => {
                 CallRel32(0).encode().serialize(&mut code);

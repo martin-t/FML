@@ -6,6 +6,11 @@
 # Build as a separate step so it prints the output and it doesn't look like the tests are stuck
 ./build "$@"
 
+# Exit if build failed
+if [[ $? -ne 0 ]]; then
+  exit $?
+fi
+
 i=0
 n=$(find tests -name '*.bc' | wc -l)
 ret=0

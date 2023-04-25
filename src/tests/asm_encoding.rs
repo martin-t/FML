@@ -71,12 +71,25 @@ const IMMS64: [i64; 17] = [
 
 #[test]
 fn test_simple() {
-    let instrs = vec![Instr::Nop, Instr::Cdq, Instr::Cqo, Instr::Ret];
+    let instrs = vec![
+        Instr::Nop,
+        Instr::Cdq,
+        Instr::Cqo,
+        Instr::Hlt,
+        Instr::Int3,
+        Instr::Int1,
+        Instr::Ret,
+        Instr::Ud2,
+    ];
     let expecteds: &[&[u8]] = &[
         &[0x90],       // nop
         &[0x99],       // cdq
         &[0x48, 0x99], // cqo
+        &[0xf4],       // hlt
+        &[0xcc],       // int3
+        &[0xf1],       // int1
         &[0xc3],       // ret
+        &[0x0f, 0x0b], // ud2
     ];
     assert_encoding_and_serialization(&instrs, expecteds);
 }

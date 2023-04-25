@@ -39,6 +39,8 @@ pub enum Instr {
     Cdq,
     Cqo,
 
+    Hlt,
+
     IdivR(Reg),
     IdivM(Mem),
 
@@ -46,6 +48,9 @@ pub enum Instr {
     ImulM(Mem),
     ImulRR(Reg, Reg),
     ImulRM(Reg, Mem),
+
+    Int3,
+    Int1,
 
     // Jcc
     // We should only need these 6 because we only use signed integers.
@@ -100,6 +105,8 @@ pub enum Instr {
     // There is no TestRM in x86
     TestRI(Reg, i32),
     TestMI(Mem, i32),
+
+    Ud2,
 
     // Virtual instructions
     Label(usize),
@@ -645,12 +652,15 @@ impl Display for Instr {
             Instr::CmpMI(dst, imm) => write!(f, "cmp {dst}, {imm}"),
             Instr::Cdq => write!(f, "cdq"),
             Instr::Cqo => write!(f, "cqo"),
+            Instr::Hlt => write!(f, "hlt"),
             Instr::IdivR(op) => write!(f, "idiv {op}"),
             Instr::IdivM(op) => write!(f, "idiv dword ptr {op}"),
             Instr::ImulR(op) => write!(f, "imul {op}"),
             Instr::ImulM(op) => write!(f, "imul dword ptr {op}"),
             Instr::ImulRR(dst, src) => write!(f, "imul {dst}, {src}"),
             Instr::ImulRM(dst, src) => write!(f, "imul {dst}, {src}"),
+            Instr::Int3 => write!(f, "int3"),
+            Instr::Int1 => write!(f, "int1"),
             Instr::_Je(rel) => write!(f, "je {rel}"),
             Instr::_Jg(rel) => write!(f, "jg {rel}"),
             Instr::_Jge(rel) => write!(f, "jge {rel}"),
@@ -687,6 +697,7 @@ impl Display for Instr {
             Instr::TestMR(dst, src) => write!(f, "test {dst}, {src}"),
             Instr::TestRI(dst, imm) => write!(f, "test {dst}, {imm}"),
             Instr::TestMI(dst, imm) => write!(f, "test {dst}, {imm}"),
+            Instr::Ud2 => write!(f, "ud2"),
 
             Instr::Label(label) => write!(f, "Label {label}:"),
             Instr::CallLabel(label) => write!(f, "CallLabel {label}"),
@@ -734,12 +745,15 @@ impl LowerHex for Instr {
             Instr::CmpMI(dst, imm) => write!(f, "cmp dword {dst:x}, {}", Hex(imm)),
             Instr::Cdq => write!(f, "cdq"),
             Instr::Cqo => write!(f, "cqo"),
+            Instr::Hlt => write!(f, "hlt"),
             Instr::IdivR(op) => write!(f, "idiv {op}"),
             Instr::IdivM(op) => write!(f, "idiv dword {op:x}"),
             Instr::ImulR(op) => write!(f, "imul {op}"),
             Instr::ImulM(op) => write!(f, "imul dword {op:x}"),
             Instr::ImulRR(dst, src) => write!(f, "imul {dst}, {src}"),
             Instr::ImulRM(dst, src) => write!(f, "imul {dst}, {src:x}"),
+            Instr::Int3 => write!(f, "int3"),
+            Instr::Int1 => write!(f, "int1"),
             Instr::_Je(rel) => write!(f, "je {}", Hex(rel)),
             Instr::_Jg(rel) => write!(f, "jg {}", Hex(rel)),
             Instr::_Jge(rel) => write!(f, "jge {}", Hex(rel)),
@@ -776,6 +790,7 @@ impl LowerHex for Instr {
             Instr::TestMR(dst, src) => write!(f, "test {dst:x}, {src}"),
             Instr::TestRI(dst, imm) => write!(f, "test {dst}, {}", Hex(imm)),
             Instr::TestMI(dst, imm) => write!(f, "test dword {dst:x}, {}", Hex(imm)),
+            Instr::Ud2 => write!(f, "ud2"),
 
             Instr::Label(label) => write!(f, "Label {label}:"),
             Instr::CallLabel(label) => write!(f, "CallLabel {label}"),

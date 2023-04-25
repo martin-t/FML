@@ -30,7 +30,7 @@ pub mod asm_repr;
 #[cfg_attr(windows, path = "jit/memory_windows.rs")]
 pub mod memory;
 
-use std::{fmt::Write, path::PathBuf};
+use std::{collections::HashMap, fmt::Write, path::PathBuf};
 
 use anyhow::Result;
 
@@ -195,6 +195,7 @@ fn run_assembler() {
     Encoding::deserialize_and_print_all(&code);
 }
 
+#[allow(dead_code)] // TODO remove
 pub fn is_jittable(program: &Program) -> bool {
     for opcode in program.code.iter() {
         match opcode {
@@ -207,13 +208,13 @@ pub fn is_jittable(program: &Program) -> bool {
             Array => {}
             GetField { .. } => {}
             SetField { .. } => {}
-            CallMethod { .. } => return false,
-            CallFunction { .. } => return false,
+            CallMethod { .. } => {}
+            CallFunction { .. } => {}
             Label { .. } => {}
             Print { .. } => {}
             Jump { .. } => {}
             Branch { .. } => {}
-            Return => return false,
+            Return => {}
             Drop => {}
         }
     }
@@ -226,196 +227,303 @@ where
 {
     //println!("jitting");
 
-    // TODO Continue here: Add asm labels for functions, impl calls.
-
     use crate::jit::asm_repr::*;
     use Instr::*;
     use Reg::*;
 
-    let mut instrs = Vec::new();
-    instrs.push(Push(Rax)); // Align stack for calls
-
-    // TODO keep program and state in non-volatile registers?
-    #[allow(unused_variables)] // TODO remove
-    for opcode in program.code.iter() {
-        match opcode {
-            OpCode::Literal { index } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_literal)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::GetLocal { index } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_get_local)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::SetLocal { index } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_set_local)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::GetGlobal { name } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_get_global)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::SetGlobal { name } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_set_global)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::Object { class } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, class.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_object)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::Array => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_array)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::GetField { name } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_get_field)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::SetField { name } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_set_field)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::CallMethod { name, arity } => unimplemented!(),
-            OpCode::CallFunction { name, arity } => unimplemented!(),
-            OpCode::Label { name } => {
-                // Intentionally first the label in assembly, then the call to jit_label
-                // so that the instruction pointer is updated properly.
-                // LATER(martin-t) Optimize?
-                //  Interpreter doesn't need label instructions at all, remove when loading.
-                //  Once all opcodes are jitted, we don't need the instruction pointer anymore.
-                //  Also check other instructions.
-                instrs.push(Label(name.value().into()));
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_label)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::Print { format, arity } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, output.ref_to_addr_mut()));
-                instrs.push(MovRI(Rcx, format.ref_to_addr_const()));
-                instrs.push(MovRI(R8, arity.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_print::<W>)));
-                instrs.push(CallAbsR(Rax));
-            }
-            OpCode::Jump { label } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_jump)));
-                instrs.push(CallAbsR(Rax));
-                instrs.push(JmpLabel(label.value().into()));
-            }
-            OpCode::Branch { label } => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_branch)));
-                instrs.push(CallAbsR(Rax));
-                instrs.push(CmpRI(Rax, 1));
-                instrs.push(JeLabel(label.value().into()));
-            }
-            OpCode::Return => unimplemented!(),
-            OpCode::Drop => {
-                instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rax, fn_to_addr!(jit_drop)));
-                instrs.push(CallAbsR(Rax));
-            }
+    let mut methods = Vec::new();
+    for cpi in 0..program.constant_pool.len() {
+        let index = ConstantPoolIndex::from(cpi);
+        let program_object = program.constant_pool.get(&index).unwrap();
+        if let ProgramObject::Method(method) = program_object {
+            methods.push((cpi, method));
         }
     }
 
-    instrs.push(Pop(Rcx)); // Unalign stack
-    instrs.push(Ret);
+    let entry_cpi = program.entry.get().unwrap().as_usize();
 
-    let code = compile(&instrs).code;
-    let jit = JitMemory::new(&code);
-    let f = jit_fn!(jit, fn());
-    f();
+    let mut label_counter = usize::MAX;
+    let mut next_label = || {
+        label_counter -= 1;
+        label_counter
+    };
+
+    let mut instrs = Vec::new();
+    for &(cpi, method) in &methods {
+        // Use the index of the method itself because it's unique,
+        // not of its name because those get reused.
+        instrs.push(Label(cpi));
+
+        if cpi == entry_cpi {
+            // Save R15 so we an use it to store data for jit functions.
+            // This also aligns the stack.
+            instrs.push(Push(R15));
+            instrs.push(MovRR(R15, Rdi));
+
+            // When adding here, make sure the stack stays aligned.
+        } else {
+            instrs.push(Push(Rax)); // Align stack
+        }
+
+        // TODO keep program and state in non-volatile registers?
+
+        let begin = method.code.start().value_usize();
+        let end = begin + method.code.length();
+        for i in begin..end {
+            let address = Address::from_usize(i);
+            let opcode = program.code.get(address).unwrap();
+            match opcode {
+                OpCode::Literal { index } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_literal)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::GetLocal { index } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_get_local)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::SetLocal { index } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_set_local)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::GetGlobal { name } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_get_global)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::SetGlobal { name } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_set_global)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::Object { class } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, class.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_object)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::Array => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_array)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::GetField { name } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_get_field)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::SetField { name } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_set_field)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::CallMethod { name, arity } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rcx, arity.ref_to_addr_const()));
+                    instrs.push(MovRR(R8, R15));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_call_method)));
+                    // Call this interpreter function
+                    // to determine the offset of the FML function.
+                    instrs.push(CallAbsR(Rax));
+                    // Check if the function is a builtin.
+                    instrs.push(CmpRI(Rax, 0));
+                    let label = next_label();
+                    instrs.push(JeLabel(label));
+                    // Now call the actual FML function.
+                    instrs.push(CallAbsR(Rax));
+                    instrs.push(Label(label));
+                }
+                OpCode::CallFunction { name, arity } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rcx, arity.ref_to_addr_const()));
+                    instrs.push(MovRR(R8, R15));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_call_function)));
+                    // Call this interpreter function
+                    // to determine the offset of the FML function.
+                    instrs.push(CallAbsR(Rax));
+                    // Now call the actual FML function.
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::Label { name } => {
+                    // Intentionally first the label in assembly, then the call to jit_label
+                    // so that the instruction pointer is updated properly.
+                    // LATER(martin-t) Optimize?
+                    //  Interpreter doesn't need label instructions at all, remove when loading.
+                    //  Once all opcodes are jitted, we don't need the instruction pointer anymore.
+                    //  Also check other instructions.
+                    instrs.push(Label(name.value().into()));
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_label)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::Print { format, arity } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, output.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rcx, format.ref_to_addr_const()));
+                    instrs.push(MovRI(R8, arity.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_print::<W>)));
+                    instrs.push(CallAbsR(Rax));
+                }
+                OpCode::Jump { label } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_jump)));
+                    instrs.push(CallAbsR(Rax));
+                    instrs.push(JmpLabel(label.value().into()));
+                }
+                OpCode::Branch { label } => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_branch)));
+                    instrs.push(CallAbsR(Rax));
+                    instrs.push(CmpRI(Rax, 1));
+                    instrs.push(JeLabel(label.value().into()));
+                }
+                OpCode::Return => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_return)));
+                    instrs.push(CallAbsR(Rax));
+
+                    assert_ne!(cpi, entry_cpi);
+                    instrs.push(Pop(Rcx)); // Unalign stack
+                    instrs.push(Ret);
+                }
+                OpCode::Drop => {
+                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
+                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRI(Rax, fn_to_addr!(jit_drop)));
+                    instrs.push(CallAbsR(Rax));
+                }
+            }
+        }
+
+        // This epilogue is only needed for the entry function,
+        // all other functions end with a Return opcode.
+        if cpi == entry_cpi {
+            instrs.push(Pop(Rcx)); // Unalign stack
+            instrs.push(Ret);
+        }
+    }
+
+    let compiled = compile(&instrs);
+    // asm_encoding::print_asm(&compiled.code);
+    let jit = JitMemory::new(&compiled.code);
+
+    let mut cpi_to_fn = HashMap::new();
+    for &(cpi, _) in &methods {
+        if cpi == entry_cpi {
+            continue;
+        }
+
+        let offset = compiled.label_offsets[&cpi];
+        // Even though the FML methods can take arguments,
+        // the jitted fn representing them doesn't so the type is always just `fn()`.
+        // Arguments and return values are handled by the interpreter's stack.
+        let fn_ptr = jit_fn!(jit, fn(), offset);
+        // println!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
+        cpi_to_fn.insert(cpi, fn_ptr);
+    }
+
+    let entry_offset = compiled.label_offsets[&entry_cpi];
+    let entry = jit_fn!(jit, fn(i64), entry_offset);
+
+    entry(cpi_to_fn.var_addr_const());
 }
 
-pub extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) {
     eval_literal(program, state, literal_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_get_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
+extern "sysv64" fn jit_get_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
     eval_get_local(program, state, local_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_set_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
+extern "sysv64" fn jit_set_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
     eval_set_local(program, state, local_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_get_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_get_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
     eval_get_global(program, state, global_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_set_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_set_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
     eval_set_global(program, state, global_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_object(program: &Program, state: &mut State, class_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_object(program: &Program, state: &mut State, class_index: &ConstantPoolIndex) {
     eval_object(program, state, class_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_array(program: &Program, state: &mut State) {
+extern "sysv64" fn jit_array(program: &Program, state: &mut State) {
     eval_array(program, state).unwrap();
 }
 
-pub extern "sysv64" fn jit_get_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_get_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
     eval_get_field(program, state, name_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_set_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_set_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
     eval_set_field(program, state, name_index).unwrap();
 }
 
-// pub extern "sysv64" fn jit_call_method(
-//     program: &Program,
-//     state: &mut State,
-//     name_index: &ConstantPoolIndex,
-//     arity: &Arity,
-// ) {
-//     eval_call_method(program, state, name_index, arity).unwrap();
-// }
+extern "sysv64" fn jit_call_method(
+    program: &Program,
+    state: &mut State,
+    name_index: &ConstantPoolIndex,
+    arity: &Arity,
+    cpi_to_fn: &HashMap<usize, fn()>,
+) -> i64 {
+    let method_index = eval_call_method(program, state, name_index, arity).unwrap();
+    if let Some(method_index) = method_index {
+        let f = cpi_to_fn[&method_index.as_usize()];
+        // println!("returning cpi: {}, addr: {:#x}", method_index.as_usize(), fn_to_addr!(f));
+        fn_to_addr!(f)
+    } else {
+        0
+    }
+}
 
-// pub extern "sysv64" fn jit_call_function(
-//     program: &Program,
-//     state: &mut State,
-//     name_index: &ConstantPoolIndex,
-//     arity: &Arity,
-// ) {
-//     eval_call_function(program, state, name_index, arity).unwrap();
-// }
+extern "sysv64" fn jit_call_function(
+    program: &Program,
+    state: &mut State,
+    name_index: &ConstantPoolIndex,
+    arity: &Arity,
+    cpi_to_fn: &HashMap<usize, fn()>,
+) -> i64 {
+    let method_index = eval_call_function(program, state, name_index, arity).unwrap();
+    let f = cpi_to_fn[&method_index.as_usize()];
+    // println!("returning cpi: {}, addr: {:#x}", method_index.as_usize(), fn_to_addr!(f));
+    fn_to_addr!(f)
+}
 
-pub extern "sysv64" fn jit_print<W>(
+extern "sysv64" fn jit_print<W>(
     program: &Program,
     state: &mut State,
     output: &mut W,
@@ -427,22 +535,22 @@ pub extern "sysv64" fn jit_print<W>(
     eval_print(program, state, output, format, arity).unwrap();
 }
 
-pub extern "sysv64" fn jit_label(program: &Program, state: &mut State) {
+extern "sysv64" fn jit_label(program: &Program, state: &mut State) {
     eval_label(program, state).unwrap();
 }
 
-pub extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) {
     eval_jump(program, state, label_index).unwrap();
 }
 
-pub extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> bool {
+extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> bool {
     eval_branch(program, state, label_index).unwrap()
 }
 
-// pub extern "sysv64" fn jit_return(program: &Program, state: &mut State) {
-//     eval_return(program, state).unwrap();
-// }
+extern "sysv64" fn jit_return(program: &Program, state: &mut State) {
+    eval_return(program, state).unwrap();
+}
 
-pub extern "sysv64" fn jit_drop(program: &Program, state: &mut State) {
+extern "sysv64" fn jit_drop(program: &Program, state: &mut State) {
     eval_drop(program, state).unwrap();
 }
