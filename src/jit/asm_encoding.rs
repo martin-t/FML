@@ -1177,7 +1177,7 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
         match instr {
             Label(label) => {
                 let prev = label_offsets.insert(label, code.len());
-                assert_eq!(prev, None); // FIXME 1
+                assert_eq!(prev, None);
             }
             CallLabel(label) => {
                 CallRel32(0).encode().serialize(&mut code);
