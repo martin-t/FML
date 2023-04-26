@@ -368,7 +368,7 @@ where
         // This epilogue is only needed for the entry function,
         // all other functions end with a Return opcode.
         if cpi == entry_cpi {
-            instrs.push(Pop(Rcx)); // Unalign stack
+            instrs.push(Pop(R15)); // Unalign stack
             instrs.push(Ret);
         }
     }
