@@ -71,7 +71,7 @@ where
     eval_opcode(program, state, output, opcode)
 }
 
-pub fn eval_opcode<W>(program: &Program, state: &mut State, output: &mut W, opcode: &OpCode) -> Result<()>
+pub fn eval_opcode<W>(program: &Program, state: &mut State, output: &mut W, opcode: OpCode) -> Result<()>
 where
     W: Write,
 {
@@ -113,7 +113,7 @@ pub fn debug_state(state: &State) {
 }
 
 #[inline(always)]
-pub fn eval_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_literal(program: &Program, state: &mut State, literal_index: ConstantPoolIndex) -> Result<()> {
     let literal_object = program.constant_pool.get(literal_index)?;
     let value = Pointer::from_literal(literal_object)?;
     state.operand_stack.push(value);
@@ -122,7 +122,7 @@ pub fn eval_literal(program: &Program, state: &mut State, literal_index: &Consta
 }
 
 #[inline(always)]
-pub fn eval_get_local(program: &Program, state: &mut State, local_index: &LocalIndex) -> Result<()> {
+pub fn eval_get_local(program: &Program, state: &mut State, local_index: LocalIndex) -> Result<()> {
     let frame = state.frame_stack.get_locals()?;
     let value = *frame.get(local_index)?;
     state.operand_stack.push(value);
@@ -131,7 +131,7 @@ pub fn eval_get_local(program: &Program, state: &mut State, local_index: &LocalI
 }
 
 #[inline(always)]
-pub fn eval_set_local(program: &Program, state: &mut State, local_index: &LocalIndex) -> Result<()> {
+pub fn eval_set_local(program: &Program, state: &mut State, local_index: LocalIndex) -> Result<()> {
     let new_value = *state.operand_stack.peek()?;
     let frame = state.frame_stack.get_locals_mut()?;
     frame.set(local_index, new_value)?;
@@ -140,7 +140,7 @@ pub fn eval_set_local(program: &Program, state: &mut State, local_index: &LocalI
 }
 
 #[inline(always)]
-pub fn eval_get_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_get_global(program: &Program, state: &mut State, global_index: ConstantPoolIndex) -> Result<()> {
     let global_name = program.constant_pool.get(global_index)?;
     let global_name = global_name.as_str()?;
     let global = *state.frame_stack.globals.get(global_name)?;
@@ -150,7 +150,7 @@ pub fn eval_get_global(program: &Program, state: &mut State, global_index: &Cons
 }
 
 #[inline(always)]
-pub fn eval_set_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_set_global(program: &Program, state: &mut State, global_index: ConstantPoolIndex) -> Result<()> {
     let global_object = program.constant_pool.get(global_index)?;
     let global_name = global_object.as_str()?.to_owned();
     let new_value = *state.operand_stack.peek()?;
@@ -160,25 +160,25 @@ pub fn eval_set_global(program: &Program, state: &mut State, global_index: &Cons
 }
 
 #[inline(always)]
-pub fn eval_object(program: &Program, state: &mut State, class_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_object(program: &Program, state: &mut State, class_index: ConstantPoolIndex) -> Result<()> {
     let class_object = program.constant_pool.get(class_index)?;
 
     let mut field_names = Vec::new();
     let mut methods = IndexMap::new();
 
-    for member_index in class_object.as_class_members()? {
+    for &member_index in class_object.as_class_members()? {
         let member = program.constant_pool.get(member_index)?;
         match member {
             ProgramObject::Slot { name: field_name_index } => {
-                let field_name_object = program.constant_pool.get(field_name_index)?;
+                let field_name_object = program.constant_pool.get(*field_name_index)?;
                 let field_name = field_name_object.as_str()?;
                 field_names.push(field_name);
             }
             ProgramObject::Method(method) => {
                 // LATER(kondziu), probably don't need to store methods, tbh, just the class, which would simplify this a lot
-                let name_object = program.constant_pool.get(&method.name)?;
+                let name_object = program.constant_pool.get(method.name)?;
                 let name = name_object.as_str()?;
-                let previous = methods.insert(name.to_owned(), *member_index);
+                let previous = methods.insert(name.to_owned(), member_index);
                 ensure!(
                     previous.is_none(),
                     "Member method `{}` has a non-unique name within object.",
@@ -240,7 +240,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
 }
 
 #[inline(always)]
-pub fn eval_get_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_get_field(program: &Program, state: &mut State, name_index: ConstantPoolIndex) -> Result<()> {
     let name_object = program.constant_pool.get(name_index)?;
     let field_name = name_object.as_str()?;
 
@@ -256,7 +256,7 @@ pub fn eval_get_field(program: &Program, state: &mut State, name_index: &Constan
 }
 
 #[inline(always)]
-pub fn eval_set_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_set_field(program: &Program, state: &mut State, name_index: ConstantPoolIndex) -> Result<()> {
     let name_object = program.constant_pool.get(name_index)?;
     let field_name = name_object.as_str()?;
 
@@ -277,8 +277,8 @@ pub fn eval_set_field(program: &Program, state: &mut State, name_index: &Constan
 pub fn eval_call_method(
     program: &Program,
     state: &mut State,
-    name_index: &ConstantPoolIndex,
-    arity: &Arity,
+    name_index: ConstantPoolIndex,
+    arity: Arity,
 ) -> Result<Option<ConstantPoolIndex>> {
     ensure!(
         arity.to_usize() > 0,
@@ -522,7 +522,7 @@ fn dispatch_object_method(
 
     match method_option {
         Some(&method_index) => {
-            let method = program.constant_pool.get(&method_index)?.as_method()?;
+            let method = program.constant_pool.get(method_index)?.as_method()?;
             eval_call_object_method(program, state, method, method_name, receiver, arguments)?;
             Ok(Some(method_index))
         }
@@ -570,16 +570,16 @@ fn eval_call_object_method(
 pub fn eval_call_function(
     program: &Program,
     state: &mut State,
-    name_index: &ConstantPoolIndex,
-    arity: &Arity,
+    name_index: ConstantPoolIndex,
+    arity: Arity,
 ) -> Result<ConstantPoolIndex> {
     let name_object = program.constant_pool.get(name_index)?;
     let function_name = name_object.as_str()?;
-    let function_index = *state.frame_stack.functions.get(function_name)?;
-    let function = program.constant_pool.get(&function_index)?.as_method()?;
+    let function_index = state.frame_stack.functions.get(function_name)?;
+    let function = program.constant_pool.get(function_index)?.as_method()?;
 
     ensure!(
-        arity == &function.arity,
+        arity == function.arity,
         "Function `{}` requires {} arguments, but {} were supplied",
         function_name,
         function.arity,
@@ -602,8 +602,8 @@ pub fn eval_print<W>(
     program: &Program,
     state: &mut State,
     output: &mut W,
-    format_index: &ConstantPoolIndex,
-    arity: &Arity,
+    format_index: ConstantPoolIndex,
+    arity: Arity,
 ) -> Result<()>
 where
     W: Write,
@@ -674,7 +674,7 @@ pub fn eval_label(program: &Program, state: &mut State) -> Result<()> {
 }
 
 #[inline(always)]
-pub fn eval_jump(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> Result<()> {
+pub fn eval_jump(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> Result<()> {
     let label_object = program.constant_pool.get(label_index)?;
     let label_name = label_object.as_str()?;
     let address = *program.labels.get(label_name)?;
@@ -683,7 +683,7 @@ pub fn eval_jump(program: &Program, state: &mut State, label_index: &ConstantPoo
 }
 
 #[inline(always)]
-pub fn eval_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> Result<bool> {
+pub fn eval_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> Result<bool> {
     let label_object = program.constant_pool.get(label_index)?;
     let label_name = label_object.as_str()?;
     let value = state.operand_stack.pop()?;

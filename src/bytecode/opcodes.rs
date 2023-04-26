@@ -309,7 +309,7 @@ impl OpCode {
         opcodes
     }
 
-    pub fn write_opcode_vector<W: Write>(sink: &mut W, vector: &Vec<&OpCode>) -> anyhow::Result<()> {
+    pub fn write_opcode_vector<W: Write>(sink: &mut W, vector: &Vec<OpCode>) -> anyhow::Result<()> {
         serializable::write_usize_as_u32(sink, vector.len())?;
         for opcode in vector {
             opcode.serialize(sink)?;

@@ -119,16 +119,24 @@ pub struct Method {
     pub code: AddressRange,
 }
 
+#[repr(C)]
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct ConstantPoolIndex(u16);
+
+#[repr(C)]
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct LocalIndex(u16);
+
+#[repr(C)]
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Arity(u8);
+
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Size(u16);
+
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Address(u32);
+
 #[derive(PartialEq, Debug, Copy, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct AddressRange {
     start: Address,
@@ -157,13 +165,13 @@ impl ConstantPool {
     pub fn new() -> Self {
         ConstantPool(Vec::new())
     }
-    pub fn get(&self, index: &ConstantPoolIndex) -> Result<&ProgramObject> {
+    pub fn get(&self, index: ConstantPoolIndex) -> Result<&ProgramObject> {
         self.0
             .get(index.as_usize())
             .with_context(|| format!("Cannot dereference object from the constant pool at index: `{index}`"))
     }
-    pub fn get_all(&self, indices: Vec<&ConstantPoolIndex>) -> Result<Vec<&ProgramObject>> {
-        indices.iter().map(|index| self.get(index)).collect()
+    pub fn get_all(&self, indices: Vec<ConstantPoolIndex>) -> Result<Vec<&ProgramObject>> {
+        indices.iter().map(|&index| self.get(index)).collect()
     }
     pub fn push(&mut self, program_object: ProgramObject) -> ConstantPoolIndex {
         self.0.push(program_object);
@@ -295,7 +303,7 @@ impl Code {
     pub fn len(&self) -> usize {
         self.0.len()
     }
-    pub fn materialize(&self, range: &AddressRange) -> Result<Vec<&OpCode>> {
+    pub fn materialize(&self, range: &AddressRange) -> Result<Vec<OpCode>> {
         let start = range.start().value_usize();
         let end = start + range.length();
 
@@ -309,7 +317,7 @@ impl Code {
             self.0.len()
         );
 
-        Ok((start..end).map(|index| &self.0[index]).collect())
+        Ok((start..end).map(|index| self.0[index]).collect())
     }
     pub fn append(&mut self, opcodes: Vec<OpCode>) -> AddressRange {
         let start = self.0.len();
@@ -317,10 +325,10 @@ impl Code {
         self.0.extend(opcodes);
         AddressRange::new(Address::from_usize(start), length)
     }
-    pub fn labels(&self) -> Vec<&ConstantPoolIndex> {
+    pub fn labels(&self) -> Vec<ConstantPoolIndex> {
         self.0
             .iter()
-            .flat_map(|opcode| match opcode {
+            .flat_map(|&opcode| match opcode {
                 OpCode::Label { name } => Some(name),
                 _ => None,
             })
@@ -344,16 +352,16 @@ impl Code {
             None
         }
     }
-    pub fn get(&self, address: Address) -> Result<&OpCode> {
+    pub fn get(&self, address: Address) -> Result<OpCode> {
         let index = address.value_usize();
         if index < self.0.len() {
-            Ok(&self.0[index])
+            Ok(self.0[index])
         } else {
             Err(anyhow!("Code address {} out of bounds (0..{})", address, self.0.len()))
         }
     }
-    pub fn iter(&self) -> impl Iterator<Item = &OpCode> + '_ {
-        self.0.iter()
+    pub fn iter(&self) -> impl Iterator<Item = OpCode> + '_ {
+        self.0.iter().copied()
     }
 }
 
@@ -420,9 +428,9 @@ impl ProgramObject {
     pub fn is_method(&self) -> bool {
         matches!(self, ProgramObject::Method { .. })
     }
-    pub fn as_slot_index(&self) -> anyhow::Result<&ConstantPoolIndex> {
+    pub fn as_slot_index(&self) -> anyhow::Result<ConstantPoolIndex> {
         match self {
-            ProgramObject::Slot { name } => Ok(name),
+            ProgramObject::Slot { name } => Ok(*name),
             _ => anyhow::bail!("Expecting a program object representing a Slot, found `{}`", self),
         }
     }
@@ -501,7 +509,7 @@ impl ConstantPoolIndex {
     }
 
     pub fn as_usize(&self) -> usize {
-        self.value() as usize
+        self.value().into()
     }
 
     pub fn read_cpi_vector<R: Read>(input: &mut R) -> Vec<ConstantPoolIndex> {

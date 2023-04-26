@@ -53,7 +53,7 @@ impl State {
         let entry_index = program.entry.get().with_context(|| "Cannot find entry method.")?;
         let entry_method = program
             .constant_pool
-            .get(&entry_index)
+            .get(entry_index)
             .with_context(|| "Cannot find entry method.")?
             .as_method()?;
 
@@ -66,7 +66,7 @@ impl State {
         let global_objects = program
             .globals
             .iter()
-            .map(|index| program.constant_pool.get(&index).map(|object| (index, object)))
+            .map(|index| program.constant_pool.get(index).map(|object| (index, object)))
             .collect::<Result<Vec<(ConstantPoolIndex, &ProgramObject)>>>()?;
 
         ensure!(
@@ -91,19 +91,19 @@ impl State {
 
         fn extract_function(
             program: &Program,
-            index: &ConstantPoolIndex,
+            index: ConstantPoolIndex,
             method: &ProgramObject,
         ) -> Result<(String, ConstantPoolIndex)> {
             let name_index = method.as_method()?.name;
-            let name_object = program.constant_pool.get(&name_index)?;
+            let name_object = program.constant_pool.get(name_index)?;
             let name = name_object.as_str()?;
-            Ok((name.to_owned(), *index))
+            Ok((name.to_owned(), index))
         }
 
         let functions = global_objects
             .iter()
             .filter(|(_, program_object)| program_object.is_method())
-            .map(|(index, method)| extract_function(program, index, method))
+            .map(|&(index, method)| extract_function(program, index, method))
             .collect::<Result<Vec<(String, ConstantPoolIndex)>>>()?;
 
         let global_frame = GlobalFrame::from(globals, Pointer::Null)?;
@@ -285,8 +285,11 @@ impl GlobalFunctions {
     pub fn new() -> Self {
         Self::default()
     }
-    pub fn get(&self, name: &str) -> Result<&ConstantPoolIndex> {
-        self.0.get(name).with_context(|| format!("No such function `{name}`."))
+    pub fn get(&self, name: &str) -> Result<ConstantPoolIndex> {
+        self.0
+            .get(name)
+            .copied()
+            .with_context(|| format!("No such function `{name}`."))
     }
     #[allow(dead_code)]
     pub fn update(&mut self, name: String, index: ConstantPoolIndex) -> Result<()> {
@@ -335,14 +338,14 @@ impl Frame {
     pub fn locals_mut(&mut self) -> &mut Vec<Pointer> {
         &mut self.locals
     }
-    pub fn get(&self, index: &LocalIndex) -> Result<&Pointer> {
+    pub fn get(&self, index: LocalIndex) -> Result<&Pointer> {
         let index = index.value() as usize;
         if index >= self.locals.len() {
             bail!("Local frame index {} out of range (0..{})", index, self.locals.len());
         }
         Ok(&self.locals[index])
     }
-    pub fn set(&mut self, index: &LocalIndex, pointer: Pointer) -> Result<()> {
+    pub fn set(&mut self, index: LocalIndex, pointer: Pointer) -> Result<()> {
         let index = index.value() as usize;
         if index >= self.locals.len() {
             bail!("Local frame index {} out of range (0..{})", index, self.locals.len());

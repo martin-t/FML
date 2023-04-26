@@ -169,7 +169,7 @@ where
     let mut methods = Vec::new();
     for cpi in 0..program.constant_pool.len() {
         let index = ConstantPoolIndex::from(cpi);
-        let program_object = program.constant_pool.get(&index).unwrap();
+        let program_object = program.constant_pool.get(index).unwrap();
         if let ProgramObject::Method(method) = program_object {
             methods.push((cpi, method));
         }
@@ -211,42 +211,42 @@ where
                 OpCode::Literal { index } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_literal)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetLocal { index } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_local)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetLocal { index } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, index.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_local)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetGlobal { name } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_global)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetGlobal { name } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_global)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Object { class } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, class.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, class.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_object)));
                     instrs.push(CallAbsR(Rax));
                 }
@@ -259,22 +259,22 @@ where
                 OpCode::GetField { name } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_field)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetField { name } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_field)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::CallMethod { name, arity } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                    instrs.push(MovRI(Rcx, arity.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
+                    instrs.push(MovRI(Rcx, arity.value().into()));
                     instrs.push(MovRR(R8, R15));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_call_method)));
                     // Call this interpreter function
@@ -291,8 +291,8 @@ where
                 OpCode::CallFunction { name, arity } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, name.ref_to_addr_const()));
-                    instrs.push(MovRI(Rcx, arity.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, name.value().into()));
+                    instrs.push(MovRI(Rcx, arity.value().into()));
                     instrs.push(MovRR(R8, R15));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_call_function)));
                     // Call this interpreter function
@@ -318,15 +318,15 @@ where
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
                     instrs.push(MovRI(Rdx, output.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rcx, format.ref_to_addr_const()));
-                    instrs.push(MovRI(R8, arity.ref_to_addr_const()));
+                    instrs.push(MovRI(Rcx, format.value().into()));
+                    instrs.push(MovRI(R8, arity.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_print::<W>)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Jump { label } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_jump)));
                     instrs.push(CallAbsR(Rax));
                     instrs.push(JmpLabel(label.value().into()));
@@ -334,7 +334,7 @@ where
                 OpCode::Branch { label } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, label.ref_to_addr_const()));
+                    instrs.push(MovRI(Rdx, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_branch)));
                     instrs.push(CallAbsR(Rax));
                     instrs.push(CmpRI(Rax, 1));
@@ -411,27 +411,27 @@ where
     }
 }
 
-extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: ConstantPoolIndex) {
     eval_literal(program, state, literal_index).unwrap();
 }
 
-extern "sysv64" fn jit_get_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
+extern "sysv64" fn jit_get_local(program: &Program, state: &mut State, local_index: LocalIndex) {
     eval_get_local(program, state, local_index).unwrap();
 }
 
-extern "sysv64" fn jit_set_local(program: &Program, state: &mut State, local_index: &LocalIndex) {
+extern "sysv64" fn jit_set_local(program: &Program, state: &mut State, local_index: LocalIndex) {
     eval_set_local(program, state, local_index).unwrap();
 }
 
-extern "sysv64" fn jit_get_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_get_global(program: &Program, state: &mut State, global_index: ConstantPoolIndex) {
     eval_get_global(program, state, global_index).unwrap();
 }
 
-extern "sysv64" fn jit_set_global(program: &Program, state: &mut State, global_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_set_global(program: &Program, state: &mut State, global_index: ConstantPoolIndex) {
     eval_set_global(program, state, global_index).unwrap();
 }
 
-extern "sysv64" fn jit_object(program: &Program, state: &mut State, class_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_object(program: &Program, state: &mut State, class_index: ConstantPoolIndex) {
     eval_object(program, state, class_index).unwrap();
 }
 
@@ -439,19 +439,19 @@ extern "sysv64" fn jit_array(program: &Program, state: &mut State) {
     eval_array(program, state).unwrap();
 }
 
-extern "sysv64" fn jit_get_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_get_field(program: &Program, state: &mut State, name_index: ConstantPoolIndex) {
     eval_get_field(program, state, name_index).unwrap();
 }
 
-extern "sysv64" fn jit_set_field(program: &Program, state: &mut State, name_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_set_field(program: &Program, state: &mut State, name_index: ConstantPoolIndex) {
     eval_set_field(program, state, name_index).unwrap();
 }
 
 extern "sysv64" fn jit_call_method(
     program: &Program,
     state: &mut State,
-    name_index: &ConstantPoolIndex,
-    arity: &Arity,
+    name_index: ConstantPoolIndex,
+    arity: Arity,
     cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
     let method_index = eval_call_method(program, state, name_index, arity).unwrap();
@@ -467,8 +467,8 @@ extern "sysv64" fn jit_call_method(
 extern "sysv64" fn jit_call_function(
     program: &Program,
     state: &mut State,
-    name_index: &ConstantPoolIndex,
-    arity: &Arity,
+    name_index: ConstantPoolIndex,
+    arity: Arity,
     cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
     let method_index = eval_call_function(program, state, name_index, arity).unwrap();
@@ -481,8 +481,8 @@ extern "sysv64" fn jit_print<W>(
     program: &Program,
     state: &mut State,
     output: &mut W,
-    format: &ConstantPoolIndex,
-    arity: &Arity,
+    format: ConstantPoolIndex,
+    arity: Arity,
 ) where
     W: Write,
 {
@@ -493,11 +493,11 @@ extern "sysv64" fn jit_label(program: &Program, state: &mut State) {
     eval_label(program, state).unwrap();
 }
 
-extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) {
+extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: ConstantPoolIndex) {
     eval_jump(program, state, label_index).unwrap();
 }
 
-extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: &ConstantPoolIndex) -> bool {
+extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> bool {
     eval_branch(program, state, label_index).unwrap()
 }
 
