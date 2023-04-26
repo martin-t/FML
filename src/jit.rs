@@ -156,8 +156,7 @@ pub fn is_jittable(program: &Program) -> bool {
     true
 }
 
-#[inline(never)]
-pub extern "sysv64" fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
+pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
 {
@@ -297,6 +296,10 @@ where
                     instrs.push(CmpRI(Rax, 0));
                     let label = next_label();
                     instrs.push(JeLabel(label));
+                    if state.debug.contains(" cmud2 ") {
+                        // Only crash if it's a user-defined method.
+                        instrs.push(Ud2);
+                    }
                     // Now call the actual FML function.
                     instrs.push(CallAbsR(Rax));
                     instrs.push(Label(label));
@@ -532,8 +535,8 @@ extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: C
     eval_jump(program, state, label_index).unwrap();
 }
 
-extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> bool {
-    eval_branch(program, state, label_index).unwrap()
+extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> i64 {
+    eval_branch(program, state, label_index).unwrap().into()
 }
 
 extern "sysv64" fn jit_return(program: &Program, state: &mut State) {
