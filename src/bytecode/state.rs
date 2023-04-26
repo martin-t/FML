@@ -1,13 +1,11 @@
 use std::{
-    collections::{
-        hash_map::{Values, ValuesMut},
-        HashMap, HashSet,
-    },
+    collections::hash_map::{Values, ValuesMut},
     fmt,
     io::Write,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
+use fnv::{FnvHashMap, FnvHashSet};
 
 use crate::bytecode::{heap::*, program::*};
 
@@ -17,6 +15,7 @@ pub struct State {
     pub frame_stack: FrameStack,
     pub instruction_pointer: InstructionPointer,
     pub heap: Heap,
+    pub debug: i32,
 }
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
@@ -30,10 +29,10 @@ pub struct FrameStack {
 }
 
 #[derive(Eq, PartialEq, Debug, Default)]
-pub struct GlobalFrame(HashMap<String, Pointer>);
+pub struct GlobalFrame(FnvHashMap<String, Pointer>);
 
 #[derive(Eq, PartialEq, Debug, Default)]
-pub struct GlobalFunctions(HashMap<String, ConstantPoolIndex>);
+pub struct GlobalFunctions(FnvHashMap<String, ConstantPoolIndex>);
 
 #[derive(Eq, PartialEq, Debug, Default)]
 pub struct Frame {
@@ -124,6 +123,7 @@ impl State {
             frame_stack,
             instruction_pointer,
             heap,
+            debug: 0,
         })
     }
 
@@ -134,6 +134,7 @@ impl State {
             frame_stack: FrameStack::new(),
             instruction_pointer: InstructionPointer::new(),
             heap: Heap::new(),
+            debug: 0,
         }
     }
 
@@ -144,6 +145,7 @@ impl State {
             frame_stack: FrameStack::from(Frame::new()),
             instruction_pointer: InstructionPointer::from(Address::from_usize(0)),
             heap: Heap::new(),
+            debug: 0,
         }
     }
 }
@@ -264,7 +266,7 @@ impl GlobalFrame {
         Ok(())
     }
     pub fn from(names: Vec<String>, initial: Pointer) -> Result<Self> {
-        let mut unique = HashSet::new();
+        let mut unique = FnvHashSet::default();
         let globals = names
             .into_iter()
             .map(|name| {
@@ -274,7 +276,7 @@ impl GlobalFrame {
                     Err(anyhow!("Global is a duplicate: {}", name))
                 }
             })
-            .collect::<Result<HashMap<String, Pointer>>>()?;
+            .collect::<Result<FnvHashMap<String, Pointer>>>()?;
         Ok(GlobalFrame(globals))
     }
 }
@@ -299,7 +301,7 @@ impl GlobalFunctions {
         Ok(())
     }
     pub fn from(methods: Vec<(String, ConstantPoolIndex)>) -> Result<Self> {
-        let mut unique = HashSet::new();
+        let mut unique = FnvHashSet::default();
         let functions = methods
             .into_iter()
             .map(|(name, index)| {
@@ -309,7 +311,7 @@ impl GlobalFunctions {
                     Err(anyhow!("Function is a duplicate: {}", name))
                 }
             })
-            .collect::<Result<HashMap<String, ConstantPoolIndex>>>()?;
+            .collect::<Result<FnvHashMap<String, ConstantPoolIndex>>>()?;
         Ok(GlobalFunctions(functions))
     }
 }

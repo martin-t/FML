@@ -24,16 +24,14 @@ use crate::bytecode::interpreter::evaluate_with_memory_config;
 use crate::bytecode::program::Program;
 use crate::bytecode::serializable::Serializable;
 use crate::fml::TopLevelParser;
-use crate::jit::jit_with_memory_config;
 use crate::parser::AST;
 
-// LATER(martin-t) Replace most/all uses of HashMap with a faster variant like fnv/fxhash.
+// LATER(martin-t) Replace most/all uses of FnvHashMap with a faster variant like fnv/fxhash.
 
 #[derive(Parser, Debug)]
 #[clap(version, author)]
 enum Action {
     Run(RunAction),
-    Jit(JitAction),
     Execute(BytecodeInterpreterAction),
     Disassemble(BytecodeDisassemblerAction),
     Compile(CompilerAction),
@@ -50,26 +48,6 @@ struct RunAction {
         name = "BYTES",
         help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)"
     )]
-    pub heap_gc_size: Option<String>,
-    #[clap(
-        long = "heap-log",
-        name = "LOG_FILE",
-        help = "Path to heap log, if none, the log is not produced"
-    )]
-    pub heap_log: Option<PathBuf>,
-}
-
-#[derive(Args, Debug)]
-#[clap(about = "Interpret FML bytecode using a JIT")]
-struct JitAction {
-    #[clap(name = "FILE")]
-    pub input: Option<PathBuf>,
-    #[clap(
-        long = "heap-size",
-        name = "BYTES",
-        help = "Heap size to trigger GC in bytes (supports k/M/G as suffix)"
-    )]
-    // LATER(martin-t) Would be nice to parse it using clap and use Option<usize>
     pub heap_gc_size: Option<String>,
     #[clap(
         long = "heap-log",
@@ -97,8 +75,10 @@ struct BytecodeInterpreterAction {
         help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
-    #[clap(long = "jit", help = "Use the JIT compiler if possible")]
+    #[clap(long = "jit", help = "Use the JIT compiler")]
     pub jit: bool,
+    #[clap(long = "debug", default_value = "0", help = "Set debug level")]
+    pub debug: i32,
 }
 
 #[derive(Args, Debug)]
@@ -205,30 +185,7 @@ impl RunAction {
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
         // TODO(martin-t) Jit?
-        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), false).expect("Interpreter error");
-    }
-
-    pub fn selected_input(&self) -> Result<NamedSource> {
-        NamedSource::from(self.input.as_ref())
-    }
-}
-
-impl JitAction {
-    pub fn jit(&self) {
-        let mut source = self
-            .selected_input()
-            .expect("Cannot open an input for the bytecode interpreter.");
-
-        let program = BCSerializer::Bytes
-            .deserialize(&mut source)
-            .expect("Cannot parse bytecode from input.");
-
-        let gc_size = self
-            .heap_gc_size
-            .as_ref()
-            .map(|size| parse_size(size).expect("Cannot parse heap size"));
-
-        jit_with_memory_config(&program, gc_size, self.heap_log.clone()).expect("JIT error");
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), false, 0).expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -251,7 +208,8 @@ impl BytecodeInterpreterAction {
             .as_ref()
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
-        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), self.jit).expect("Interpreter error");
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), self.jit, self.debug)
+            .expect("Interpreter error");
     }
 
     pub fn selected_input(&self) -> Result<NamedSource> {
@@ -621,7 +579,6 @@ fn main() {
 
     match Action::parse() {
         Action::Run(action) => action.run(),
-        Action::Jit(action) => action.jit(),
         Action::Execute(action) => action.interpret(),
         Action::Disassemble(action) => action.debug(),
         Action::Compile(action) => action.compile(),

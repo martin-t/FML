@@ -11,17 +11,6 @@ use crate::bytecode::state::*;
 use crate::jit::*;
 use crate::veccat;
 
-trait OpCodeEvaluationResult<T> {
-    fn attach(self, opcode: &OpCode) -> Result<T>;
-}
-
-impl<T> OpCodeEvaluationResult<T> for Result<T> {
-    #[inline(always)]
-    fn attach(self, opcode: &OpCode) -> Result<T> {
-        self.with_context(|| format!("Error evaluating {opcode}:"))
-    }
-}
-
 #[allow(dead_code)]
 pub fn evaluate(program: &Program) -> Result<()> {
     let mut state = State::from(program)?;
@@ -34,12 +23,14 @@ pub fn evaluate_with_memory_config(
     heap_gc_size: Option<usize>,
     heap_log: Option<PathBuf>,
     jit: bool,
+    debug: i32,
 ) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
     if let Some(log) = heap_log {
         state.heap.set_log(log);
     }
+    state.debug = debug;
     let mut output = StdOutput::new();
     evaluate_with_jit(program, &mut state, &mut output, jit)
 }
@@ -80,17 +71,11 @@ where
     eval_opcode(program, state, output, opcode)
 }
 
-#[rustfmt::skip]
-pub fn eval_opcode<W>(
-    program: &Program,
-    state: &mut State,
-    output: &mut W,
-    opcode: &OpCode,
-) -> Result<()>
+pub fn eval_opcode<W>(program: &Program, state: &mut State, output: &mut W, opcode: &OpCode) -> Result<()>
 where
     W: Write,
 {
-    match opcode {
+    let res = match opcode {
         OpCode::Literal { index } => eval_literal(program, state, index),
         OpCode::GetLocal { index } => eval_get_local(program, state, index),
         OpCode::SetLocal { index } => eval_set_local(program, state, index),
@@ -108,8 +93,23 @@ where
         OpCode::Branch { label } => eval_branch(program, state, label).map(drop),
         OpCode::Return => eval_return(program, state),
         OpCode::Drop => eval_drop(program, state),
+    };
+
+    if state.debug == 1 {
+        debug_state(state);
     }
-    .attach(opcode)
+
+    res.with_context(|| format!("Error evaluating {opcode}:"))
+}
+
+#[allow(dead_code)]
+pub fn debug_state(state: &State) {
+    println!("State:");
+    println!("{:?}", state.operand_stack);
+    println!("{:?}", state.frame_stack);
+    println!("{:?}", state.instruction_pointer);
+    println!("{:?}", state.heap);
+    println!();
 }
 
 #[inline(always)]

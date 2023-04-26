@@ -40,11 +40,9 @@
 //!     - requires network
 //!     - will silently stop updating if indirect addressing doesn't use "ptr"
 
-use std::{
-    collections::HashMap,
-    fmt::{self, Display, Formatter},
-};
+use std::fmt::{self, Display, Formatter};
 
+use fnv::FnvHashMap;
 use smallvec::SmallVec;
 
 use crate::jit::asm_repr::*;
@@ -1020,6 +1018,7 @@ impl Encoding {
         (encoding, consumed)
     }
 
+    #[allow(dead_code)] // LATER(martin-t) Might be nice to expose this in the CLI
     pub fn deserialize_and_print_all(mut bytes: &[u8]) {
         while !bytes.is_empty() {
             let (_, consumed) = Self::deserialize_and_print(bytes);
@@ -1151,7 +1150,7 @@ impl Display for Encoding {
 #[derive(Debug)]
 pub struct Compiled {
     pub code: Vec<u8>,
-    pub label_offsets: HashMap<usize, usize>,
+    pub label_offsets: FnvHashMap<usize, usize>,
 }
 
 pub fn compile(instrs: &[Instr]) -> Compiled {
@@ -1164,7 +1163,7 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
     //    are undecided, the rest has to be 2 or 6 bytes
 
     let mut code = Vec::new();
-    let mut label_offsets = HashMap::new();
+    let mut label_offsets = FnvHashMap::default();
     // Only 32 bit replacements here, 8 bit require different handling
     let mut replace32 = Vec::new();
 

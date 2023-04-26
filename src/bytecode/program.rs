@@ -1,10 +1,10 @@
 use std::{
-    collections::HashMap,
     fmt::{self, Display, Formatter},
     io::{Read, Write},
 };
 
 use anyhow::{anyhow, ensure, Context, Error, Result};
+use fnv::FnvHashMap;
 
 use crate::bytecode::{
     opcodes::OpCode,
@@ -34,7 +34,7 @@ pub struct Code(Vec<OpCode>);
 
 #[derive(Eq, PartialEq, Debug)]
 pub struct Labels {
-    names: HashMap<String, Address>,
+    names: FnvHashMap<String, Address>,
 }
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone)]
@@ -367,7 +367,9 @@ impl From<Vec<OpCode>> for Code {
 impl Labels {
     #[allow(dead_code)]
     pub fn new() -> Self {
-        Labels { names: HashMap::new() }
+        Labels {
+            names: FnvHashMap::default(),
+        }
     }
     pub fn get(&self, label: &str) -> Result<&Address> {
         self.names
@@ -381,7 +383,7 @@ impl Labels {
         let names = labels
             .into_iter()
             .map(|(program_object, address)| program_object.as_str().map(|name| (name.to_owned(), address)))
-            .collect::<Result<HashMap<String, Address>>>()?;
+            .collect::<Result<FnvHashMap<String, Address>>>()?;
         Ok(Labels { names })
     }
 }

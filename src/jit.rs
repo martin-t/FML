@@ -30,16 +30,16 @@ pub mod asm_repr;
 #[cfg_attr(windows, path = "jit/memory_windows.rs")]
 pub mod memory;
 
-use std::{collections::HashMap, fmt::Write, path::PathBuf};
+use std::fmt::Write;
 
-use anyhow::Result;
+use fnv::FnvHashMap;
 
 use crate::{
     bytecode::{
         interpreter::*,
         opcodes::OpCode::{self, *},
         program::*,
-        state::{State, StdOutput},
+        state::State,
     },
     jit::{asm_encoding::compile, memory::JitMemory},
 };
@@ -130,71 +130,6 @@ macro_rules! jit_fn {
     }
 }
 
-pub fn jit_with_memory_config(program: &Program, heap_gc_size: Option<usize>, heap_log: Option<PathBuf>) -> Result<()> {
-    let mut state = State::from(program)?;
-    state.heap.set_gc_size(heap_gc_size);
-    if let Some(log) = heap_log {
-        state.heap.set_log(log);
-    }
-    let mut output = StdOutput::new();
-    jit_with(program, &mut state, &mut output)
-}
-
-#[allow(unused_variables)] // TODO remove
-fn jit_with<W>(program: &Program, state: &mut State, output: &mut W) -> Result<()>
-where
-    W: Write,
-{
-    // eprintln!("Program:");
-    // eprintln!("{}", program);
-    // while let Some(address) = state.instruction_pointer.get() {
-    //     let opcode = program.code.get(address)?;
-    //     eval_opcode(program, state, output, opcode)?;
-    // }
-    // Ok(())
-    run_assembler();
-    todo!();
-}
-
-fn run_assembler() {
-    println!("Using assembler to avoid dead code warns");
-
-    use crate::jit::asm_encoding::*;
-    use crate::jit::asm_repr::*;
-    use Instr::*;
-    use Reg::*;
-
-    let instrs = [Ret];
-    let bytes = compile(&instrs).code;
-    Encoding::deserialize_and_print(&bytes);
-
-    let jit = memory::JitMemory::new(&bytes);
-    let f = jit_fn!(jit, fn());
-    f();
-
-    println!("\n===================\n");
-
-    // From https://asm.x32.dev/
-    let code = [
-        0x81, 0x02, 0xaa, 0x00, 0x00, 0x00, // add dword [rdx], 0xaa
-        0x48, 0x81, 0x02, 0xaa, 0x00, 0x00, 0x00, // add qword [rdx], 0xaa
-        0x03, 0x02, // add eax, [rdx]
-        0x48, 0x03, 0x02, // add rax, [rdx]
-    ];
-    Encoding::deserialize_and_print_all(&code);
-
-    println!("\n-------------------\n");
-
-    let instrs = [
-        AddMI(Mem::base(Rdx), 0xaa),
-        AddMI(Mem::base(Rdx), 0xaa), // LATER(martin-t) Add a way to specify qword
-        AddRM(Eax, Mem::base(Rdx)),
-        AddRM(Rax, Mem::base(Rdx)),
-    ];
-    let code = compile(&instrs).code;
-    Encoding::deserialize_and_print_all(&code);
-}
-
 #[allow(dead_code)] // TODO remove
 pub fn is_jittable(program: &Program) -> bool {
     for opcode in program.code.iter() {
@@ -225,11 +160,11 @@ pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
 {
-    //println!("jitting");
-
     use crate::jit::asm_repr::*;
     use Instr::*;
     use Reg::*;
+
+    //println!("jitting");
 
     let mut methods = Vec::new();
     for cpi in 0..program.constant_pool.len() {
@@ -422,6 +357,12 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
             }
+
+            if state.debug == 1 {
+                instrs.push(MovRI(Rdi, state.ref_to_addr_mut()));
+                instrs.push(MovRI(Rax, fn_to_addr!(debug_state)));
+                instrs.push(CallAbsR(Rax));
+            }
         }
 
         // This epilogue is only needed for the entry function,
@@ -436,7 +377,7 @@ where
     // asm_encoding::print_asm(&compiled.code);
     let jit = JitMemory::new(&compiled.code);
 
-    let mut cpi_to_fn = HashMap::new();
+    let mut cpi_to_fn = FnvHashMap::default();
     for &(cpi, _) in &methods {
         if cpi == entry_cpi {
             continue;
@@ -455,6 +396,19 @@ where
     let entry = jit_fn!(jit, fn(i64), entry_offset);
 
     entry(cpi_to_fn.var_addr_const());
+}
+
+#[allow(dead_code)]
+extern "sysv64" fn jit_step_with<W>(program: &Program, state: &mut State, output: &mut W) -> bool
+where
+    W: Write,
+{
+    if let Some(_address) = state.instruction_pointer.get() {
+        step_with(program, state, output).unwrap();
+        true
+    } else {
+        false
+    }
 }
 
 extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: &ConstantPoolIndex) {
@@ -498,7 +452,7 @@ extern "sysv64" fn jit_call_method(
     state: &mut State,
     name_index: &ConstantPoolIndex,
     arity: &Arity,
-    cpi_to_fn: &HashMap<usize, fn()>,
+    cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
     let method_index = eval_call_method(program, state, name_index, arity).unwrap();
     if let Some(method_index) = method_index {
@@ -515,7 +469,7 @@ extern "sysv64" fn jit_call_function(
     state: &mut State,
     name_index: &ConstantPoolIndex,
     arity: &Arity,
-    cpi_to_fn: &HashMap<usize, fn()>,
+    cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
     let method_index = eval_call_function(program, state, name_index, arity).unwrap();
     let f = cpi_to_fn[&method_index.as_usize()];

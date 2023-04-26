@@ -1,8 +1,7 @@
 #![allow(clippy::redundant_closure)] // Sometimes it's clearer to name the value explicitly
 
-use std::collections::{HashMap, HashSet};
-
 use anyhow::{ensure, Result};
+use fnv::{FnvHashMap, FnvHashSet};
 
 use crate::{
     bytecode::{opcodes::OpCode, program::*},
@@ -45,14 +44,14 @@ impl ProgramGenerator {
 }
 
 pub struct LabelGenerator {
-    names: HashSet<String>,
+    names: FnvHashSet<String>,
     groups: usize,
 }
 
 impl LabelGenerator {
     pub fn new() -> Self {
         LabelGenerator {
-            names: HashSet::new(),
+            names: FnvHashSet::default(),
             groups: 0,
         }
     }
@@ -157,7 +156,7 @@ impl Frame {
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Environment {
-    locals: HashMap<(Scope, String), LocalIndex>,
+    locals: FnvHashMap<(Scope, String), LocalIndex>,
     scopes: Vec<Scope>,
     scope_sequence: Scope,
     unique_number: usize,
@@ -166,7 +165,7 @@ pub struct Environment {
 impl Environment {
     pub fn new() -> Self {
         Environment {
-            locals: HashMap::new(),
+            locals: FnvHashMap::default(),
             scopes: vec![0],
             scope_sequence: 0,
             unique_number: 0,
@@ -174,7 +173,7 @@ impl Environment {
     }
 
     pub fn from_locals(locals: Vec<String>) -> Self {
-        let mut local_map: HashMap<(Scope, String), LocalIndex> = HashMap::new();
+        let mut local_map: FnvHashMap<(Scope, String), LocalIndex> = FnvHashMap::default();
 
         for (i, local) in locals.into_iter().enumerate() {
             local_map.insert((0, local), LocalIndex::from_usize(i));
@@ -189,7 +188,7 @@ impl Environment {
     }
 
     pub fn from_locals_at(locals: Vec<String>, level: usize) -> Self {
-        let mut local_map: HashMap<(Scope, String), LocalIndex> = HashMap::new();
+        let mut local_map: FnvHashMap<(Scope, String), LocalIndex> = FnvHashMap::default();
 
         for (i, local) in locals.into_iter().enumerate() {
             local_map.insert((level, local), LocalIndex::from_usize(i));

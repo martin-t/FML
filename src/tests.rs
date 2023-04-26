@@ -17,7 +17,6 @@ mod compiler;
 #[rustfmt::skip]
 mod feeny;
 
-#[rustfmt::skip]
 mod interpreter;
 
 mod jit_memory;

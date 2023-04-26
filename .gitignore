@@ -1,4 +1,7 @@
+/interp*.txt
+/jit*.txt
 /heap*.log
+/tests/*/debug*
 /tests/*/*.out
 /tests/*/*.diff
 
