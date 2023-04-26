@@ -15,7 +15,7 @@ pub struct State {
     pub frame_stack: FrameStack,
     pub instruction_pointer: InstructionPointer,
     pub heap: Heap,
-    pub debug: i32,
+    pub debug: String,
 }
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Debug, Clone, Default)]
@@ -123,7 +123,7 @@ impl State {
             frame_stack,
             instruction_pointer,
             heap,
-            debug: 0,
+            debug: "".to_owned(),
         })
     }
 
@@ -134,7 +134,7 @@ impl State {
             frame_stack: FrameStack::new(),
             instruction_pointer: InstructionPointer::new(),
             heap: Heap::new(),
-            debug: 0,
+            debug: "".to_owned(),
         }
     }
 
@@ -145,7 +145,7 @@ impl State {
             frame_stack: FrameStack::from(Frame::new()),
             instruction_pointer: InstructionPointer::from(Address::from_usize(0)),
             heap: Heap::new(),
-            debug: 0,
+            debug: "".to_owned(),
         }
     }
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./build
+./build --debug
 
 rm tests/*/*.{bc,bc.txt,json}
 

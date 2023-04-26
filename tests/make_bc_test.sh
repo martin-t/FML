@@ -2,7 +2,7 @@
 
 # Optionally skip calling cargo since it's slow - e.g. when called from make_bc_tests.sh
 if [[ ! "$FML_COMPILED" ]]; then
-    ./build
+    ./build --debug
 fi
 
 for fmlpath in "$@"; do

@@ -23,14 +23,17 @@ pub fn evaluate_with_memory_config(
     heap_gc_size: Option<usize>,
     heap_log: Option<PathBuf>,
     jit: bool,
-    debug: i32,
+    debug: String,
 ) -> Result<()> {
     let mut state = State::from(program)?;
     state.heap.set_gc_size(heap_gc_size);
     if let Some(log) = heap_log {
         state.heap.set_log(log);
     }
-    state.debug = debug;
+    // Surround with spaces so we can use .contains(" whatever ")
+    // also with spaces and not worry about matching a subword.
+    // E.g. " ds " can enable debug_state but won't accidentally match " methods ".
+    state.debug = format!(" {} ", debug);
     let mut output = StdOutput::new();
     evaluate_with_jit(program, &mut state, &mut output, jit)
 }
@@ -95,7 +98,7 @@ where
         OpCode::Drop => eval_drop(program, state),
     };
 
-    if state.debug == 1 {
+    if state.debug.contains(" ds ") {
         debug_state(state);
     }
 

@@ -734,8 +734,8 @@ impl LowerHex for Instr {
             Instr::AndRM(dst, src) => write!(f, "and {dst}, {src:x}"),
             Instr::AndRI(dst, imm) => write!(f, "and {dst}, {}", Hex(imm)),
             Instr::AndMI(dst, imm) => write!(f, "and dword {dst:x}, {}", Hex(imm)),
-            Instr::_CallRel(rel) => write!(f, "call 0x{rel:x}"),
-            Instr::CallRel32(rel) => write!(f, "call32 {rel}"),
+            Instr::_CallRel(rel) => write!(f, "call {}", Hex(rel)),
+            Instr::CallRel32(rel) => write!(f, "call32 {}", Hex(rel)),
             Instr::CallAbsR(abs) => write!(f, "call {abs}"),
             Instr::CallAbsM(abs) => write!(f, "call {abs:x}"),
             Instr::CmpRR(dst, src) => write!(f, "cmp {dst}, {src}"),
@@ -760,19 +760,19 @@ impl LowerHex for Instr {
             Instr::_Jl(rel) => write!(f, "jl {}", Hex(rel)),
             Instr::_Jle(rel) => write!(f, "jle {}", Hex(rel)),
             Instr::_Jne(rel) => write!(f, "jne {}", Hex(rel)),
-            Instr::Je32(rel) => write!(f, "je32 {rel}"),
-            Instr::Jg32(rel) => write!(f, "jg32 {rel}"),
-            Instr::Jge32(rel) => write!(f, "jge32 {rel}"),
-            Instr::Jl32(rel) => write!(f, "jl32 {rel}"),
-            Instr::Jle32(rel) => write!(f, "jle32 {rel}"),
-            Instr::Jne32(rel) => write!(f, "jne32 {rel}"),
+            Instr::Je32(rel) => write!(f, "je32 {}", Hex(rel)),
+            Instr::Jg32(rel) => write!(f, "jg32 {}", Hex(rel)),
+            Instr::Jge32(rel) => write!(f, "jge32 {}", Hex(rel)),
+            Instr::Jl32(rel) => write!(f, "jl32 {}", Hex(rel)),
+            Instr::Jle32(rel) => write!(f, "jle32 {}", Hex(rel)),
+            Instr::Jne32(rel) => write!(f, "jne32 {}", Hex(rel)),
             Instr::_JmpRel(rel) => write!(f, "jmp {}", Hex(rel)),
             Instr::JmpRel32(rel) => write!(f, "jmp32 {rel}"),
             Instr::MovRR(dst, src) => write!(f, "mov {dst}, {src}"),
             Instr::MovMR(dst, src) => write!(f, "mov {dst:x}, {src}"),
             Instr::MovRM(dst, src) => write!(f, "mov {dst}, {src:x}"),
-            Instr::MovRI(dst, imm) => write!(f, "mov {dst}, 0x{imm:x}"),
-            Instr::MovMI(dst, imm) => write!(f, "mov dword {dst:x}, 0x{imm:x}"),
+            Instr::MovRI(dst, imm) => write!(f, "mov {dst}, {}", Hex64(imm)),
+            Instr::MovMI(dst, imm) => write!(f, "mov dword {dst:x}, {}", Hex(imm)),
             Instr::OrRR(dst, src) => write!(f, "or {dst}, {src}"),
             Instr::OrMR(dst, src) => write!(f, "or {dst:x}, {src}"),
             Instr::OrRM(dst, src) => write!(f, "or {dst}, {src:x}"),
@@ -792,15 +792,15 @@ impl LowerHex for Instr {
             Instr::TestMI(dst, imm) => write!(f, "test dword {dst:x}, {}", Hex(imm)),
             Instr::Ud2 => write!(f, "ud2"),
 
-            Instr::Label(label) => write!(f, "Label {label}:"),
-            Instr::CallLabel(label) => write!(f, "CallLabel {label}"),
-            Instr::JeLabel(label) => write!(f, "JeLabel {label}"),
-            Instr::JgLabel(label) => write!(f, "JgLabel {label}"),
-            Instr::JgeLabel(label) => write!(f, "JgeLabel {label}"),
-            Instr::JlLabel(label) => write!(f, "JlLabel {label}"),
-            Instr::JleLabel(label) => write!(f, "JleLabel {label}"),
-            Instr::JneLabel(label) => write!(f, "JneLabel {label}"),
-            Instr::JmpLabel(label) => write!(f, "JmpLabel {label}"),
+            Instr::Label(label) => write!(f, "Label {label:#x}:"),
+            Instr::CallLabel(label) => write!(f, "CallLabel {label:#x}"),
+            Instr::JeLabel(label) => write!(f, "JeLabel {label:#x}"),
+            Instr::JgLabel(label) => write!(f, "JgLabel {label:#x}"),
+            Instr::JgeLabel(label) => write!(f, "JgeLabel {label:#x}"),
+            Instr::JlLabel(label) => write!(f, "JlLabel {label:#x}"),
+            Instr::JleLabel(label) => write!(f, "JleLabel {label:#x}"),
+            Instr::JneLabel(label) => write!(f, "JneLabel {label:#x}"),
+            Instr::JmpLabel(label) => write!(f, "JmpLabel {label:#x}"),
         }
     }
 }
@@ -958,10 +958,25 @@ struct Hex(i32);
 impl Display for Hex {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if self.0 >= 0 {
-            write!(f, "0x{:x}", self.0)
+            write!(f, "{:#x}", self.0)
         } else {
             // Cast to avoid overflow when self.0 == i32::MIN
-            write!(f, "-0x{:x}", -(self.0 as i64))
+            write!(f, "-{:#x}", -(self.0 as i64))
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct Hex64(i64);
+
+impl Display for Hex64 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if self.0 >= 0 {
+            write!(f, "{:#x}", self.0)
+        } else {
+            // Cast to avoid overflow when self.0 == i64::MIN
+            write!(f, "-{:#x}", -(self.0 as i128))
         }
     }
 }
@@ -985,5 +1000,22 @@ mod tests {
         assert_eq!(format!("{}", Hex(-256)), "-0x100");
         assert_eq!(format!("{}", Hex(i32::MAX)), "0x7fffffff");
         assert_eq!(format!("{}", Hex(i32::MIN)), "-0x80000000");
+    }
+
+    #[test]
+    fn test_hex64() {
+        assert_eq!(format!("{}", Hex64(0)), "0x0");
+        assert_eq!(format!("{}", Hex64(1)), "0x1");
+        assert_eq!(format!("{}", Hex64(-1)), "-0x1");
+        assert_eq!(format!("{}", Hex64(127)), "0x7f");
+        assert_eq!(format!("{}", Hex64(-127)), "-0x7f");
+        assert_eq!(format!("{}", Hex64(128)), "0x80");
+        assert_eq!(format!("{}", Hex64(-128)), "-0x80");
+        assert_eq!(format!("{}", Hex64(255)), "0xff");
+        assert_eq!(format!("{}", Hex64(-255)), "-0xff");
+        assert_eq!(format!("{}", Hex64(256)), "0x100");
+        assert_eq!(format!("{}", Hex64(-256)), "-0x100");
+        assert_eq!(format!("{}", Hex64(i64::MAX)), "0x7fffffffffffffff");
+        assert_eq!(format!("{}", Hex64(i64::MIN)), "-0x8000000000000000");
     }
 }

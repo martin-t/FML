@@ -271,6 +271,9 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::CallMethod { name, arity } => {
+                    if state.debug.contains(" cmud ") {
+                        instrs.push(Ud2);
+                    }
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
                     instrs.push(MovRI(Rdx, name.value().into()));
@@ -289,6 +292,9 @@ where
                     instrs.push(Label(label));
                 }
                 OpCode::CallFunction { name, arity } => {
+                    if state.debug.contains(" cfud ") {
+                        instrs.push(Ud2);
+                    }
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
                     instrs.push(MovRI(Rdx, name.value().into()));
@@ -308,11 +314,18 @@ where
                     //  Interpreter doesn't need label instructions at all, remove when loading.
                     //  Once all opcodes are jitted, we don't need the instruction pointer anymore.
                     //  Also check other instructions.
-                    instrs.push(Label(name.value().into()));
+                    // FIXME Why does position of label have no effect? Make simple test program?
+                    // FIXME But first check notes, no fn calls necessary to get UB.
+                    if !state.debug.contains(" label_end ") {
+                        instrs.push(Label(name.value().into()));
+                    }
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
                     instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_label)));
                     instrs.push(CallAbsR(Rax));
+                    if state.debug.contains(" label_end ") {
+                        instrs.push(Label(name.value().into()));
+                    }
                 }
                 OpCode::Print { format, arity } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
@@ -358,7 +371,7 @@ where
                 }
             }
 
-            if state.debug == 1 {
+            if state.debug.contains(" ds ") {
                 instrs.push(MovRI(Rdi, state.ref_to_addr_mut()));
                 instrs.push(MovRI(Rax, fn_to_addr!(debug_state)));
                 instrs.push(CallAbsR(Rax));
@@ -368,8 +381,17 @@ where
         // This epilogue is only needed for the entry function,
         // all other functions end with a Return opcode.
         if cpi == entry_cpi {
-            instrs.push(Pop(R15)); // Unalign stack
+            // Restore saved registers (and unalign stack)
+            instrs.push(Pop(R15));
+            // The entry function doesn't have a Return opcode in bytecode
+            // but it needs a return in assembly so we get out of it.
             instrs.push(Ret);
+        }
+    }
+
+    if state.debug.contains(" instrs ") {
+        for instr in &instrs {
+            println!("{:x}", instr);
         }
     }
 
