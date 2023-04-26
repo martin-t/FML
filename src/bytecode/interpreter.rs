@@ -55,6 +55,13 @@ where
     // TODO
     if jit && is_jittable(program) {
         jit_program(program, state, output);
+    } else if state.debug.contains(" ds ") {
+        while let Some(address) = state.instruction_pointer.get() {
+            let opcode = program.code.get(address)?;
+            debug_state(state);
+            eval_opcode(program, state, output, opcode)?;
+        }
+        debug_state(state);
     } else {
         while let Some(address) = state.instruction_pointer.get() {
             let opcode = program.code.get(address)?;
@@ -97,10 +104,6 @@ where
         OpCode::Return => eval_return(program, state),
         OpCode::Drop => eval_drop(program, state),
     };
-
-    if state.debug.contains(" ds ") {
-        debug_state(state);
-    }
 
     res.with_context(|| format!("Error evaluating {opcode}:"))
 }

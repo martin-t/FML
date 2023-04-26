@@ -156,7 +156,8 @@ pub fn is_jittable(program: &Program) -> bool {
     true
 }
 
-pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
+#[inline(never)]
+pub extern "sysv64" fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
 {
@@ -207,6 +208,15 @@ where
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();
+
+            // This must be before the opcode's instructions
+            // because they might include a jump and this would never run.
+            if state.debug.contains(" ds ") {
+                instrs.push(MovRI(Rdi, state.ref_to_addr_mut()));
+                instrs.push(MovRI(Rax, fn_to_addr!(debug_state)));
+                instrs.push(CallAbsR(Rax));
+            }
+
             match opcode {
                 OpCode::Literal { index } => {
                     instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
@@ -359,7 +369,7 @@ where
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_return)));
                     instrs.push(CallAbsR(Rax));
 
-                    assert_ne!(cpi, entry_cpi);
+                    assert_ne!(cpi, entry_cpi, "entry function should not have Return opcode");
                     instrs.push(Pop(Rcx)); // Unalign stack
                     instrs.push(Ret);
                 }
@@ -370,23 +380,26 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
             }
-
-            if state.debug.contains(" ds ") {
-                instrs.push(MovRI(Rdi, state.ref_to_addr_mut()));
-                instrs.push(MovRI(Rax, fn_to_addr!(debug_state)));
-                instrs.push(CallAbsR(Rax));
-            }
         }
 
         // This epilogue is only needed for the entry function,
         // all other functions end with a Return opcode.
         if cpi == entry_cpi {
+            if state.debug.contains(" ds ") {
+                instrs.push(MovRI(Rdi, state.ref_to_addr_mut()));
+                instrs.push(MovRI(Rax, fn_to_addr!(debug_state)));
+                instrs.push(CallAbsR(Rax));
+            }
+
             // Restore saved registers (and unalign stack)
             instrs.push(Pop(R15));
             // The entry function doesn't have a Return opcode in bytecode
             // but it needs a return in assembly so we get out of it.
             instrs.push(Ret);
         }
+
+        // Assert every jit function ends with a return.
+        assert_eq!(instrs.last(), Some(&Ret));
     }
 
     if state.debug.contains(" instrs ") {

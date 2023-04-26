@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Optionally skip calling cargo since it's slow - e.g. when called from make_bc_tests.sh
-if [[ ! "$FML_COMPILED" ]]; then
+# Exit on error, unset variables and pipeline errors
+set -euo pipefail
+
+# Optionally skip calling cargo since it's slow - e.g. when called from make_bc_tests.sh.
+# If undefined - rebuild.
+if [[ ! -v FML_COMPILED ]]; then
     ./build --debug
 fi
 

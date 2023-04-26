@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit on error, unset variables and pipeline errors
+set -euo pipefail
+
 ./build --debug
 
 rm tests/*/*.{bc,bc.txt,json}
