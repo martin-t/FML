@@ -35,12 +35,7 @@ use std::fmt::Write;
 use fnv::FnvHashMap;
 
 use crate::{
-    bytecode::{
-        interpreter::*,
-        opcodes::OpCode::{self, *},
-        program::*,
-        state::State,
-    },
+    bytecode::{interpreter::*, opcodes::OpCode, program::*, state::State},
     jit::{asm_encoding::compile, memory::JitMemory},
 };
 
