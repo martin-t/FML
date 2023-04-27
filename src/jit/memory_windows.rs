@@ -16,6 +16,7 @@ impl JitMemory {
         let code = vec.leak().as_mut_ptr();
         let mut old_prot = 0u32;
         let ret = unsafe { VirtualProtect(code as *mut _, size, PAGE_EXECUTE_READWRITE, &mut old_prot as *mut _) };
+        // Yes, 0 really means failure and anything else means success.
         assert_ne!(ret, 0);
         Self { code }
     }
