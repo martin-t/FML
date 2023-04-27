@@ -55,6 +55,10 @@ struct RunAction {
         help = "Path to heap log, if none, the log is not produced"
     )]
     pub heap_log: Option<PathBuf>,
+    #[clap(long = "jit", help = "Use the JIT compiler")]
+    pub jit: bool,
+    #[clap(long = "debug", default_value = "", help = "Set debug level")]
+    pub debug: String,
 }
 
 #[derive(Args, Debug)]
@@ -184,8 +188,7 @@ impl RunAction {
             .as_ref()
             .map(|size| parse_size(size).expect("Cannot parse heap size"));
 
-        // TODO(martin-t) Jit?
-        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), false, "".to_owned())
+        evaluate_with_memory_config(&program, gc_size, self.heap_log.clone(), self.jit, self.debug.clone())
             .expect("Interpreter error");
     }
 
