@@ -966,7 +966,6 @@ impl Display for Hex {
     }
 }
 
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Hex64(i64);
 
