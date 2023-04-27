@@ -571,7 +571,7 @@ impl Debug for NamedSink {
         f.write_str(">")?;
         match &self.name {
             Stream::File(file) => f.write_str(file),
-            Stream::Console => f.write_str("stout"),
+            Stream::Console => f.write_str("stdout"),
         }?;
         Ok(())
     }
