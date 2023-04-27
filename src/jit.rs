@@ -437,15 +437,15 @@ where
 }
 
 #[allow(dead_code)]
-extern "sysv64" fn jit_step_with<W>(program: &Program, state: &mut State, output: &mut W) -> bool
+extern "sysv64" fn jit_step_with<W>(program: &Program, state: &mut State, output: &mut W) -> i32
 where
     W: Write,
 {
     if let Some(_address) = state.instruction_pointer.get() {
         step_with(program, state, output).unwrap();
-        true
+        1
     } else {
-        false
+        0
     }
 }
 
