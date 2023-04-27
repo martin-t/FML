@@ -327,8 +327,6 @@ where
                     //  Interpreter doesn't need label instructions at all, remove when loading.
                     //  Once all opcodes are jitted, we don't need the instruction pointer anymore.
                     //  Also check other instructions.
-                    // FIXME Why does position of label have no effect? Make simple test program?
-                    // FIXME But first check notes, no fn calls necessary to get UB.
                     if !state.debug.contains(" label_end ") {
                         instrs.push(Label(name.value().into()));
                     }
