@@ -363,7 +363,7 @@ where
                     instrs.push(MovRI(Rdx, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_branch)));
                     instrs.push(CallAbsR(Rax));
-                    instrs.push(CmpRI(Rax, 1));
+                    instrs.push(CmpRI(Eax, 1));
                     instrs.push(JeLabel(label.value().into()));
                 }
                 OpCode::Return => {
@@ -535,7 +535,7 @@ extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: C
     eval_jump(program, state, label_index).unwrap();
 }
 
-extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> i64 {
+extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> i32 {
     eval_branch(program, state, label_index).unwrap().into()
 }
 
