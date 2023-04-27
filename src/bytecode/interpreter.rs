@@ -52,8 +52,7 @@ where
     // eprintln!("Program:");
     // eprintln!("{}", program);
 
-    // TODO
-    if jit && is_jittable(program) {
+    if jit {
         jit_program(program, state, output);
     } else if state.debug.contains(" ds ") {
         while let Some(address) = state.instruction_pointer.get() {

@@ -130,32 +130,6 @@ macro_rules! jit_fn {
     }
 }
 
-#[allow(dead_code)] // TODO remove
-pub fn is_jittable(program: &Program) -> bool {
-    for opcode in program.code.iter() {
-        match opcode {
-            Literal { .. } => {}
-            GetLocal { .. } => {}
-            SetLocal { .. } => {}
-            GetGlobal { .. } => {}
-            SetGlobal { .. } => {}
-            Object { .. } => {}
-            Array => {}
-            GetField { .. } => {}
-            SetField { .. } => {}
-            CallMethod { .. } => {}
-            CallFunction { .. } => {}
-            Label { .. } => {}
-            Print { .. } => {}
-            Jump { .. } => {}
-            Branch { .. } => {}
-            Return => {}
-            Drop => {}
-        }
-    }
-    true
-}
-
 pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
@@ -163,8 +137,6 @@ where
     use crate::jit::asm_repr::*;
     use Instr::*;
     use Reg::*;
-
-    //println!("jitting");
 
     let mut methods = Vec::new();
     for cpi in 0..program.constant_pool.len() {
@@ -410,7 +382,9 @@ where
     }
 
     let compiled = compile(&instrs);
-    // asm_encoding::print_asm(&compiled.code);
+    if state.debug.contains(" compiled ") {
+        asm_encoding::print_asm(&compiled.code);
+    }
     let jit = JitMemory::new(&compiled.code);
 
     let mut cpi_to_fn = FnvHashMap::default();
@@ -424,7 +398,9 @@ where
         // the jitted fn representing them doesn't so the type is always just `fn()`.
         // Arguments and return values are handled by the interpreter's stack.
         let fn_ptr = jit_fn!(jit, fn(), offset);
-        // println!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
+        if state.debug.contains(" offsets ") {
+            println!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
+        }
         cpi_to_fn.insert(cpi, fn_ptr);
     }
 
@@ -493,8 +469,11 @@ extern "sysv64" fn jit_call_method(
     let method_index = eval_call_method(program, state, name_index, arity).unwrap();
     if let Some(method_index) = method_index {
         let f = cpi_to_fn[&method_index.as_usize()];
-        // println!("returning cpi: {}, addr: {:#x}", method_index.as_usize(), fn_to_addr!(f));
-        fn_to_addr!(f)
+        let addr = fn_to_addr!(f);
+        if state.debug.contains(" offsets ") {
+            println!("returning method cpi: {method_index}, addr: {addr:#x}");
+        }
+        addr
     } else {
         0
     }
@@ -509,8 +488,11 @@ extern "sysv64" fn jit_call_function(
 ) -> i64 {
     let method_index = eval_call_function(program, state, name_index, arity).unwrap();
     let f = cpi_to_fn[&method_index.as_usize()];
-    // println!("returning cpi: {}, addr: {:#x}", method_index.as_usize(), fn_to_addr!(f));
-    fn_to_addr!(f)
+    let addr = fn_to_addr!(f);
+    if state.debug.contains(" offsets ") {
+        println!("returning function cpi: {method_index}, addr: {addr:#x}");
+    }
+    addr
 }
 
 extern "sysv64" fn jit_print<W>(
