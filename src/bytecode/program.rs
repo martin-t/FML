@@ -360,6 +360,7 @@ impl Code {
             Err(anyhow!("Code address {} out of bounds (0..{})", address, self.0.len()))
         }
     }
+    #[allow(dead_code)]
     pub fn iter(&self) -> impl Iterator<Item = OpCode> + '_ {
         self.0.iter().copied()
     }
