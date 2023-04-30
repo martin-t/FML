@@ -11,7 +11,8 @@ build = "build.rs"
 # Abort on panic might be a better default:
 # https://vorner.github.io/2018/07/22/dont_panic.html
 # This makes backtraces useless, see .cargo/config-example.toml for a fix.
-#panic = "abort"
+# This is currently required for soundness, see jit.rs for details.
+panic = "abort"
 
 [profile.dev.package."*"]
 # Optimize deps but not this crate itself.
@@ -21,7 +22,8 @@ build = "build.rs"
 opt-level = 3
 
 [profile.release]
-#panic = "abort"
+# This is currently required for soundness, see jit.rs for details.
+panic = "abort"
 
 [dependencies]
 anyhow = "1.0.37"

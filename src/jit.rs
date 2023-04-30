@@ -127,7 +127,8 @@ macro_rules! jit_fn {
 
 /// A very primitive JIT compiler which converts each opcode
 /// into a series of assembly instructions that in turn call
-/// the corresponding interpreter functions.
+/// the corresponding interpreter functions
+/// through jit_<opcode> functions because Result is not FFI-safe.
 ///
 /// This provides a small (~10%) speedup because it avoids the main
 /// interpreter loop and branching on each opcode.
@@ -169,13 +170,13 @@ where
 
         if cpi == entry_cpi {
             // Save these nonvolatile registers so we can use them
-            // to store data for jit functions.
-            // Since any rust functions we call have to restore them
+            // to store data for jit_<opcode> functions.
+            // Since any Rust functions we call have to restore them
             // before returning, they will always have the same values
-            // in jitted code as long as we call all other jitted functions
-            // directly without going through rust.
+            // in jitted code as long as we call all other jitted FML functions
+            // directly without going through Rust.
             // Therefore we don't need to pass them as arguments
-            // into other jitted functions.
+            // into other jitted FML functions.
             //
             // This also aligns the stack.
             instrs.push(Push(R12));
@@ -183,17 +184,17 @@ where
             instrs.push(Push(R14));
             instrs.push(Push(R15));
             instrs.push(Push(Rax)); // Dummy to align stack
-            // ^ Don't forget to update epilogue when changing this.
+                                    // ^ Don't forget to update epilogue when changing this.
 
             // Now save the arguments.
             // We could use program/state/... as immediates
             // like `MovRI(Rdi, program.ref_to_addr_const())`
             // but passing them into entry as arguments
-            // might play a little nicer with rust's memory model.
+            // might play a little nicer with Rust's memory model.
             //
             // E.g. if we mutably borrow state here
             // and turn the reference into a pointer and then an integer,
-            // it is stil technically borrowed in rust's stacked borrows model.
+            // it is stil technically borrowed in Rust's stacked borrows model.
             // If we them use state before calling entry, it could be UB.
             //
             // However, this is mostly theoretical since rustc doesn't
@@ -420,7 +421,7 @@ where
             instrs.push(Ret);
         }
 
-        // Assert every jit function ends with a return.
+        // Assert every jitted FML function ends with a return.
         assert_eq!(instrs.last(), Some(&Ret));
     }
 
@@ -444,7 +445,8 @@ where
 
         let offset = compiled.label_offsets[&cpi];
         // Even though the FML methods can take arguments,
-        // the jitted fn representing them doesn't so the type is always just `fn()`.
+        // the jitted fn representing them doesn't
+        // so the type is always just `fn()`.
         // Arguments and return values are handled by the interpreter's stack.
         let fn_ptr = jit_fn!(jit, fn(), offset);
         if state.debug.contains(" offsets ") {
@@ -477,6 +479,24 @@ where
     }
 }
 
+/// This and the other jit_<opcode> functions stand between
+/// the jitted code and the interpreter's eval_<opcode> functions.
+///
+/// This is necessary because the jitted code can't call into Rust directly.
+/// Rust fns have an unstable/unspecified calling convention
+/// and some types used by eval_<opcode> such as Result are not FFI-safe.
+///
+/// We also _should_ to catch panics here because unwinding through
+/// an FFI boundary is very likely undefined behavior.
+/// This is not certain - the Rustonomicon recently changed
+/// with the introduction of *-unwind ABI's (which are still unstable)
+/// and the wording is a bit unclear.
+///
+/// Unfortunately `&mut State` is not UnwindSave so we can't use catch_unwind.
+/// So for now we use panic = "abort" in Cargo.toml.
+/// This is not ideal because it means we still have UB in test and bench
+/// profiles which don't support panic = "abort".
+// LATER(martin-t) Find a way to catch panics here.
 extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: ConstantPoolIndex) {
     eval_literal(program, state, literal_index).unwrap();
 }
@@ -527,6 +547,7 @@ extern "sysv64" fn jit_call_method(
         if state.debug.contains(" offsets ") {
             eprintln!("returning method cpi: {method_index}, addr: {addr:#x}");
         }
+        assert_ne!(addr, 0);
         addr
     } else {
         0
