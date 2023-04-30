@@ -372,13 +372,13 @@ where
 
     if state.debug.contains(" instrs ") {
         for instr in &instrs {
-            println!("{:x}", instr);
+            eprintln!("{:x}", instr);
         }
     }
 
     let compiled = compile(&instrs);
     if state.debug.contains(" compiled ") {
-        asm_encoding::print_asm(&compiled.code);
+        asm_encoding::eprint_asm(&compiled.code);
     }
     let jit = JitMemory::new(&compiled.code);
 
@@ -394,7 +394,7 @@ where
         // Arguments and return values are handled by the interpreter's stack.
         let fn_ptr = jit_fn!(jit, fn(), offset);
         if state.debug.contains(" offsets ") {
-            println!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
+            eprintln!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
         }
         cpi_to_fn.insert(cpi, fn_ptr);
     }
@@ -466,7 +466,7 @@ extern "sysv64" fn jit_call_method(
         let f = cpi_to_fn[&method_index.as_usize()];
         let addr = fn_to_addr!(f);
         if state.debug.contains(" offsets ") {
-            println!("returning method cpi: {method_index}, addr: {addr:#x}");
+            eprintln!("returning method cpi: {method_index}, addr: {addr:#x}");
         }
         addr
     } else {
@@ -485,7 +485,7 @@ extern "sysv64" fn jit_call_function(
     let f = cpi_to_fn[&method_index.as_usize()];
     let addr = fn_to_addr!(f);
     if state.debug.contains(" offsets ") {
-        println!("returning function cpi: {method_index}, addr: {addr:#x}");
+        eprintln!("returning function cpi: {method_index}, addr: {addr:#x}");
     }
     addr
 }

@@ -2,6 +2,7 @@ use std::fmt::Write;
 use std::path::PathBuf;
 
 use anyhow::{bail, ensure, Context, Result};
+use cpu_time::ProcessTime;
 use indexmap::map::IndexMap;
 
 use crate::bytecode::heap::*;
@@ -49,8 +50,12 @@ pub fn evaluate_with_jit<W>(program: &Program, state: &mut State, output: &mut W
 where
     W: Write,
 {
-    // eprintln!("Program:");
-    // eprintln!("{}", program);
+    if state.debug.contains(" program ") {
+        eprintln!("Program:");
+        eprintln!("{}", program);
+    }
+
+    let start = ProcessTime::now();
 
     if jit {
         jit_program(program, state, output);
@@ -67,6 +72,11 @@ where
             eval_opcode(program, state, output, opcode)?;
         }
     }
+
+    if state.debug.contains(" timing ") {
+        eprintln!("Elapsed: {:?}", start.elapsed());
+    }
+
     Ok(())
 }
 

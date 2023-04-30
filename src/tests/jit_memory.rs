@@ -9,7 +9,7 @@ use std::arch::asm;
 
 use crate::{
     jit::{
-        asm_encoding::{compile, print_hex},
+        asm_encoding::{compile, fmt_hex},
         asm_repr::{Instr, Reg},
         memory::JitMemory,
     },
@@ -72,7 +72,7 @@ fn return_args_1_6() {
     let codes = [code1, code2, code3, code4, code5, code6];
 
     for (i, code) in codes.iter().enumerate() {
-        print_hex(code);
+        println!("{}", fmt_hex(code));
         let jit = JitMemory::new(code);
         let func = jit_fn!(jit, fn(i32, i32, i32, i32, i32, i32) -> i32);
         let ret = func(1001, 1002, 1003, 1004, 1005, 1006);
@@ -93,7 +93,7 @@ fn add4() {
         0xc3, // ret
     ];
 
-    print_hex(&code);
+    println!("{}", fmt_hex(&code));
 
     let jit = JitMemory::new(&code);
     let add4 = jit_fn!(jit, fn(i32, i32, i32, i32) -> i32);
@@ -263,13 +263,13 @@ fn call_square_sysv64() {
     let addr = square_sysv64 as *const ();
     dbg!(addr);
     let addr = (addr as usize as u64).to_le_bytes();
-    print_hex(&code);
+    println!("{}", fmt_hex(&code));
     let fn_begin = 2;
     let fn_end = fn_begin + 8;
     // Sanity check we're replacing the right bytes
     assert_eq!(code[fn_begin..fn_end], 0x6666666666666666_u64.to_le_bytes());
     code[fn_begin..fn_end].copy_from_slice(&addr);
-    print_hex(&code);
+    println!("{}", fmt_hex(&code));
 
     let jit = JitMemory::new(&code);
     let asm_square = jit_fn!(jit, fn(i32) -> i32);
@@ -335,13 +335,13 @@ fn add_squares_square_sysv64() {
     let addr = square_sysv64 as *const ();
     dbg!(addr);
     let addr = (addr as usize as u64).to_le_bytes();
-    print_hex(&code);
+    println!("{}", fmt_hex(&code));
     let fn_begin = 11;
     let fn_end = fn_begin + 8;
     // Sanity check we're replacing the right bytes
     assert_eq!(code[fn_begin..fn_end], 0x6666666666666666_u64.to_le_bytes());
     code[fn_begin..fn_end].copy_from_slice(&addr);
-    print_hex(&code);
+    println!("{}", fmt_hex(&code));
 
     let jit = JitMemory::new(&code);
     let add_squares = jit_fn!(jit, fn(i32, i32, i32, i32) -> i32);

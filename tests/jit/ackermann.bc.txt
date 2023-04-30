@@ -1,0 +1,125 @@
+Constant Pool:
+0: "λ:"
+1: "if:consequent:0"
+2: "if:end:0"
+3: "=="
+4: 0
+5: "if:consequent:1"
+6: "if:end:1"
+7: "ackermann"
+8: "-"
+9: 1
+10: "+"
+11: method #7 args:2 locals:0 0000-0031
+12: "m"
+13: slot #12
+14: "loop:body:2"
+15: "loop:condition:2"
+16: "loop:body:3"
+17: "loop:condition:3"
+18: "m=~, n=~, A=~\n"
+19: "<="
+20: 5
+21: 3
+22: null
+23: method #0 args:0 locals:1 0032-0069
+Globals:
+0: #11
+1: #13
+Entry: #23
+Code:
+0: get local ::0
+1: lit #4
+2: call slot #3 2
+3: branch #1
+4: get local ::1
+5: lit #4
+6: call slot #3 2
+7: branch #5
+8: get local ::0
+9: lit #9
+10: call slot #8 2
+11: get local ::0
+12: get local ::1
+13: lit #9
+14: call slot #8 2
+15: call #7 2
+16: call #7 2
+17: goto #6
+18: label #5
+19: get local ::0
+20: lit #9
+21: call slot #8 2
+22: lit #9
+23: call #7 2
+24: label #6
+25: goto #2
+26: label #1
+27: get local ::1
+28: lit #9
+29: call slot #10 2
+30: label #2
+31: return
+32: lit #4
+33: set global #12
+34: drop
+35: goto #15
+36: label #14
+37: lit #4
+38: set local ::0
+39: drop
+40: goto #17
+41: label #16
+42: get global #12
+43: get local ::0
+44: get global #12
+45: get local ::0
+46: call #7 2
+47: printf #18 3
+48: drop
+49: get local ::0
+50: lit #9
+51: call slot #10 2
+52: set local ::0
+53: drop
+54: label #17
+55: get local ::0
+56: lit #20
+57: call slot #19 2
+58: branch #16
+59: get global #12
+60: lit #9
+61: call slot #10 2
+62: set global #12
+63: drop
+64: label #15
+65: get global #12
+66: lit #21
+67: call slot #19 2
+68: branch #14
+69: lit #22
+
+// > m=0, n=0, A=1
+// > m=0, n=1, A=2
+// > m=0, n=2, A=3
+// > m=0, n=3, A=4
+// > m=0, n=4, A=5
+// > m=0, n=5, A=6
+// > m=1, n=0, A=2
+// > m=1, n=1, A=3
+// > m=1, n=2, A=4
+// > m=1, n=3, A=5
+// > m=1, n=4, A=6
+// > m=1, n=5, A=7
+// > m=2, n=0, A=3
+// > m=2, n=1, A=5
+// > m=2, n=2, A=7
+// > m=2, n=3, A=9
+// > m=2, n=4, A=11
+// > m=2, n=5, A=13
+// > m=3, n=0, A=5
+// > m=3, n=1, A=13
+// > m=3, n=2, A=29
+// > m=3, n=3, A=61
+// > m=3, n=4, A=125
+// > m=3, n=5, A=253

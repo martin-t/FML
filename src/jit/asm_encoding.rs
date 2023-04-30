@@ -1012,8 +1012,7 @@ impl Encoding {
 
     pub fn deserialize_and_print(bytes: &[u8]) -> (Encoding, usize) {
         let (encoding, consumed) = Self::deserialize(bytes);
-        print_bytes(&bytes[..consumed]);
-        print_hex(&bytes[..consumed]);
+        print_asm(&bytes[..consumed]);
         println!("{encoding}");
         (encoding, consumed)
     }
@@ -1232,20 +1231,20 @@ pub fn compile(instrs: &[Instr]) -> Compiled {
 
 #[allow(dead_code)]
 pub fn print_asm(bytes: &[u8]) {
-    print_bytes(bytes);
-    print_hex(bytes);
+    println!("Asm as bytes: {}", fmt_bytes(bytes));
+    println!("Asm as hex:   {}", fmt_hex(bytes));
 }
 
-pub fn print_bytes(bytes: &[u8]) {
-    println!(
-        "[{}]",
-        itertools::free::join(bytes.iter().map(|byte| format!("0x{:02x}", byte)), ", ")
-    );
+#[allow(dead_code)]
+pub fn eprint_asm(bytes: &[u8]) {
+    eprintln!("Asm as bytes: {}", fmt_bytes(bytes));
+    eprintln!("Asm as hex:   {}", fmt_hex(bytes));
 }
 
-pub fn print_hex(bytes: &[u8]) {
-    println!(
-        "{}",
-        itertools::free::join(bytes.iter().map(|byte| format!("{:02x}", byte)), " ")
-    );
+pub fn fmt_bytes(bytes: &[u8]) -> String {
+    itertools::free::join(bytes.iter().map(|byte| format!("0x{:02x}", byte)), ", ")
+}
+
+pub fn fmt_hex(bytes: &[u8]) -> String {
+    itertools::free::join(bytes.iter().map(|byte| format!("{:02x}", byte)), " ")
 }

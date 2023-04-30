@@ -365,14 +365,14 @@ fn call_functions() {
     println!("\nstart():");
     start();
     print!("heap: ");
-    print_hex(&heap);
+    println!("{}", fmt_hex(&heap));
     assert_eq!(heap.len(), 8);
     assert_eq!(heap, [0, 0, 0, 0, 0, 0, 0, 0]);
 
     println!("\nentry():");
     entry();
     print!("heap: ");
-    print_hex(&heap);
+    println!("{}", fmt_hex(&heap));
     println!("heap: {:#x?}", heap);
     assert_eq!(heap.len(), 12);
 

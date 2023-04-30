@@ -1,0 +1,47 @@
+Constant Pool:
+0: "λ:"
+1: 0
+2: "sum"
+3: slot #2
+4: 1
+5: "i"
+6: slot #5
+7: "loop:body:0"
+8: "loop:condition:0"
+9: "+"
+10: "<="
+11: 60000
+12: "sum = ~\n"
+13: method #0 args:0 locals:0 0000-0024
+Globals:
+0: #3
+1: #6
+Entry: #13
+Code:
+0: lit #1
+1: set global #2
+2: drop
+3: lit #4
+4: set global #5
+5: drop
+6: goto #8
+7: label #7
+8: get global #2
+9: get global #5
+10: call slot #9 2
+11: set global #2
+12: drop
+13: get global #5
+14: lit #4
+15: call slot #9 2
+16: set global #5
+17: drop
+18: label #8
+19: get global #5
+20: lit #11
+21: call slot #10 2
+22: branch #7
+23: get global #2
+24: printf #12 1
+
+// > sum = 1800030000
