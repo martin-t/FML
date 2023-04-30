@@ -36,7 +36,7 @@ use fnv::FnvHashMap;
 
 use crate::{
     bytecode::{interpreter::*, opcodes::OpCode, program::*, state::State},
-    jit::{asm_encoding::compile, memory::JitMemory},
+    jit::{asm_encoding::compile, asm_repr::Instr, memory::JitMemory},
 };
 
 pub trait VariableAddr: Sized {
@@ -183,8 +183,9 @@ where
             instrs.push(Push(R13));
             instrs.push(Push(R14));
             instrs.push(Push(R15));
-            instrs.push(Push(Rax)); // Dummy to align stack
-                                    // ^ Don't forget to update epilogue when changing this.
+            // Dummy to align stack
+            instrs.push(Push(Rax));
+            // ^ Don't forget to update epilogue when changing this.
 
             // Now save the arguments.
             // We could use program/state/... as immediates
@@ -206,7 +207,9 @@ where
 
             // When adding here, make sure the stack stays aligned.
         } else {
-            instrs.push(Push(Rax)); // Align stack
+            // Align stack
+            instrs.push(Push(Rax));
+            // ^ Don't forget to update epilogue when changing this.
         }
 
         // TODO keep program and state in non-volatile registers?
