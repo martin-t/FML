@@ -129,7 +129,7 @@ macro_rules! jit_fn {
 /// into a series of assembly instructions that in turn call
 /// the corresponding interpreter functions.
 ///
-/// This provides a small speedup because it avoids the main
+/// This provides a small (~10%) speedup because it avoids the main
 /// interpreter loop and branching on each opcode.
 ///
 /// Jumps, function calls and returns call into the interpreter
@@ -168,10 +168,40 @@ where
         instrs.push(Label(cpi));
 
         if cpi == entry_cpi {
-            // Save R15 so we an use it to store data for jit functions.
+            // Save these nonvolatile registers so we can use them
+            // to store data for jit functions.
+            // Since any rust functions we call have to restore them
+            // before returning, they will always have the same values
+            // in jitted code as long as we call all other jitted functions
+            // directly without going through rust.
+            // Therefore we don't need to pass them as arguments
+            // into other jitted functions.
+            //
             // This also aligns the stack.
+            instrs.push(Push(R12));
+            instrs.push(Push(R13));
+            instrs.push(Push(R14));
             instrs.push(Push(R15));
-            instrs.push(MovRR(R15, Rdi));
+            instrs.push(Push(Rax)); // Dummy to align stack
+            // ^ Don't forget to update epilogue when changing this.
+
+            // Now save the arguments.
+            // We could use program/state/... as immediates
+            // like `MovRI(Rdi, program.ref_to_addr_const())`
+            // but passing them into entry as arguments
+            // might play a little nicer with rust's memory model.
+            //
+            // E.g. if we mutably borrow state here
+            // and turn the reference into a pointer and then an integer,
+            // it is stil technically borrowed in rust's stacked borrows model.
+            // If we them use state before calling entry, it could be UB.
+            //
+            // However, this is mostly theoretical since rustc doesn't
+            // use the stacked borrows model (for optimizations) yet.
+            instrs.push(MovRR(R12, Rdi));
+            instrs.push(MovRR(R13, Rsi));
+            instrs.push(MovRR(R14, Rdx));
+            instrs.push(MovRR(R15, Rcx));
 
             // When adding here, make sure the stack stays aligned.
         } else {
@@ -196,63 +226,63 @@ where
 
             match opcode {
                 OpCode::Literal { index } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_literal)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetLocal { index } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_local)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetLocal { index } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_local)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetGlobal { name } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_global)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetGlobal { name } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_global)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Object { class } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, class.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_object)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Array => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_array)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetField { name } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_field)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetField { name } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_field)));
                     instrs.push(CallAbsR(Rax));
@@ -261,8 +291,8 @@ where
                     if state.debug.contains(" cmud ") {
                         instrs.push(Ud2);
                     }
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rcx, arity.value().into()));
                     instrs.push(MovRR(R8, R15));
@@ -286,8 +316,8 @@ where
                     if state.debug.contains(" cfud ") {
                         instrs.push(Ud2);
                     }
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, name.value().into()));
                     instrs.push(MovRI(Rcx, arity.value().into()));
                     instrs.push(MovRR(R8, R15));
@@ -317,8 +347,8 @@ where
                     if !state.debug.contains(" label_end ") {
                         instrs.push(Label(name.value().into()));
                     }
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_label)));
                     instrs.push(CallAbsR(Rax));
                     if state.debug.contains(" label_end ") {
@@ -326,25 +356,25 @@ where
                     }
                 }
                 OpCode::Print { format, arity } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
-                    instrs.push(MovRI(Rdx, output.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
+                    instrs.push(MovRR(Rdx, R14));
                     instrs.push(MovRI(Rcx, format.value().into()));
                     instrs.push(MovRI(R8, arity.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_print::<W>)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Jump { label } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_jump)));
                     instrs.push(CallAbsR(Rax));
                     instrs.push(JmpLabel(label.value().into()));
                 }
                 OpCode::Branch { label } => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rdx, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_branch)));
                     instrs.push(CallAbsR(Rax));
@@ -352,8 +382,8 @@ where
                     instrs.push(JeLabel(label.value().into()));
                 }
                 OpCode::Return => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_return)));
                     instrs.push(CallAbsR(Rax));
 
@@ -362,8 +392,8 @@ where
                     instrs.push(Ret);
                 }
                 OpCode::Drop => {
-                    instrs.push(MovRI(Rdi, program.ref_to_addr_const()));
-                    instrs.push(MovRI(Rsi, state.ref_to_addr_mut()));
+                    instrs.push(MovRR(Rdi, R12));
+                    instrs.push(MovRR(Rsi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_drop)));
                     instrs.push(CallAbsR(Rax));
                 }
@@ -380,7 +410,11 @@ where
             }
 
             // Restore saved registers (and unalign stack)
+            instrs.push(Pop(Rcx));
             instrs.push(Pop(R15));
+            instrs.push(Pop(R14));
+            instrs.push(Pop(R13));
+            instrs.push(Pop(R12));
             // The entry function doesn't have a Return opcode in bytecode
             // but it needs a return in assembly so we get out of it.
             instrs.push(Ret);
@@ -420,9 +454,14 @@ where
     }
 
     let entry_offset = compiled.label_offsets[&entry_cpi];
-    let entry = jit_fn!(jit, fn(i64), entry_offset);
+    let entry = jit_fn!(jit, fn(i64, i64, i64, i64), entry_offset);
 
-    entry(cpi_to_fn.var_addr_const());
+    entry(
+        program.ref_to_addr_const(),
+        state.ref_to_addr_mut(),
+        output.ref_to_addr_mut(),
+        cpi_to_fn.var_addr_const(),
+    );
 }
 
 #[allow(dead_code)]
