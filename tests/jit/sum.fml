@@ -1,12 +1,26 @@
 // sum = n * (1 + n) / 2
 // 60000 * (1 + 60000) / 2 = 1800030000
 // Increasing the upper limit much more will overflow i32.
-let sum = 0;
-let i = 1;
-while i <= 60000 do begin
-  sum <- sum + i;
-  i <- i + 1;
+function do_sum(n) -> begin
+    let sum = 0;
+    let i = 1;
+    while i <= n do begin
+        sum <- sum + i;
+        i <- i + 1;
+    end;
+    sum
 end;
-print("sum = ~\n", sum);
 
+print("sum = ~\n", do_sum(1));
+print("sum = ~\n", do_sum(2));
+print("sum = ~\n", do_sum(3));
+print("sum = ~\n", do_sum(4));
+print("sum = ~\n", do_sum(5));
+print("sum = ~\n", do_sum(60000));
+
+// > sum = 1
+// > sum = 3
+// > sum = 6
+// > sum = 10
+// > sum = 15
 // > sum = 1800030000

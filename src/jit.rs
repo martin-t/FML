@@ -125,6 +125,17 @@ macro_rules! jit_fn {
     }
 }
 
+/// A very primitive JIT compiler which converts each opcode
+/// into a series of assembly instructions that in turn call
+/// the corresponding interpreter functions.
+///
+/// This provides a small speedup because it avoids the main
+/// interpreter loop and branching on each opcode.
+///
+/// Jumps, function calls and returns call into the interpreter
+/// and then also perform a jump/call/return in assembly.
+/// This means the interpreter's instruction pointer is no longer necessary
+/// which can provide an additional speedup.
 pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
@@ -288,12 +299,21 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Label { name } => {
-                    // Intentionally first the label in assembly, then the call to jit_label
-                    // so that the instruction pointer is updated properly.
-                    // LATER(martin-t) Optimize?
-                    //  Interpreter doesn't need label instructions at all, remove when loading.
-                    //  Once all opcodes are jitted, we don't need the instruction pointer anymore.
-                    //  Also check other instructions.
+                    // The order of instructions here is important sometimes.
+                    // The asm label should be before calling jit_label,
+                    // to match behavior of the bytecode interpreter.
+                    //
+                    // However if all opcodes are jitted,
+                    // we don't need the instruction pointer anymore.
+                    // So we can put if after jit_label or better yet
+                    // we don't need to call jit_label at all.
+                    // We can then also stop bumping instruction pointer
+                    // in the eval_* functions.
+                    //
+                    // Currently this provides only a small speedup
+                    // (less than 5%), probably because the interpreter
+                    // does a lot of other slow things.
+
                     if !state.debug.contains(" label_end ") {
                         instrs.push(Label(name.value().into()));
                     }

@@ -1,47 +1,76 @@
 Constant Pool:
 0: "λ:"
 1: 0
-2: "sum"
-3: slot #2
-4: 1
-5: "i"
-6: slot #5
-7: "loop:body:0"
-8: "loop:condition:0"
-9: "+"
-10: "<="
-11: 60000
-12: "sum = ~\n"
-13: method #0 args:0 locals:0 0000-0024
+2: 1
+3: "loop:body:0"
+4: "loop:condition:0"
+5: "+"
+6: "<="
+7: "do_sum"
+8: method #7 args:1 locals:2 0000-0024
+9: "sum = ~\n"
+10: 2
+11: 3
+12: 4
+13: 5
+14: 60000
+15: method #0 args:0 locals:0 0025-0047
 Globals:
-0: #3
-1: #6
-Entry: #13
+0: #8
+Entry: #15
 Code:
 0: lit #1
-1: set global #2
+1: set local ::1
 2: drop
-3: lit #4
-4: set global #5
+3: lit #2
+4: set local ::2
 5: drop
-6: goto #8
-7: label #7
-8: get global #2
-9: get global #5
-10: call slot #9 2
-11: set global #2
+6: goto #4
+7: label #3
+8: get local ::1
+9: get local ::2
+10: call slot #5 2
+11: set local ::1
 12: drop
-13: get global #5
-14: lit #4
-15: call slot #9 2
-16: set global #5
+13: get local ::2
+14: lit #2
+15: call slot #5 2
+16: set local ::2
 17: drop
-18: label #8
-19: get global #5
-20: lit #11
-21: call slot #10 2
-22: branch #7
-23: get global #2
-24: printf #12 1
+18: label #4
+19: get local ::2
+20: get local ::0
+21: call slot #6 2
+22: branch #3
+23: get local ::1
+24: return
+25: lit #2
+26: call #7 1
+27: printf #9 1
+28: drop
+29: lit #10
+30: call #7 1
+31: printf #9 1
+32: drop
+33: lit #11
+34: call #7 1
+35: printf #9 1
+36: drop
+37: lit #12
+38: call #7 1
+39: printf #9 1
+40: drop
+41: lit #13
+42: call #7 1
+43: printf #9 1
+44: drop
+45: lit #14
+46: call #7 1
+47: printf #9 1
 
+// > sum = 1
+// > sum = 3
+// > sum = 6
+// > sum = 10
+// > sum = 15
 // > sum = 1800030000
