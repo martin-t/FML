@@ -590,6 +590,11 @@ extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: C
     eval_jump(program, state, label_index).unwrap();
 }
 
+/// This has to return an i32 so we can read it through EAX.
+/// Returning a bool would only set the low byte of EAX
+/// (the AL register) and the rest would be undefined.
+///
+/// Our limited assembler doesn't support reading AL, only EAX.
 extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> i32 {
     eval_branch(program, state, label_index).unwrap().into()
 }
