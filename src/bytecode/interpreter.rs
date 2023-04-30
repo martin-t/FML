@@ -74,7 +74,7 @@ where
     }
 
     if state.debug.contains(" timing ") {
-        eprintln!("Elapsed: {:?}", start.elapsed());
+        eprintln!("Elapsed: {:.3} ms", start.elapsed().as_secs_f64() * 1000.0);
     }
 
     Ok(())

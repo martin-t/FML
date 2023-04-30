@@ -1,3 +1,4 @@
+/timings*.txt
 /interp*.txt
 /jit*.txt
 /heap*.log
