@@ -109,8 +109,6 @@ impl Heap {
         operand_stack: &mut OperandStack,
         object: HeapObject,
     ) -> HeapIndex {
-        //dbg!(object.size(), &object); // LATER(martin-t) Remove
-
         if let Some(gc_size) = self.gc_size {
             if self.size + object.size() > gc_size {
                 self.gc(frame_stack, operand_stack);

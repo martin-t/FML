@@ -191,7 +191,7 @@ where
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();
-            println!("address: {:?}, opcode: {:?}", address, opcode);
+            //println!("address: {:?}, opcode: {:?}", address, opcode);
 
             #[allow(unused_variables)]
             match opcode {
