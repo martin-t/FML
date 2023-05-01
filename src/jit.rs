@@ -36,7 +36,11 @@ use fnv::FnvHashMap;
 
 use crate::{
     bytecode::{interpreter::*, opcodes::OpCode, program::*, state::State},
-    jit::{asm_encoding::compile, asm_repr::Instr, memory::JitMemory},
+    jit::{
+        asm_encoding::compile,
+        asm_repr::{Instr, Reg},
+        memory::JitMemory,
+    },
 };
 
 pub trait VariableAddr: Sized {
@@ -137,11 +141,11 @@ macro_rules! jit_fn {
 /// and then also perform a jump/call/return in assembly.
 /// This means the interpreter's instruction pointer is no longer necessary
 /// which can provide an additional speedup (another ~10%).
+// LATER(martin-t) Split into a struct and methods.
 pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
 {
-    use crate::jit::asm_repr::*;
     use Instr::*;
     use Reg::*;
 
@@ -163,6 +167,83 @@ where
     };
 
     let mut instrs = Vec::new();
+
+    // For each function, attempt to compile it into pure assembly
+    // without calling into the interpreter.
+    // This only works for a limited set of opcodes,
+    // basically only functions working with integers.
+    //
+    // Bail otherwisem, we'll use the interpreter as fallback.
+    let mut cpi_to_int_fn = FnvHashMap::default();
+    'int_fn: for &(cpi, method) in &methods {
+        if cpi == entry_cpi {
+            // The entry function is a special case, ignore for now.
+            continue;
+        }
+
+        let mut is = Vec::new();
+
+        let label_fn = next_label();
+        is.push(Label(label_fn));
+
+        let begin = method.code.start().value_usize();
+        let end = begin + method.code.length();
+        for i in begin..end {
+            let address = Address::from_usize(i);
+            let opcode = program.code.get(address).unwrap();
+            println!("address: {:?}, opcode: {:?}", address, opcode);
+
+            #[allow(unused_variables)]
+            match opcode {
+                OpCode::Literal { index } => continue 'int_fn,
+                OpCode::GetLocal { index } => {
+                    if index.value() >= method.arity.value().into() {
+                        continue 'int_fn;
+                    }
+                    match index.value() {
+                        0 => is.push(Push(Rdi)),
+                        1 => is.push(Push(Rsi)),
+                        2 => is.push(Push(Rdx)),
+                        3 => is.push(Push(Rcx)),
+                        4 => is.push(Push(R8)),
+                        5 => is.push(Push(R9)),
+                        _ => continue 'int_fn,
+                    }
+                }
+                OpCode::SetLocal { index } => continue 'int_fn,
+                OpCode::GetGlobal { name } => continue 'int_fn,
+                OpCode::SetGlobal { name } => continue 'int_fn,
+                OpCode::Object { class } => continue 'int_fn,
+                OpCode::Array => continue 'int_fn,
+                OpCode::GetField { name } => continue 'int_fn,
+                OpCode::SetField { name } => continue 'int_fn,
+                OpCode::CallMethod { name, arity } => continue 'int_fn,
+                OpCode::CallFunction { name, arity } => continue 'int_fn,
+                OpCode::Label { name } => continue 'int_fn,
+                OpCode::Print { format, arity } => continue 'int_fn,
+                OpCode::Jump { label } => continue 'int_fn,
+                OpCode::Branch { label } => continue 'int_fn,
+                OpCode::Return => {
+                    is.push(Pop(Rax));
+                    is.push(Ret);
+                }
+                OpCode::Drop => {
+                    is.push(Pop(Rax));
+                }
+            }
+        }
+
+        // If we got here, the function is simple enough
+        // to be jitted by pure assembly.
+        instrs.extend(is);
+        cpi_to_int_fn.insert(cpi, label_fn);
+    }
+    if state.debug.contains(" int_fns ") {
+        eprintln!("cpi_to_int_fn = {:?}", cpi_to_int_fn);
+    }
+
+    // For each function, compile it into assembly opcode by opcode.
+    // Call into the interpreter for most opcodes to do the real work.
     for &(cpi, method) in &methods {
         // Use the index of the method itself because it's unique,
         // not of its name because those get reused.

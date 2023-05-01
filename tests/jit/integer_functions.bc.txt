@@ -1,0 +1,202 @@
+Constant Pool:
+0: "λ:"
+1: "\n"
+2: "println"
+3: method #2 args:0 locals:0 0000-0001
+4: "id"
+5: method #4 args:1 locals:0 0002-0003
+6: "~\n"
+7: 42
+8: 4
+9: "four"
+10: method #9 args:0 locals:0 0004-0005
+11: "*"
+12: "sum_squares1"
+13: method #12 args:1 locals:0 0006-0009
+14: "+"
+15: "sum_squares2"
+16: method #15 args:2 locals:0 0010-0017
+17: "sum_squares3"
+18: method #17 args:3 locals:0 0018-0029
+19: "sum_squares4"
+20: method #19 args:4 locals:0 0030-0045
+21: 5
+22: 6
+23: 7
+24: 8
+25: 11
+26: 12
+27: 13
+28: 14
+29: 15
+30: 16
+31: 17
+32: 18
+33: 19
+34: "take_9_args"
+35: method #34 args:9 locals:0 0046-0081
+36: 1
+37: 2
+38: 3
+39: 9
+40: method #0 args:0 locals:0 0082-0137
+Globals:
+0: #3
+1: #5
+2: #10
+3: #13
+4: #16
+5: #18
+6: #20
+7: #35
+Entry: #40
+Code:
+0: printf #1 0
+1: return
+2: get local ::0
+3: return
+4: lit #8
+5: return
+6: get local ::0
+7: get local ::0
+8: call slot #11 2
+9: return
+10: get local ::0
+11: get local ::0
+12: call slot #11 2
+13: get local ::1
+14: get local ::1
+15: call slot #11 2
+16: call slot #14 2
+17: return
+18: get local ::0
+19: get local ::0
+20: call slot #11 2
+21: get local ::1
+22: get local ::1
+23: call slot #11 2
+24: call slot #14 2
+25: get local ::2
+26: get local ::2
+27: call slot #11 2
+28: call slot #14 2
+29: return
+30: get local ::0
+31: get local ::0
+32: call slot #11 2
+33: get local ::1
+34: get local ::1
+35: call slot #11 2
+36: call slot #14 2
+37: get local ::2
+38: get local ::2
+39: call slot #11 2
+40: call slot #14 2
+41: get local ::3
+42: get local ::3
+43: call slot #11 2
+44: call slot #14 2
+45: return
+46: get local ::0
+47: lit #25
+48: call slot #11 2
+49: get local ::1
+50: lit #26
+51: call slot #11 2
+52: call slot #14 2
+53: get local ::2
+54: lit #27
+55: call slot #11 2
+56: call slot #14 2
+57: get local ::3
+58: lit #28
+59: call slot #11 2
+60: call slot #14 2
+61: get local ::4
+62: lit #29
+63: call slot #11 2
+64: call slot #14 2
+65: get local ::5
+66: lit #30
+67: call slot #11 2
+68: call slot #14 2
+69: get local ::6
+70: lit #31
+71: call slot #11 2
+72: call slot #14 2
+73: get local ::7
+74: lit #32
+75: call slot #11 2
+76: call slot #14 2
+77: get local ::8
+78: lit #33
+79: call slot #11 2
+80: call slot #14 2
+81: return
+82: lit #7
+83: call #4 1
+84: printf #6 1
+85: drop
+86: call #9 0
+87: printf #6 1
+88: drop
+89: call #2 0
+90: drop
+91: lit #21
+92: call #12 1
+93: printf #6 1
+94: drop
+95: lit #21
+96: lit #22
+97: call #15 2
+98: printf #6 1
+99: drop
+100: lit #21
+101: lit #22
+102: lit #23
+103: call #17 3
+104: printf #6 1
+105: drop
+106: lit #21
+107: lit #22
+108: lit #23
+109: lit #24
+110: call #19 4
+111: printf #6 1
+112: drop
+113: call #2 0
+114: drop
+115: lit #36
+116: lit #37
+117: lit #38
+118: lit #8
+119: lit #21
+120: lit #22
+121: lit #23
+122: lit #24
+123: lit #39
+124: call #34 9
+125: printf #6 1
+126: drop
+127: lit #39
+128: lit #24
+129: lit #23
+130: lit #22
+131: lit #21
+132: lit #8
+133: lit #38
+134: lit #37
+135: lit #36
+136: call #34 9
+137: printf #6 1
+
+// > 42
+// > 4
+// > 
+// > 25
+// > 61
+// > 110
+// > 174
+// > 
+// > 735
+// > 615

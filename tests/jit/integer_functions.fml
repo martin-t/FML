@@ -1,25 +1,25 @@
+function println() -> print("\n");
+
+function id(x) -> x;
+print("~\n", id(42));
+
+function four() -> 4;
+print("~\n", four());
+
+println();
+
 function sum_squares1(x) -> x * x;
 function sum_squares2(x, y) -> x * x + y * y;
 function sum_squares3(x, y, z) -> x * x + y * y + z * z;
 function sum_squares4(x, y, z, w) -> x * x + y * y + z * z + w * w;
-
-function println() -> print("\n");
-
-function take_9_args(a1, a2, a3, a4, a5, a6, a7, a8, a9) ->
-    a1 * 11 + a2 * 12 + a3 * 13 + a4 * 14 + a5 * 15 + a6 * 16 + a7 * 17 + a8 * 18 + a9 * 19;
-
 print("~\n", sum_squares1(5));
 print("~\n", sum_squares2(5, 6));
 print("~\n", sum_squares3(5, 6, 7));
 print("~\n", sum_squares4(5, 6, 7, 8));
+
 println();
+
+function take_9_args(a1, a2, a3, a4, a5, a6, a7, a8, a9) ->
+    a1 * 11 + a2 * 12 + a3 * 13 + a4 * 14 + a5 * 15 + a6 * 16 + a7 * 17 + a8 * 18 + a9 * 19;
 print("~\n", take_9_args(1, 2, 3, 4, 5, 6, 7, 8, 9));
 print("~\n", take_9_args(9, 8, 7, 6, 5, 4, 3, 2, 1));
-
-// > 25
-// > 61
-// > 110
-// > 174
-// > 
-// > 735
-// > 615
