@@ -14,7 +14,7 @@ pub struct JitMemory {
     size: usize,
 }
 
-const PAGE_SIZE: usize = 4096;
+const PAGE_SIZE: usize = 4096; // LATER(martin-t) Use getpagesize
 const INT3: c_int = 0xCC;
 
 impl JitMemory {
