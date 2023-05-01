@@ -640,8 +640,8 @@ impl AddressRange {
         }
     }
 
-    pub fn start(&self) -> &Address {
-        &self.start
+    pub fn start(&self) -> Address {
+        self.start
     }
 
     pub fn length(&self) -> usize {

@@ -136,7 +136,7 @@ macro_rules! jit_fn {
 /// Jumps, function calls and returns call into the interpreter
 /// and then also perform a jump/call/return in assembly.
 /// This means the interpreter's instruction pointer is no longer necessary
-/// which can provide an additional speedup.
+/// which can provide an additional speedup (another ~10%).
 pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
@@ -212,8 +212,6 @@ where
             // ^ Don't forget to update epilogue when changing this.
         }
 
-        // TODO keep program and state in non-volatile registers?
-
         let begin = method.code.start().value_usize();
         let end = begin + method.code.length();
         for i in begin..end {
@@ -237,16 +235,14 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::GetLocal { index } => {
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
-                    instrs.push(MovRI(Rdx, index.value().into()));
+                    instrs.push(MovRR(Rdi, R13));
+                    instrs.push(MovRI(Rsi, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_get_local)));
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::SetLocal { index } => {
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
-                    instrs.push(MovRI(Rdx, index.value().into()));
+                    instrs.push(MovRR(Rdi, R13));
+                    instrs.push(MovRI(Rsi, index.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_set_local)));
                     instrs.push(CallAbsR(Rax));
                 }
@@ -272,8 +268,7 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Array => {
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
+                    instrs.push(MovRR(Rdi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_array)));
                     instrs.push(CallAbsR(Rax));
                 }
@@ -333,7 +328,11 @@ where
                     instrs.push(CallAbsR(Rax));
                 }
                 OpCode::Label { name } => {
-                    // The order of instructions here is important sometimes.
+                    // If we wanted state.instruction_pointer
+                    // to always match what the interpreter would do,
+                    // we'd call jit_label here after the label instruction.
+                    //
+                    // The order of instructions would be important.
                     // The asm label should be before calling jit_label,
                     // to match behavior of the bytecode interpreter.
                     //
@@ -345,19 +344,10 @@ where
                     // in the eval_* functions.
                     //
                     // Currently this provides only a small speedup
-                    // (less than 5%), probably because the interpreter
+                    // probably because the interpreter
                     // does a lot of other slow things.
 
-                    if !state.debug.contains(" label_end ") {
-                        instrs.push(Label(name.value().into()));
-                    }
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
-                    instrs.push(MovRI(Rax, fn_to_addr!(jit_label)));
-                    instrs.push(CallAbsR(Rax));
-                    if state.debug.contains(" label_end ") {
-                        instrs.push(Label(name.value().into()));
-                    }
+                    instrs.push(Label(name.value().into()));
                 }
                 OpCode::Print { format, arity } => {
                     instrs.push(MovRR(Rdi, R12));
@@ -370,8 +360,7 @@ where
                 }
                 OpCode::Jump { label } => {
                     instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
-                    instrs.push(MovRI(Rdx, label.value().into()));
+                    instrs.push(MovRI(Rsi, label.value().into()));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_jump)));
                     instrs.push(CallAbsR(Rax));
                     instrs.push(JmpLabel(label.value().into()));
@@ -386,8 +375,7 @@ where
                     instrs.push(JeLabel(label.value().into()));
                 }
                 OpCode::Return => {
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
+                    instrs.push(MovRR(Rdi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_return)));
                     instrs.push(CallAbsR(Rax));
 
@@ -396,8 +384,7 @@ where
                     instrs.push(Ret);
                 }
                 OpCode::Drop => {
-                    instrs.push(MovRR(Rdi, R12));
-                    instrs.push(MovRR(Rsi, R13));
+                    instrs.push(MovRR(Rdi, R13));
                     instrs.push(MovRI(Rax, fn_to_addr!(jit_drop)));
                     instrs.push(CallAbsR(Rax));
                 }
@@ -504,12 +491,12 @@ extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_ind
     eval_literal(program, state, literal_index).unwrap();
 }
 
-extern "sysv64" fn jit_get_local(program: &Program, state: &mut State, local_index: LocalIndex) {
-    eval_get_local(program, state, local_index).unwrap();
+extern "sysv64" fn jit_get_local(state: &mut State, local_index: LocalIndex) {
+    eval_get_local(state, local_index).unwrap();
 }
 
-extern "sysv64" fn jit_set_local(program: &Program, state: &mut State, local_index: LocalIndex) {
-    eval_set_local(program, state, local_index).unwrap();
+extern "sysv64" fn jit_set_local(state: &mut State, local_index: LocalIndex) {
+    eval_set_local(state, local_index).unwrap();
 }
 
 extern "sysv64" fn jit_get_global(program: &Program, state: &mut State, global_index: ConstantPoolIndex) {
@@ -524,8 +511,8 @@ extern "sysv64" fn jit_object(program: &Program, state: &mut State, class_index:
     eval_object(program, state, class_index).unwrap();
 }
 
-extern "sysv64" fn jit_array(program: &Program, state: &mut State) {
-    eval_array(program, state).unwrap();
+extern "sysv64" fn jit_array(state: &mut State) {
+    eval_array(state).unwrap();
 }
 
 extern "sysv64" fn jit_get_field(program: &Program, state: &mut State, name_index: ConstantPoolIndex) {
@@ -543,7 +530,10 @@ extern "sysv64" fn jit_call_method(
     arity: Arity,
     cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
-    let method_index = eval_call_method(program, state, name_index, arity).unwrap();
+    // LATER(martin-t) Replace cpi_to_fn with address_to_addr
+    //  (or better name) which converts opcode address to asm addr
+    //  so that eval_* functions don't have to return a tuple.
+    let (method_index, _) = eval_call_method(program, state, name_index, arity).unwrap();
     if let Some(method_index) = method_index {
         let f = cpi_to_fn[&method_index.as_usize()];
         let addr = fn_to_addr!(f);
@@ -564,7 +554,7 @@ extern "sysv64" fn jit_call_function(
     arity: Arity,
     cpi_to_fn: &FnvHashMap<usize, fn()>,
 ) -> i64 {
-    let method_index = eval_call_function(program, state, name_index, arity).unwrap();
+    let (method_index, _) = eval_call_function(program, state, name_index, arity).unwrap();
     let f = cpi_to_fn[&method_index.as_usize()];
     let addr = fn_to_addr!(f);
     if state.debug.contains(" offsets ") {
@@ -585,12 +575,8 @@ extern "sysv64" fn jit_print<W>(
     eval_print(program, state, output, format, arity).unwrap();
 }
 
-extern "sysv64" fn jit_label(program: &Program, state: &mut State) {
-    eval_label(program, state).unwrap();
-}
-
-extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: ConstantPoolIndex) {
-    eval_jump(program, state, label_index).unwrap();
+extern "sysv64" fn jit_jump(program: &Program, label_index: ConstantPoolIndex) {
+    eval_jump(program, label_index).unwrap();
 }
 
 /// This has to return an i32 so we can read it through EAX.
@@ -599,13 +585,13 @@ extern "sysv64" fn jit_jump(program: &Program, state: &mut State, label_index: C
 ///
 /// Our limited assembler doesn't support reading AL, only EAX.
 extern "sysv64" fn jit_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> i32 {
-    eval_branch(program, state, label_index).unwrap().into()
+    eval_branch(program, state, label_index).unwrap().is_some().into()
 }
 
-extern "sysv64" fn jit_return(program: &Program, state: &mut State) {
-    eval_return(program, state).unwrap();
+extern "sysv64" fn jit_return(state: &mut State) {
+    eval_return(state).unwrap();
 }
 
-extern "sysv64" fn jit_drop(program: &Program, state: &mut State) {
-    eval_drop(program, state).unwrap();
+extern "sysv64" fn jit_drop(state: &mut State) {
+    eval_drop(state).unwrap();
 }

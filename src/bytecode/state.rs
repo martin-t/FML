@@ -36,6 +36,8 @@ pub struct GlobalFunctions(FnvHashMap<String, ConstantPoolIndex>);
 
 #[derive(Eq, PartialEq, Debug, Default)]
 pub struct Frame {
+    // LATER(martin-t) Remove Option here, all frames should have a return address.
+    //  Only entry doesn't have a return.
     pub return_address: Option<Address>,
     locals: Vec<Pointer>,
 }
@@ -58,7 +60,7 @@ impl State {
             .as_method()?;
 
         let instruction_pointer = if entry_method.code.length() > 0 {
-            InstructionPointer::from(*entry_method.code.start())
+            InstructionPointer::from(entry_method.code.start())
         } else {
             InstructionPointer::new()
         };

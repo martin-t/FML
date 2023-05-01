@@ -94,27 +94,92 @@ pub fn eval_opcode<W>(program: &Program, state: &mut State, output: &mut W, opco
 where
     W: Write,
 {
-    let res = match opcode {
-        OpCode::Literal { index } => eval_literal(program, state, index),
-        OpCode::GetLocal { index } => eval_get_local(program, state, index),
-        OpCode::SetLocal { index } => eval_set_local(program, state, index),
-        OpCode::GetGlobal { name } => eval_get_global(program, state, name),
-        OpCode::SetGlobal { name } => eval_set_global(program, state, name),
-        OpCode::Object { class } => eval_object(program, state, class),
-        OpCode::Array => eval_array(program, state),
-        OpCode::GetField { name } => eval_get_field(program, state, name),
-        OpCode::SetField { name } => eval_set_field(program, state, name),
-        OpCode::CallMethod { name, arity } => eval_call_method(program, state, name, arity).map(drop),
-        OpCode::CallFunction { name, arity } => eval_call_function(program, state, name, arity).map(drop),
-        OpCode::Label { .. } => eval_label(program, state),
-        OpCode::Print { format, arity } => eval_print(program, state, output, format, arity),
-        OpCode::Jump { label } => eval_jump(program, state, label),
-        OpCode::Branch { label } => eval_branch(program, state, label).map(drop),
-        OpCode::Return => eval_return(program, state),
-        OpCode::Drop => eval_drop(program, state),
+    eval_opcode_inner(program, state, output, opcode).with_context(|| format!("Error evaluating {opcode}:"))
+}
+
+pub fn eval_opcode_inner<W>(program: &Program, state: &mut State, output: &mut W, opcode: OpCode) -> Result<()>
+where
+    W: Write,
+{
+    match opcode {
+        OpCode::Literal { index } => {
+            eval_literal(program, state, index)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::GetLocal { index } => {
+            eval_get_local(state, index)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::SetLocal { index } => {
+            eval_set_local(state, index)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::GetGlobal { name } => {
+            eval_get_global(program, state, name)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::SetGlobal { name } => {
+            eval_set_global(program, state, name)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::Object { class } => {
+            eval_object(program, state, class)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::Array => {
+            eval_array(state)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::GetField { name } => {
+            eval_get_field(program, state, name)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::SetField { name } => {
+            eval_set_field(program, state, name)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::CallMethod { name, arity } => {
+            let (_, address) = eval_call_method(program, state, name, arity)?;
+            if let Some(address) = address {
+                state.instruction_pointer.set(Some(address));
+            } else {
+                state.instruction_pointer.bump(program);
+            }
+        }
+        OpCode::CallFunction { name, arity } => {
+            let (_, address) = eval_call_function(program, state, name, arity)?;
+            state.instruction_pointer.set(Some(address));
+        }
+        OpCode::Label { .. } => {
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::Print { format, arity } => {
+            eval_print(program, state, output, format, arity)?;
+            state.instruction_pointer.bump(program);
+        }
+        OpCode::Jump { label } => {
+            let address = eval_jump(program, label)?;
+            state.instruction_pointer.set(Some(address));
+        }
+        OpCode::Branch { label } => {
+            let dest = eval_branch(program, state, label)?;
+            if let Some(address) = dest {
+                state.instruction_pointer.set(Some(address));
+            } else {
+                state.instruction_pointer.bump(program);
+            }
+        }
+        OpCode::Return => {
+            let ip = eval_return(state)?;
+            state.instruction_pointer.set(ip);
+        }
+        OpCode::Drop => {
+            eval_drop(state)?;
+            state.instruction_pointer.bump(program);
+        }
     };
 
-    res.with_context(|| format!("Error evaluating {opcode}:"))
+    Ok(())
 }
 
 #[allow(dead_code)]
@@ -132,25 +197,25 @@ pub fn eval_literal(program: &Program, state: &mut State, literal_index: Constan
     let literal_object = program.constant_pool.get(literal_index)?;
     let value = Pointer::from_literal(literal_object)?;
     state.operand_stack.push(value);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_get_local(program: &Program, state: &mut State, local_index: LocalIndex) -> Result<()> {
+pub fn eval_get_local(state: &mut State, local_index: LocalIndex) -> Result<()> {
     let frame = state.frame_stack.get_locals()?;
     let value = *frame.get(local_index)?;
     state.operand_stack.push(value);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_set_local(program: &Program, state: &mut State, local_index: LocalIndex) -> Result<()> {
+pub fn eval_set_local(state: &mut State, local_index: LocalIndex) -> Result<()> {
     let new_value = *state.operand_stack.peek()?;
     let frame = state.frame_stack.get_locals_mut()?;
     frame.set(local_index, new_value)?;
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -160,7 +225,7 @@ pub fn eval_get_global(program: &Program, state: &mut State, global_index: Const
     let global_name = global_name.as_str()?;
     let global = *state.frame_stack.globals.get(global_name)?;
     state.operand_stack.push(global);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -170,7 +235,7 @@ pub fn eval_set_global(program: &Program, state: &mut State, global_index: Const
     let global_name = global_object.as_str()?.to_owned();
     let new_value = *state.operand_stack.peek()?;
     state.frame_stack.globals.update(global_name, new_value)?;
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -227,12 +292,12 @@ pub fn eval_object(program: &Program, state: &mut State, class_index: ConstantPo
         .heap
         .allocate(&mut state.frame_stack, &mut state.operand_stack, object);
     state.operand_stack.push(Pointer::from(heap_index));
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
+pub fn eval_array(state: &mut State) -> Result<()> {
     let initializer = state.operand_stack.pop()?;
     let size = state.operand_stack.pop()?;
 
@@ -250,7 +315,7 @@ pub fn eval_array(program: &Program, state: &mut State) -> Result<()> {
         .heap
         .allocate(&mut state.frame_stack, &mut state.operand_stack, array);
     state.operand_stack.push(Pointer::from(heap_index));
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -266,7 +331,7 @@ pub fn eval_get_field(program: &Program, state: &mut State, name_index: Constant
 
     let value = object_instance.get_field(field_name)?;
     state.operand_stack.push(*value);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -284,7 +349,7 @@ pub fn eval_set_field(program: &Program, state: &mut State, name_index: Constant
 
     object_instance.set_field(field_name, new_value)?;
     state.operand_stack.push(new_value);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
@@ -294,7 +359,7 @@ pub fn eval_call_method(
     state: &mut State,
     name_index: ConstantPoolIndex,
     arity: Arity,
-) -> Result<Option<ConstantPoolIndex>> {
+) -> Result<(Option<ConstantPoolIndex>, Option<Address>)> {
     ensure!(
         arity.to_usize() > 0,
         "All method calls require at least 1 parameter (receiver)"
@@ -315,28 +380,24 @@ fn dispatch_method(
     receiver: Pointer,
     method_name: &str,
     arguments: Vec<Pointer>,
-) -> Result<Option<ConstantPoolIndex>> {
+) -> Result<(Option<ConstantPoolIndex>, Option<Address>)> {
     match receiver {
         Pointer::Null => {
             dispatch_null_method(method_name, arguments)?.push_onto(&mut state.operand_stack);
-            state.instruction_pointer.bump(program);
-            Ok(None)
+            Ok((None, None))
         }
         Pointer::Integer(i) => {
             dispatch_integer_method(&i, method_name, arguments)?.push_onto(&mut state.operand_stack);
-            state.instruction_pointer.bump(program);
-            Ok(None)
+            Ok((None, None))
         }
         Pointer::Boolean(b) => {
             dispatch_boolean_method(&b, method_name, arguments)?.push_onto(&mut state.operand_stack);
-            state.instruction_pointer.bump(program);
-            Ok(None)
+            Ok((None, None))
         }
         Pointer::Reference(index) => match state.heap.dereference_mut(&index)? {
             HeapObject::Array(array) => {
                 dispatch_array_method(array, method_name, arguments)?.push_onto(&mut state.operand_stack);
-                state.instruction_pointer.bump(program);
-                Ok(None)
+                Ok((None, None))
             }
             HeapObject::Object(_) => dispatch_object_method(program, state, receiver, method_name, arguments),
         },
@@ -527,7 +588,7 @@ fn dispatch_object_method(
     receiver: Pointer,
     method_name: &str,
     arguments: Vec<Pointer>,
-) -> Result<Option<ConstantPoolIndex>> {
+) -> Result<(Option<ConstantPoolIndex>, Option<Address>)> {
     let heap_reference = receiver.into_heap_reference()?; // Should never fail.
     let heap_object = state.heap.dereference_mut(&heap_reference)?; // Should never fail.
     let object_instance = heap_object.as_object_instance_mut()?; // Should never fail.
@@ -538,8 +599,8 @@ fn dispatch_object_method(
     match method_option {
         Some(&method_index) => {
             let method = program.constant_pool.get(method_index)?.as_method()?;
-            eval_call_object_method(program, state, method, method_name, receiver, arguments)?;
-            Ok(Some(method_index))
+            let address = eval_call_object_method(program, state, method, method_name, receiver, arguments)?;
+            Ok((Some(method_index), address))
         }
         None if object_instance.parent.is_null() => {
             // LATER(martin-t) Would be nice to print arguments as well
@@ -560,7 +621,7 @@ fn eval_call_object_method(
     method_name: &str,
     receiver: Pointer,
     arguments: Vec<Pointer>,
-) -> Result<()> {
+) -> Result<Option<Address>> {
     ensure!(
         arguments.len() == method.arity.to_usize() - 1,
         "Method `{}` requires {} arguments, but {} were supplied",
@@ -577,8 +638,8 @@ fn eval_call_object_method(
         veccat!(vec![receiver], arguments, local_pointers),
     );
     state.frame_stack.push(frame);
-    state.instruction_pointer.set(Some(*method.code.start()));
-    Ok(())
+    let address = Some(method.code.start());
+    Ok(address)
 }
 
 #[inline(always)]
@@ -587,7 +648,7 @@ pub fn eval_call_function(
     state: &mut State,
     name_index: ConstantPoolIndex,
     arity: Arity,
-) -> Result<ConstantPoolIndex> {
+) -> Result<(ConstantPoolIndex, Address)> {
     let name_object = program.constant_pool.get(name_index)?;
     let function_name = name_object.as_str()?;
     let function_index = state.frame_stack.functions.get(function_name)?;
@@ -607,9 +668,10 @@ pub fn eval_call_function(
     state.instruction_pointer.bump(program);
     let frame = Frame::from(state.instruction_pointer.get(), veccat!(arguments, local_pointers));
     state.frame_stack.push(frame);
-    state.instruction_pointer.set(Some(*function.code.start()));
+    let address = function.code.start();
+    // state.instruction_pointer.set(Some(*function.code.start()));
 
-    Ok(function_index)
+    Ok((function_index, address))
 }
 
 #[inline(always)]
@@ -678,50 +740,48 @@ where
     );
 
     state.operand_stack.push(Pointer::Null);
-    state.instruction_pointer.bump(program);
+
     Ok(())
 }
 
 #[inline(always)]
-pub fn eval_label(program: &Program, state: &mut State) -> Result<()> {
-    state.instruction_pointer.bump(program);
-    Ok(())
-}
-
-#[inline(always)]
-pub fn eval_jump(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> Result<()> {
+pub fn eval_jump(program: &Program, label_index: ConstantPoolIndex) -> Result<Address> {
     let label_object = program.constant_pool.get(label_index)?;
     let label_name = label_object.as_str()?;
     let address = *program.labels.get(label_name)?;
-    state.instruction_pointer.set(Some(address));
-    Ok(())
+    Ok(address)
 }
 
+/// Return Some(address) if the condition is truthy, None otherwise.
+/// The address is the address of the label to jump to.
+/// If the condition is falsy, just bump the instruction pointer.
 #[inline(always)]
-pub fn eval_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> Result<bool> {
+pub fn eval_branch(program: &Program, state: &mut State, label_index: ConstantPoolIndex) -> Result<Option<Address>> {
     let label_object = program.constant_pool.get(label_index)?;
     let label_name = label_object.as_str()?;
     let value = state.operand_stack.pop()?;
     let truthy = value.evaluate_as_condition();
     if !truthy {
-        state.instruction_pointer.bump(program);
+        Ok(None)
     } else {
         let address = *program.labels.get(label_name)?;
-        state.instruction_pointer.set(Some(address));
+        Ok(Some(address))
     }
-    Ok(truthy)
 }
 
+/// Returns the instruction pointer to return to.
+///
+/// Although this is the same return type as eval_branch,
+/// the meaning is different.
+/// Always set the instruction pointer to the returned address.
 #[inline(always)]
-pub fn eval_return(_program: &Program, state: &mut State) -> Result<()> {
+pub fn eval_return(state: &mut State) -> Result<Option<Address>> {
     let frame = state.frame_stack.pop()?;
-    state.instruction_pointer.set(frame.return_address);
-    Ok(())
+    Ok(frame.return_address)
 }
 
 #[inline(always)]
-pub fn eval_drop(program: &Program, state: &mut State) -> Result<()> {
+pub fn eval_drop(state: &mut State) -> Result<()> {
     state.operand_stack.pop()?;
-    state.instruction_pointer.bump(program);
     Ok(())
 }
