@@ -64,32 +64,39 @@ Constant Pool:
 62: 6
 63: 5
 64: 3
-65: "*"
-66: "sum_squares1"
-67: method #66 args:1 locals:0 0108-0111
-68: "+"
-69: "sum_squares2"
-70: method #69 args:2 locals:0 0112-0119
-71: "sum_squares3"
-72: method #71 args:3 locals:0 0120-0131
-73: "sum_squares4"
-74: method #73 args:4 locals:0 0132-0147
-75: 8
-76: 11
-77: 12
-78: 13
-79: 14
-80: 15
-81: 16
-82: 17
-83: 18
-84: 19
-85: "take_9_args"
-86: method #85 args:9 locals:0 0148-0183
-87: 1
-88: 2
-89: 9
-90: method #0 args:0 locals:0 0184-0400
+65: "%"
+66: "rem2"
+67: method #66 args:2 locals:0 0108-0111
+68: "rem3"
+69: method #68 args:3 locals:0 0112-0117
+70: 26
+71: 10
+72: "*"
+73: "sum_squares1"
+74: method #73 args:1 locals:0 0118-0121
+75: "+"
+76: "sum_squares2"
+77: method #76 args:2 locals:0 0122-0129
+78: "sum_squares3"
+79: method #78 args:3 locals:0 0130-0141
+80: "sum_squares4"
+81: method #80 args:4 locals:0 0142-0157
+82: 8
+83: 11
+84: 12
+85: 13
+86: 14
+87: 15
+88: 16
+89: 17
+90: 18
+91: 19
+92: "take_9_args"
+93: method #92 args:9 locals:0 0158-0193
+94: 1
+95: 2
+96: 9
+97: method #0 args:0 locals:0 0194-0421
 Globals:
 0: #3
 1: #5
@@ -116,11 +123,13 @@ Globals:
 22: #57
 23: #59
 24: #67
-25: #70
-26: #72
-27: #74
-28: #86
-Entry: #90
+25: #69
+26: #74
+27: #77
+28: #79
+29: #81
+30: #93
+Entry: #97
 Code:
 0: printf #1 0
 1: return
@@ -231,298 +240,319 @@ Code:
 106: call slot #49 2
 107: return
 108: get local ::0
-109: get local ::0
+109: get local ::1
 110: call slot #65 2
 111: return
 112: get local ::0
-113: get local ::0
+113: get local ::1
 114: call slot #65 2
-115: get local ::1
-116: get local ::1
-117: call slot #65 2
-118: call slot #68 2
-119: return
-120: get local ::0
-121: get local ::0
-122: call slot #65 2
-123: get local ::1
-124: get local ::1
-125: call slot #65 2
-126: call slot #68 2
-127: get local ::2
-128: get local ::2
-129: call slot #65 2
-130: call slot #68 2
-131: return
-132: get local ::0
-133: get local ::0
-134: call slot #65 2
-135: get local ::1
-136: get local ::1
-137: call slot #65 2
-138: call slot #68 2
-139: get local ::2
-140: get local ::2
-141: call slot #65 2
-142: call slot #68 2
-143: get local ::3
-144: get local ::3
-145: call slot #65 2
-146: call slot #68 2
-147: return
-148: get local ::0
-149: lit #76
-150: call slot #65 2
-151: get local ::1
-152: lit #77
-153: call slot #65 2
-154: call slot #68 2
-155: get local ::2
-156: lit #78
-157: call slot #65 2
-158: call slot #68 2
-159: get local ::3
-160: lit #79
-161: call slot #65 2
-162: call slot #68 2
-163: get local ::4
-164: lit #80
-165: call slot #65 2
-166: call slot #68 2
-167: get local ::5
-168: lit #81
-169: call slot #65 2
-170: call slot #68 2
-171: get local ::6
-172: lit #82
-173: call slot #65 2
-174: call slot #68 2
-175: get local ::7
-176: lit #83
-177: call slot #65 2
-178: call slot #68 2
-179: get local ::8
-180: lit #84
-181: call slot #65 2
-182: call slot #68 2
-183: return
-184: lit #17
-185: call #4 1
-186: printf #16 1
-187: drop
-188: lit #17
-189: lit #18
-190: call #6 2
-191: printf #16 1
-192: drop
-193: lit #17
-194: lit #18
-195: lit #19
-196: call #8 3
-197: printf #16 1
-198: drop
-199: lit #17
-200: lit #18
-201: lit #19
-202: lit #20
-203: call #10 4
-204: printf #16 1
-205: drop
-206: lit #17
-207: lit #18
-208: lit #19
-209: lit #20
-210: lit #21
-211: call #12 5
-212: printf #16 1
-213: drop
-214: lit #17
-215: lit #18
-216: lit #19
-217: lit #20
-218: lit #21
-219: lit #22
-220: call #14 6
-221: printf #16 1
-222: drop
-223: lit #17
-224: lit #18
-225: lit #19
-226: lit #20
-227: lit #21
-228: lit #22
-229: call #23 6
-230: printf #16 1
-231: drop
-232: lit #17
-233: lit #18
-234: lit #19
-235: lit #20
-236: lit #21
-237: lit #22
-238: call #25 6
-239: printf #16 1
-240: drop
-241: lit #17
-242: lit #18
-243: lit #19
-244: lit #20
-245: lit #21
-246: lit #22
-247: call #27 6
-248: printf #16 1
-249: drop
-250: lit #17
-251: lit #18
-252: lit #19
-253: lit #20
-254: lit #21
-255: lit #22
-256: call #29 6
-257: printf #16 1
-258: drop
-259: lit #17
-260: lit #18
-261: lit #19
-262: lit #20
-263: lit #21
-264: lit #22
-265: call #31 6
-266: printf #16 1
-267: drop
-268: lit #17
-269: lit #18
-270: lit #19
-271: lit #20
-272: lit #21
-273: lit #22
-274: call #33 6
-275: printf #16 1
-276: drop
-277: call #36 0
-278: printf #16 1
-279: drop
-280: call #2 0
-281: drop
-282: lit #17
-283: lit #18
-284: call #39 2
+115: get local ::2
+116: call slot #65 2
+117: return
+118: get local ::0
+119: get local ::0
+120: call slot #72 2
+121: return
+122: get local ::0
+123: get local ::0
+124: call slot #72 2
+125: get local ::1
+126: get local ::1
+127: call slot #72 2
+128: call slot #75 2
+129: return
+130: get local ::0
+131: get local ::0
+132: call slot #72 2
+133: get local ::1
+134: get local ::1
+135: call slot #72 2
+136: call slot #75 2
+137: get local ::2
+138: get local ::2
+139: call slot #72 2
+140: call slot #75 2
+141: return
+142: get local ::0
+143: get local ::0
+144: call slot #72 2
+145: get local ::1
+146: get local ::1
+147: call slot #72 2
+148: call slot #75 2
+149: get local ::2
+150: get local ::2
+151: call slot #72 2
+152: call slot #75 2
+153: get local ::3
+154: get local ::3
+155: call slot #72 2
+156: call slot #75 2
+157: return
+158: get local ::0
+159: lit #83
+160: call slot #72 2
+161: get local ::1
+162: lit #84
+163: call slot #72 2
+164: call slot #75 2
+165: get local ::2
+166: lit #85
+167: call slot #72 2
+168: call slot #75 2
+169: get local ::3
+170: lit #86
+171: call slot #72 2
+172: call slot #75 2
+173: get local ::4
+174: lit #87
+175: call slot #72 2
+176: call slot #75 2
+177: get local ::5
+178: lit #88
+179: call slot #72 2
+180: call slot #75 2
+181: get local ::6
+182: lit #89
+183: call slot #72 2
+184: call slot #75 2
+185: get local ::7
+186: lit #90
+187: call slot #72 2
+188: call slot #75 2
+189: get local ::8
+190: lit #91
+191: call slot #72 2
+192: call slot #75 2
+193: return
+194: lit #17
+195: call #4 1
+196: printf #16 1
+197: drop
+198: lit #17
+199: lit #18
+200: call #6 2
+201: printf #16 1
+202: drop
+203: lit #17
+204: lit #18
+205: lit #19
+206: call #8 3
+207: printf #16 1
+208: drop
+209: lit #17
+210: lit #18
+211: lit #19
+212: lit #20
+213: call #10 4
+214: printf #16 1
+215: drop
+216: lit #17
+217: lit #18
+218: lit #19
+219: lit #20
+220: lit #21
+221: call #12 5
+222: printf #16 1
+223: drop
+224: lit #17
+225: lit #18
+226: lit #19
+227: lit #20
+228: lit #21
+229: lit #22
+230: call #14 6
+231: printf #16 1
+232: drop
+233: lit #17
+234: lit #18
+235: lit #19
+236: lit #20
+237: lit #21
+238: lit #22
+239: call #23 6
+240: printf #16 1
+241: drop
+242: lit #17
+243: lit #18
+244: lit #19
+245: lit #20
+246: lit #21
+247: lit #22
+248: call #25 6
+249: printf #16 1
+250: drop
+251: lit #17
+252: lit #18
+253: lit #19
+254: lit #20
+255: lit #21
+256: lit #22
+257: call #27 6
+258: printf #16 1
+259: drop
+260: lit #17
+261: lit #18
+262: lit #19
+263: lit #20
+264: lit #21
+265: lit #22
+266: call #29 6
+267: printf #16 1
+268: drop
+269: lit #17
+270: lit #18
+271: lit #19
+272: lit #20
+273: lit #21
+274: lit #22
+275: call #31 6
+276: printf #16 1
+277: drop
+278: lit #17
+279: lit #18
+280: lit #19
+281: lit #20
+282: lit #21
+283: lit #22
+284: call #33 6
 285: printf #16 1
 286: drop
-287: lit #17
-288: lit #18
-289: lit #19
-290: call #41 3
-291: printf #16 1
-292: drop
-293: lit #17
-294: lit #18
-295: lit #19
-296: lit #20
-297: call #43 4
-298: printf #16 1
-299: drop
-300: lit #17
-301: lit #18
-302: lit #19
-303: lit #20
-304: lit #21
-305: call #45 5
-306: printf #16 1
-307: drop
-308: lit #17
-309: lit #18
-310: lit #19
-311: lit #20
-312: lit #21
-313: lit #22
-314: call #47 6
-315: printf #16 1
-316: drop
-317: lit #60
-318: lit #61
-319: call #50 2
-320: printf #16 1
-321: drop
-322: lit #60
-323: lit #61
-324: lit #62
-325: call #52 3
-326: printf #16 1
-327: drop
-328: lit #60
-329: lit #61
-330: lit #62
-331: lit #63
-332: call #54 4
-333: printf #16 1
-334: drop
-335: lit #60
-336: lit #61
-337: lit #62
-338: lit #63
-339: lit #35
-340: call #56 5
-341: printf #16 1
-342: drop
-343: lit #60
-344: lit #61
-345: lit #62
-346: lit #63
-347: lit #35
-348: lit #64
-349: call #58 6
-350: printf #16 1
-351: drop
-352: call #2 0
-353: drop
-354: lit #63
-355: call #66 1
-356: printf #16 1
-357: drop
-358: lit #63
-359: lit #62
-360: call #69 2
-361: printf #16 1
-362: drop
-363: lit #63
-364: lit #62
-365: lit #61
-366: call #71 3
+287: call #36 0
+288: printf #16 1
+289: drop
+290: call #2 0
+291: drop
+292: lit #17
+293: lit #18
+294: call #39 2
+295: printf #16 1
+296: drop
+297: lit #17
+298: lit #18
+299: lit #19
+300: call #41 3
+301: printf #16 1
+302: drop
+303: lit #17
+304: lit #18
+305: lit #19
+306: lit #20
+307: call #43 4
+308: printf #16 1
+309: drop
+310: lit #17
+311: lit #18
+312: lit #19
+313: lit #20
+314: lit #21
+315: call #45 5
+316: printf #16 1
+317: drop
+318: lit #17
+319: lit #18
+320: lit #19
+321: lit #20
+322: lit #21
+323: lit #22
+324: call #47 6
+325: printf #16 1
+326: drop
+327: lit #60
+328: lit #61
+329: call #50 2
+330: printf #16 1
+331: drop
+332: lit #60
+333: lit #61
+334: lit #62
+335: call #52 3
+336: printf #16 1
+337: drop
+338: lit #60
+339: lit #61
+340: lit #62
+341: lit #63
+342: call #54 4
+343: printf #16 1
+344: drop
+345: lit #60
+346: lit #61
+347: lit #62
+348: lit #63
+349: lit #35
+350: call #56 5
+351: printf #16 1
+352: drop
+353: lit #60
+354: lit #61
+355: lit #62
+356: lit #63
+357: lit #35
+358: lit #64
+359: call #58 6
+360: printf #16 1
+361: drop
+362: call #2 0
+363: drop
+364: lit #70
+365: lit #71
+366: call #66 2
 367: printf #16 1
 368: drop
-369: lit #63
-370: lit #62
-371: lit #61
-372: lit #75
-373: call #73 4
-374: printf #16 1
-375: drop
-376: call #2 0
-377: drop
-378: lit #87
-379: lit #88
-380: lit #64
-381: lit #35
-382: lit #63
-383: lit #62
-384: lit #61
-385: lit #75
-386: lit #89
-387: call #85 9
+369: lit #70
+370: lit #71
+371: lit #63
+372: call #68 3
+373: printf #16 1
+374: drop
+375: lit #63
+376: call #73 1
+377: printf #16 1
+378: drop
+379: lit #63
+380: lit #62
+381: call #76 2
+382: printf #16 1
+383: drop
+384: lit #63
+385: lit #62
+386: lit #61
+387: call #78 3
 388: printf #16 1
 389: drop
-390: lit #89
-391: lit #75
+390: lit #63
+391: lit #62
 392: lit #61
-393: lit #62
-394: lit #63
-395: lit #35
-396: lit #64
-397: lit #88
-398: lit #87
-399: call #85 9
-400: printf #16 1
+393: lit #82
+394: call #80 4
+395: printf #16 1
+396: drop
+397: call #2 0
+398: drop
+399: lit #94
+400: lit #95
+401: lit #64
+402: lit #35
+403: lit #63
+404: lit #62
+405: lit #61
+406: lit #82
+407: lit #96
+408: call #92 9
+409: printf #16 1
+410: drop
+411: lit #96
+412: lit #82
+413: lit #61
+414: lit #62
+415: lit #63
+416: lit #35
+417: lit #64
+418: lit #95
+419: lit #94
+420: call #92 9
+421: printf #16 1
 
 // > 42
 // > 43
@@ -549,6 +579,8 @@ Code:
 // > 6
 // > 2
 // > 
+// > 6
+// > 1
 // > 25
 // > 61
 // > 110

@@ -55,6 +55,11 @@ print("~\n", div6(5040, 7, 6, 5, 4, 3));
 
 println();
 
+function rem2(a1, a2) -> a1 % a2;
+function rem3(a1, a2, a3) -> a1 % a2 % a3;
+print("~\n", rem2(26, 10));
+print("~\n", rem3(26, 10, 5));
+
 function sum_squares1(x) -> x * x;
 function sum_squares2(x, y) -> x * x + y * y;
 function sum_squares3(x, y, z) -> x * x + y * y + z * z;
@@ -96,6 +101,8 @@ print("~\n", take_9_args(9, 8, 7, 6, 5, 4, 3, 2, 1));
 // > 6
 // > 2
 // > 
+// > 6
+// > 1
 // > 25
 // > 61
 // > 110

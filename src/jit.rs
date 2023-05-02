@@ -192,7 +192,7 @@ where
     //
     // Bail otherwisem, we'll use the interpreter as fallback.
     //
-    // LATER(martin-t) Tests should make sure the optimized verrsion is actually used.
+    // LATER(martin-t) Tests should make sure the optimized version is actually used.
     let mut cpi_to_label_opt = FnvHashMap::default();
     // LATER(martin-t) This should be a separate function but Rust supports
     // break/continue with labels and i have 52 hours to write 50 pages
