@@ -42,6 +42,19 @@ print("~\n", sub4(42, 43, 44, 45));
 print("~\n", sub5(42, 43, 44, 45, 46));
 print("~\n", sub6(42, 43, 44, 45, 46, 47));
 
+function div2(a1, a2) -> a1 / a2;
+function div3(a1, a2, a3) -> a1 / a2 / a3;
+function div4(a1, a2, a3, a4) -> a1 / a2 / a3 / a4;
+function div5(a1, a2, a3, a4, a5) -> a1 / a2 / a3 / a4 / a5;
+function div6(a1, a2, a3, a4, a5, a6) -> a1 / a2 / a3 / a4 / a5 / a6;
+print("~\n", div2(5040, 7));
+print("~\n", div3(5040, 7, 6));
+print("~\n", div4(5040, 7, 6, 5));
+print("~\n", div5(5040, 7, 6, 5, 4));
+print("~\n", div6(5040, 7, 6, 5, 4, 3));
+
+println();
+
 function sum_squares1(x) -> x * x;
 function sum_squares2(x, y) -> x * x + y * y;
 function sum_squares3(x, y, z) -> x * x + y * y + z * z;
@@ -77,6 +90,12 @@ print("~\n", take_9_args(9, 8, 7, 6, 5, 4, 3, 2, 1));
 // > -90
 // > -136
 // > -183
+// > 720
+// > 120
+// > 24
+// > 6
+// > 2
+// > 
 // > 25
 // > 61
 // > 110

@@ -280,6 +280,10 @@ where
                         "+" => is.push(AddRR(Rax, Rcx)),
                         "-" => is.push(SubRR(Rax, Rcx)),
                         "*" => is.push(ImulRR(Rax, Rcx)),
+                        "/" => {
+                            is.push(Cqo);
+                            is.push(IdivR(Rcx));
+                        }
                         _ => continue 'int_fn,
                     }
                     is.push(Push(Rax));
