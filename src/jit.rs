@@ -38,7 +38,7 @@ use crate::{
     bytecode::{heap::Pointer, interpreter::*, opcodes::OpCode, program::*, state::State},
     jit::{
         asm_encoding::compile,
-        asm_repr::{Instr, Reg},
+        asm_repr::{Instr, Mem, Reg},
         memory::JitMemory,
     },
 };
@@ -203,6 +203,39 @@ where
         let label_fn = jit_state.next_label();
         is.push(Label(label_fn));
 
+        // LATER(martin-t) Don't repeat push/pop, subtract/add rsp once, then just mov.
+        // LATER(martin-t) Use a register allocator instead of abusing the stack.
+        // LATER(martin-t) We're using 64 bit regs even though FML only has 32 bit ints.
+        // LATER(martin-t) In case we decide to impl calls, we need to align the stack.
+
+        // Functioin prologue.
+        is.push(Push(Rbp));
+        is.push(MovRR(Rbp, Rsp));
+
+        // Save arguments to the stack.
+        let arity = method.arity.value();
+        if arity >= 1 {
+            is.push(Push(Rdi));
+        }
+        if arity >= 2 {
+            is.push(Push(Rsi));
+        }
+        if arity >= 3 {
+            is.push(Push(Rdx));
+        }
+        if arity >= 4 {
+            is.push(Push(Rcx));
+        }
+        if arity >= 5 {
+            is.push(Push(R8));
+        }
+        if arity >= 6 {
+            is.push(Push(R9));
+        }
+        if arity >= 7 {
+            continue 'int_fn;
+        }
+
         let begin = method.code.start().value_usize();
         let end = begin + method.code.length();
         for i in begin..end {
@@ -220,15 +253,11 @@ where
                     if index.value() >= method.arity.value().into() {
                         continue 'int_fn;
                     }
-                    match index.value() {
-                        0 => is.push(Push(Rdi)),
-                        1 => is.push(Push(Rsi)),
-                        2 => is.push(Push(Rdx)),
-                        3 => is.push(Push(Rcx)),
-                        4 => is.push(Push(R8)),
-                        5 => is.push(Push(R9)),
-                        _ => continue 'int_fn,
-                    }
+
+                    let index: i32 = index.value().into();
+                    let offset = -(index + 1) * 8;
+                    is.push(MovRM(Rax, Mem::base_offset(Rbp, offset)));
+                    is.push(Push(Rax));
                 }
                 OpCode::SetLocal { index } => continue 'int_fn,
                 OpCode::GetGlobal { name } => continue 'int_fn,
@@ -240,17 +269,19 @@ where
                 OpCode::CallMethod { name, arity } => {
                     let name = program.constant_pool.get(name).unwrap();
                     let name = name.as_str().unwrap();
-                    if name != "-" {
-                        continue 'int_fn;
-                    }
 
                     if arity.value() != 2 {
                         continue 'int_fn;
                     }
 
-                    is.push(Pop(Rax));
                     is.push(Pop(Rcx));
-                    is.push(SubRR(Rax, Rcx));
+                    is.push(Pop(Rax));
+                    match name {
+                        "+" => is.push(AddRR(Rax, Rcx)),
+                        "-" => is.push(SubRR(Rax, Rcx)),
+                        "*" => is.push(ImulRR(Rax, Rcx)),
+                        _ => continue 'int_fn,
+                    }
                     is.push(Push(Rax));
                 }
                 OpCode::CallFunction { name, arity } => continue 'int_fn,
@@ -259,12 +290,28 @@ where
                 OpCode::Jump { label } => continue 'int_fn,
                 OpCode::Branch { label } => continue 'int_fn,
                 OpCode::Return => {
+                    // Get the return value from the "operand stack".
                     is.push(Pop(Rax));
+
+                    // Pop saved arguments from the stack.
+                    for _ in 0..arity {
+                        is.push(Pop(Rcx));
+                    }
+
+                    // Function epilogue.
+                    is.push(Pop(Rbp));
+
                     is.push(Ret);
                 }
                 OpCode::Drop => {
                     is.push(Pop(Rax));
                 }
+            }
+        }
+
+        if state.debug.contains(" opt-instrs ") {
+            for instr in &is {
+                eprintln!("{:x}", instr);
             }
         }
 
