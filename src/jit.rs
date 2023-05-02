@@ -191,6 +191,8 @@ where
     // basically only functions working with integers.
     //
     // Bail otherwisem, we'll use the interpreter as fallback.
+    //
+    // LATER(martin-t) Tests should make sure the optimized verrsion is actually used.
     let mut cpi_to_label_opt = FnvHashMap::default();
     'int_fn: for &(cpi, method) in &methods {
         if cpi == entry_cpi {
