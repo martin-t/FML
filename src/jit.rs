@@ -194,6 +194,9 @@ where
     //
     // LATER(martin-t) Tests should make sure the optimized verrsion is actually used.
     let mut cpi_to_label_opt = FnvHashMap::default();
+    // LATER(martin-t) This should be a separate function but Rust supports
+    // break/continue with labels and i have 52 hours to write 50 pages
+    // so i don't care anymore.
     'int_fn: for &(cpi, method) in &methods {
         if state.debug.contains(" opt-disable ") {
             // Useful for testing JIT without optimized versions of functions.
@@ -249,11 +252,16 @@ where
         let locals_size: i32 = method.locals.value().into();
         is.push(SubRI(Rsp, locals_size * 8));
 
+        let mut branch_next = None;
+
         let begin = method.code.start().value_usize();
         let end = begin + method.code.length();
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();
+
+            let address_next = Address::from_usize(i + 1);
+            let opcode_next = program.code.get(address_next);
 
             if state.debug.contains(" opt-opcodes ") {
                 println!("address: {:?}, opcode: {:?}", address, opcode);
@@ -307,25 +315,69 @@ where
                         continue 'int_fn;
                     }
 
+                    // LATER(martin-t) Massive HACK to make collatz.fml work.
+                    // Supporting booleans properly requires
+                    // 1) assembler support for 1 byte registers and more instructions
+                    // 2) type analysis or tagging each value on the stack with its type
+                    let is_bool_op = matches!(name, "==" | "!=" | "<" | ">" | "<=" | ">=");
+                    let is_next_branch = matches!(opcode_next, Ok(OpCode::Branch { .. }));
+                    if is_bool_op && !is_next_branch {
+                        continue 'int_fn;
+                    }
+
                     // Left operand is in Rax, right is in Rcx.
                     is.push(Pop(Rcx));
                     is.push(Pop(Rax));
                     match name {
-                        "+" => is.push(AddRR(Rax, Rcx)),
-                        "-" => is.push(SubRR(Rax, Rcx)),
-                        "*" => is.push(ImulRR(Rax, Rcx)),
+                        "+" => {
+                            is.push(AddRR(Rax, Rcx));
+                            is.push(Push(Rax));
+                        }
+                        "-" => {
+                            is.push(SubRR(Rax, Rcx));
+                            is.push(Push(Rax));
+                        }
+                        "*" => {
+                            is.push(ImulRR(Rax, Rcx));
+                            is.push(Push(Rax));
+                        }
                         "/" => {
                             is.push(Cqo);
                             is.push(IdivR(Rcx));
+                            is.push(Push(Rax));
+                        }
+                        "%" => {
+                            is.push(Cqo);
+                            is.push(IdivR(Rcx));
+                            is.push(MovRR(Rax, Rdx));
+                            is.push(Push(Rax));
                         }
                         "<=" => {
                             is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JleLabel(666));
                         }
+                        "<" => {
+                            is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JlLabel(666));
+                        }
+                        ">=" => {
+                            is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JgeLabel(666));
+                        }
+                        ">" => {
+                            is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JgLabel(666));
+                        }
+                        "==" => {
+                            is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JeLabel(666));
+                        }
+                        "!=" => {
+                            is.push(CmpRR(Rax, Rcx));
+                            branch_next = Some(JneLabel(666));
+                        }
+
                         _ => continue 'int_fn,
-                    }
-                    // LATER(martin-t) Massive HACK to make collatz.fml work.
-                    if name != "<=" {
-                        is.push(Push(Rax));
                     }
                 }
                 OpCode::CallFunction { name, arity } => continue 'int_fn,
@@ -343,7 +395,15 @@ where
                 OpCode::Branch { label } => {
                     let label = usize::MAX / 2 + label.as_usize();
                     // LATER(martin-t) Massive HACK to make collatz.fml work.
-                    is.push(JleLabel(label));
+                    match branch_next.unwrap() {
+                        JleLabel(_) => is.push(JleLabel(label)),
+                        JlLabel(_) => is.push(JlLabel(label)),
+                        JgeLabel(_) => is.push(JgeLabel(label)),
+                        JgLabel(_) => is.push(JgLabel(label)),
+                        JeLabel(_) => is.push(JeLabel(label)),
+                        JneLabel(_) => is.push(JneLabel(label)),
+                        _ => unreachable!(),
+                    }
                 }
                 OpCode::Return => {
                     // Get the return value from the "operand stack".
@@ -371,7 +431,7 @@ where
         }
 
         // If we got here, the function is simple enough
-        // to be jitted by pure assembly.
+        // to be optimized into pure assembly.
         instrs.extend(is);
         cpi_to_label_opt.insert(cpi, label_fn);
     }
