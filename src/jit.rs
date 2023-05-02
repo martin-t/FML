@@ -195,6 +195,11 @@ where
     // LATER(martin-t) Tests should make sure the optimized verrsion is actually used.
     let mut cpi_to_label_opt = FnvHashMap::default();
     'int_fn: for &(cpi, method) in &methods {
+        if state.debug.contains(" opt-disable ") {
+            // Useful for testing JIT without optimized versions of functions.
+            break;
+        }
+
         if cpi == entry_cpi {
             // The entry function is a special case, ignore for now.
             continue;
