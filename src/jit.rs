@@ -208,7 +208,10 @@ where
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();
-            //println!("address: {:?}, opcode: {:?}", address, opcode);
+
+            if state.debug.contains(" opt-opcodes ") {
+                println!("address: {:?}, opcode: {:?}", address, opcode);
+            }
 
             #[allow(unused_variables)]
             match opcode {
@@ -234,7 +237,22 @@ where
                 OpCode::Array => continue 'int_fn,
                 OpCode::GetField { name } => continue 'int_fn,
                 OpCode::SetField { name } => continue 'int_fn,
-                OpCode::CallMethod { name, arity } => continue 'int_fn,
+                OpCode::CallMethod { name, arity } => {
+                    let name = program.constant_pool.get(name).unwrap();
+                    let name = name.as_str().unwrap();
+                    if name != "-" {
+                        continue 'int_fn;
+                    }
+
+                    if arity.value() != 2 {
+                        continue 'int_fn;
+                    }
+
+                    is.push(Pop(Rax));
+                    is.push(Pop(Rcx));
+                    is.push(SubRR(Rax, Rcx));
+                    is.push(Push(Rax));
+                }
                 OpCode::CallFunction { name, arity } => continue 'int_fn,
                 OpCode::Label { name } => continue 'int_fn,
                 OpCode::Print { format, arity } => continue 'int_fn,
@@ -684,7 +702,10 @@ extern "sysv64" fn jit_call_function(
         // LATER(martin-t) Handle any number of arguments.
         //  This cannot be done generically in Rust.
         //  Either only support a fixed number or do this in assembly.
-        if arity <= 1 && arguments.iter().all(|local| local.as_i32().is_ok()) {
+        if arity <= 6 && arguments.iter().all(|local| local.as_i32().is_ok()) {
+            if state.debug.contains(" offsets-call ") {
+                eprintln!("using optimized function cpi: {method_index}, addr_opt: {addr_opt:#x}");
+            }
             let ret = match arity {
                 0 => {
                     let f: extern "sysv64" fn() -> i32 = unsafe { mem::transmute(addr_opt) };
