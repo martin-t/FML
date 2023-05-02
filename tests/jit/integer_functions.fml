@@ -1,12 +1,46 @@
 function println() -> print("\n");
 
 function id(x) -> x;
+function id2(a1, a2) -> a2;
+function id3(a1, a2, a3) -> a3;
+function id4(a1, a2, a3, a4) -> a4;
+function id5(a1, a2, a3, a4, a5) -> a5;
+function id6(a1, a2, a3, a4, a5, a6) -> a6;
 print("~\n", id(42));
+print("~\n", id2(42, 43));
+print("~\n", id3(42, 43, 44));
+print("~\n", id4(42, 43, 44, 45));
+print("~\n", id5(42, 43, 44, 45, 46));
+print("~\n", id6(42, 43, 44, 45, 46, 47));
+
+function arg1(a1, a2, a3, a4, a5, a6) -> a1;
+function arg2(a1, a2, a3, a4, a5, a6) -> a2;
+function arg3(a1, a2, a3, a4, a5, a6) -> a3;
+function arg4(a1, a2, a3, a4, a5, a6) -> a4;
+function arg5(a1, a2, a3, a4, a5, a6) -> a5;
+function arg6(a1, a2, a3, a4, a5, a6) -> a6;
+print("~\n", arg1(42, 43, 44, 45, 46, 47));
+print("~\n", arg2(42, 43, 44, 45, 46, 47));
+print("~\n", arg3(42, 43, 44, 45, 46, 47));
+print("~\n", arg4(42, 43, 44, 45, 46, 47));
+print("~\n", arg5(42, 43, 44, 45, 46, 47));
+print("~\n", arg6(42, 43, 44, 45, 46, 47));
 
 function four() -> 4;
 print("~\n", four());
 
 println();
+
+function sub2(a1, a2) -> a1 - a2;
+function sub3(a1, a2, a3) -> a1 - a2 - a3;
+function sub4(a1, a2, a3, a4) -> a1 - a2 - a3 - a4;
+function sub5(a1, a2, a3, a4, a5) -> a1 - a2 - a3 - a4 - a5;
+function sub6(a1, a2, a3, a4, a5, a6) -> a1 - a2 - a3 - a4 - a5 - a6;
+print("~\n", sub2(42, 43));
+print("~\n", sub3(42, 43, 44));
+print("~\n", sub4(42, 43, 44, 45));
+print("~\n", sub5(42, 43, 44, 45, 46));
+print("~\n", sub6(42, 43, 44, 45, 46, 47));
 
 function sum_squares1(x) -> x * x;
 function sum_squares2(x, y) -> x * x + y * y;
@@ -25,8 +59,24 @@ print("~\n", take_9_args(1, 2, 3, 4, 5, 6, 7, 8, 9));
 print("~\n", take_9_args(9, 8, 7, 6, 5, 4, 3, 2, 1));
 
 // > 42
+// > 43
+// > 44
+// > 45
+// > 46
+// > 47
+// > 42
+// > 43
+// > 44
+// > 45
+// > 46
+// > 47
 // > 4
 // > 
+// > -1
+// > -45
+// > -90
+// > -136
+// > -183
 // > 25
 // > 61
 // > 110

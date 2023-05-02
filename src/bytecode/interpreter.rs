@@ -642,6 +642,9 @@ fn eval_call_object_method(
     Ok(address)
 }
 
+/// This only executes the call opcode
+/// and returns the index of the method the call resolved to.
+/// It does not execute the whole function.
 #[inline(always)]
 pub fn eval_call_function(
     program: &Program,

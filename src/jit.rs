@@ -30,12 +30,12 @@ pub mod asm_repr;
 #[cfg_attr(windows, path = "jit/memory_windows.rs")]
 pub mod memory;
 
-use std::fmt::Write;
+use std::{fmt::Write, mem};
 
 use fnv::FnvHashMap;
 
 use crate::{
-    bytecode::{interpreter::*, opcodes::OpCode, program::*, state::State},
+    bytecode::{heap::Pointer, interpreter::*, opcodes::OpCode, program::*, state::State},
     jit::{
         asm_encoding::compile,
         asm_repr::{Instr, Reg},
@@ -129,6 +129,28 @@ macro_rules! jit_fn {
     }
 }
 
+#[derive(Debug)]
+struct JitState {
+    cpi_to_addr_opt: FnvHashMap<usize, usize>,
+    cpi_to_addr_fallback: FnvHashMap<usize, usize>,
+    label_counter: usize,
+}
+
+impl JitState {
+    fn new() -> Self {
+        Self {
+            cpi_to_addr_opt: FnvHashMap::default(),
+            cpi_to_addr_fallback: FnvHashMap::default(),
+            label_counter: usize::MAX,
+        }
+    }
+
+    fn next_label(&mut self) -> usize {
+        self.label_counter -= 1;
+        self.label_counter
+    }
+}
+
 /// A very primitive JIT compiler which converts each opcode
 /// into a series of assembly instructions that in turn call
 /// the corresponding interpreter functions
@@ -160,12 +182,7 @@ where
 
     let entry_cpi = program.entry.get().unwrap().as_usize();
 
-    let mut label_counter = usize::MAX;
-    let mut next_label = || {
-        label_counter -= 1;
-        label_counter
-    };
-
+    let mut jit_state = JitState::new();
     let mut instrs = Vec::new();
 
     // For each function, attempt to compile it into pure assembly
@@ -174,7 +191,7 @@ where
     // basically only functions working with integers.
     //
     // Bail otherwisem, we'll use the interpreter as fallback.
-    let mut cpi_to_int_fn = FnvHashMap::default();
+    let mut cpi_to_label_opt = FnvHashMap::default();
     'int_fn: for &(cpi, method) in &methods {
         if cpi == entry_cpi {
             // The entry function is a special case, ignore for now.
@@ -183,7 +200,7 @@ where
 
         let mut is = Vec::new();
 
-        let label_fn = next_label();
+        let label_fn = jit_state.next_label();
         is.push(Label(label_fn));
 
         let begin = method.code.start().value_usize();
@@ -236,10 +253,7 @@ where
         // If we got here, the function is simple enough
         // to be jitted by pure assembly.
         instrs.extend(is);
-        cpi_to_int_fn.insert(cpi, label_fn);
-    }
-    if state.debug.contains(" int_fns ") {
-        eprintln!("cpi_to_int_fn = {:?}", cpi_to_int_fn);
+        cpi_to_label_opt.insert(cpi, label_fn);
     }
 
     // For each function, compile it into assembly opcode by opcode.
@@ -288,6 +302,11 @@ where
 
             // When adding here, make sure the stack stays aligned.
         } else {
+            // Even though the FML methods can take arguments,
+            // the jitted fn representing them doesn't
+            // so the type is always just `fn()`.
+            // Arguments and return values are handled by the interpreter's stack.
+
             // Align stack
             instrs.push(Push(Rax));
             // ^ Don't forget to update epilogue when changing this.
@@ -382,15 +401,15 @@ where
                     instrs.push(CallAbsR(Rax));
                     // Check if the function is a builtin.
                     instrs.push(CmpRI(Rax, 0));
-                    let label = next_label();
-                    instrs.push(JeLabel(label));
+                    let label_skip = jit_state.next_label();
+                    instrs.push(JeLabel(label_skip));
                     if state.debug.contains(" cmud2 ") {
                         // Only crash if it's a user-defined method.
                         instrs.push(Ud2);
                     }
                     // Now call the actual FML function.
                     instrs.push(CallAbsR(Rax));
-                    instrs.push(Label(label));
+                    instrs.push(Label(label_skip));
                 }
                 OpCode::CallFunction { name, arity } => {
                     if state.debug.contains(" cfud ") {
@@ -405,8 +424,17 @@ where
                     // Call this interpreter function
                     // to determine the offset of the FML function.
                     instrs.push(CallAbsR(Rax));
+                    // Check if the function was jit-optimized.
+                    instrs.push(CmpRI(Rax, 0));
+                    let label_skip = jit_state.next_label();
+                    instrs.push(JeLabel(label_skip));
+                    if state.debug.contains(" cfud2 ") {
+                        // Only crash if it's a jit-optimized function.
+                        instrs.push(Ud2);
+                    }
                     // Now call the actual FML function.
                     instrs.push(CallAbsR(Rax));
+                    instrs.push(Label(label_skip));
                 }
                 OpCode::Label { name } => {
                     // If we wanted state.instruction_pointer
@@ -508,22 +536,30 @@ where
     }
     let jit = JitMemory::new(&compiled.code);
 
-    let mut cpi_to_fn = FnvHashMap::default();
     for &(cpi, _) in &methods {
         if cpi == entry_cpi {
+            // We can't call the entry function directly
+            // so don't even save its offset.
             continue;
         }
 
-        let offset = compiled.label_offsets[&cpi];
-        // Even though the FML methods can take arguments,
-        // the jitted fn representing them doesn't
-        // so the type is always just `fn()`.
-        // Arguments and return values are handled by the interpreter's stack.
-        let fn_ptr = jit_fn!(jit, fn(), offset);
-        if state.debug.contains(" offsets ") {
-            eprintln!("cpi: {cpi}, offset: {offset}, addr: {:#x}", fn_to_addr!(fn_ptr));
+        let offset_fallback = compiled.label_offsets[&cpi];
+        let addr_fallback = jit.code as usize + offset_fallback;
+        assert_ne!(addr_fallback, 0);
+        jit_state.cpi_to_addr_fallback.insert(cpi, addr_fallback);
+        if state.debug.contains(" offsets-jit ") {
+            eprintln!("fallback cpi: {cpi}, offset: {offset_fallback}, addr: {addr_fallback:#x}");
         }
-        cpi_to_fn.insert(cpi, fn_ptr);
+
+        if let Some(&label_fn_opt) = cpi_to_label_opt.get(&cpi) {
+            let offset_opt = compiled.label_offsets[&label_fn_opt];
+            let addr_opt = jit.code as usize + offset_opt;
+            assert_ne!(addr_opt, 0);
+            jit_state.cpi_to_addr_opt.insert(cpi, addr_opt);
+            if state.debug.contains(" offsets-jit ") {
+                eprintln!("opt cpi: {cpi}, offset: {offset_opt}, addr: {addr_opt:#x}");
+            }
+        }
     }
 
     let entry_offset = compiled.label_offsets[&entry_cpi];
@@ -533,7 +569,7 @@ where
         program.ref_to_addr_const(),
         state.ref_to_addr_mut(),
         output.ref_to_addr_mut(),
-        cpi_to_fn.var_addr_const(),
+        jit_state.var_addr_const(),
     );
 }
 
@@ -609,19 +645,18 @@ extern "sysv64" fn jit_call_method(
     state: &mut State,
     name_index: ConstantPoolIndex,
     arity: Arity,
-    cpi_to_fn: &FnvHashMap<usize, fn()>,
-) -> i64 {
-    // LATER(martin-t) Replace cpi_to_fn with address_to_addr
-    //  (or better name) which converts opcode address to asm addr
-    //  so that eval_* functions don't have to return a tuple.
+    jit_state: &JitState,
+) -> usize {
+    // LATER(martin-t) Make a map which converts opcode address to asm addr
+    //  so that eval_call_* functions don't have to return a tuple.
+
     let (method_index, _) = eval_call_method(program, state, name_index, arity).unwrap();
+
     if let Some(method_index) = method_index {
-        let f = cpi_to_fn[&method_index.as_usize()];
-        let addr = fn_to_addr!(f);
-        if state.debug.contains(" offsets ") {
+        let addr = jit_state.cpi_to_addr_fallback[&method_index.as_usize()];
+        if state.debug.contains(" offsets-call ") {
             eprintln!("returning method cpi: {method_index}, addr: {addr:#x}");
         }
-        assert_ne!(addr, 0);
         addr
     } else {
         0
@@ -633,13 +668,92 @@ extern "sysv64" fn jit_call_function(
     state: &mut State,
     name_index: ConstantPoolIndex,
     arity: Arity,
-    cpi_to_fn: &FnvHashMap<usize, fn()>,
-) -> i64 {
+    jit_state: &JitState,
+) -> usize {
+    // The goal here is to check if the functiont to be called
+    // has an optimized jitted version
+    // and if that version can be used (e.g. if the arguments are all integers).
+    // However, this is supposed to be a cheap check
+    // so it actually pays off performance-wise.
+    // LATER(martin-t) Don't call eval_call_function here, just check the types.
     let (method_index, _) = eval_call_function(program, state, name_index, arity).unwrap();
-    let f = cpi_to_fn[&method_index.as_usize()];
-    let addr = fn_to_addr!(f);
-    if state.debug.contains(" offsets ") {
-        eprintln!("returning function cpi: {method_index}, addr: {addr:#x}");
+
+    let arity = arity.to_usize();
+    if let Some(&addr_opt) = jit_state.cpi_to_addr_opt.get(&method_index.as_usize()) {
+        let arguments = &state.frame_stack.frames().last().unwrap().locals()[0..arity];
+        // LATER(martin-t) Handle any number of arguments.
+        //  This cannot be done generically in Rust.
+        //  Either only support a fixed number or do this in assembly.
+        if arity <= 1 && arguments.iter().all(|local| local.as_i32().is_ok()) {
+            let ret = match arity {
+                0 => {
+                    let f: extern "sysv64" fn() -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let ret = f();
+                    Pointer::Integer(ret)
+                }
+                1 => {
+                    let f: extern "sysv64" fn(i32) -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let arg = arguments[0].as_i32().unwrap();
+                    let ret = f(arg);
+                    Pointer::Integer(ret)
+                }
+                2 => {
+                    let f: extern "sysv64" fn(i32, i32) -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let arg1 = arguments[0].as_i32().unwrap();
+                    let arg2 = arguments[1].as_i32().unwrap();
+                    let ret = f(arg1, arg2);
+                    Pointer::Integer(ret)
+                }
+                3 => {
+                    let f: extern "sysv64" fn(i32, i32, i32) -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let arg1 = arguments[0].as_i32().unwrap();
+                    let arg2 = arguments[1].as_i32().unwrap();
+                    let arg3 = arguments[2].as_i32().unwrap();
+                    let ret = f(arg1, arg2, arg3);
+                    Pointer::Integer(ret)
+                }
+                4 => {
+                    let f: extern "sysv64" fn(i32, i32, i32, i32) -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let arg1 = arguments[0].as_i32().unwrap();
+                    let arg2 = arguments[1].as_i32().unwrap();
+                    let arg3 = arguments[2].as_i32().unwrap();
+                    let arg4 = arguments[3].as_i32().unwrap();
+                    let ret = f(arg1, arg2, arg3, arg4);
+                    Pointer::Integer(ret)
+                }
+                5 => {
+                    let f: extern "sysv64" fn(i32, i32, i32, i32, i32) -> i32 = unsafe { mem::transmute(addr_opt) };
+                    let arg1 = arguments[0].as_i32().unwrap();
+                    let arg2 = arguments[1].as_i32().unwrap();
+                    let arg3 = arguments[2].as_i32().unwrap();
+                    let arg4 = arguments[3].as_i32().unwrap();
+                    let arg5 = arguments[4].as_i32().unwrap();
+                    let ret = f(arg1, arg2, arg3, arg4, arg5);
+                    Pointer::Integer(ret)
+                }
+                6 => {
+                    let f: extern "sysv64" fn(i32, i32, i32, i32, i32, i32) -> i32 =
+                        unsafe { mem::transmute(addr_opt) };
+                    let arg1 = arguments[0].as_i32().unwrap();
+                    let arg2 = arguments[1].as_i32().unwrap();
+                    let arg3 = arguments[2].as_i32().unwrap();
+                    let arg4 = arguments[3].as_i32().unwrap();
+                    let arg5 = arguments[4].as_i32().unwrap();
+                    let arg6 = arguments[5].as_i32().unwrap();
+                    let ret = f(arg1, arg2, arg3, arg4, arg5, arg6);
+                    Pointer::Integer(ret)
+                }
+                _ => unreachable!(),
+            };
+            state.operand_stack.push(ret);
+            eval_return(state).unwrap();
+            return 0;
+        }
+    }
+
+    let addr = jit_state.cpi_to_addr_fallback[&method_index.as_usize()];
+    if state.debug.contains(" offsets-call ") {
+        eprintln!("returning fallback function cpi: {method_index}, addr: {addr:#x}");
     }
     addr
 }

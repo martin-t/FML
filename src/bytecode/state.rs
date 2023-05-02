@@ -36,8 +36,8 @@ pub struct GlobalFunctions(FnvHashMap<String, ConstantPoolIndex>);
 
 #[derive(Eq, PartialEq, Debug, Default)]
 pub struct Frame {
-    // LATER(martin-t) Remove Option here, all frames should have a return address.
-    //  Only entry doesn't have a return.
+    // LATER(martin-t) Can this be None?
+    //  Maybe when the call is the last opcode of the entry function?
     pub return_address: Option<Address>,
     locals: Vec<Pointer>,
 }
