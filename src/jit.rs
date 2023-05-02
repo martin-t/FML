@@ -347,6 +347,12 @@ where
                             is.push(Push(Rax));
                         }
                         "%" => {
+                            // LATER(martin-t) This is wrong for negative numbers:
+                            // function rem2(a1, a2) -> a1 % a2;
+                            // print("~\n", rem2(26, 10));
+                            // print("~\n", rem2(-26, 10));
+                            // print("~\n", rem2(26, -10));
+                            // print("~\n", rem2(-26, -10));
                             is.push(Cqo);
                             is.push(IdivR(Rcx));
                             is.push(MovRR(Rax, Rdx));

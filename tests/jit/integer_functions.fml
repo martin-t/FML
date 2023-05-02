@@ -58,6 +58,9 @@ println();
 function rem2(a1, a2) -> a1 % a2;
 function rem3(a1, a2, a3) -> a1 % a2 % a3;
 print("~\n", rem2(26, 10));
+//print("~\n", rem2(-26, 10));
+//print("~\n", rem2(26, -10));
+//print("~\n", rem2(-26, -10));
 print("~\n", rem3(26, 10, 5));
 
 function sum_squares1(x) -> x * x;
