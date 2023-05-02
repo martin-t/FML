@@ -209,13 +209,15 @@ where
         // LATER(martin-t) Use a register allocator instead of abusing the stack.
         // LATER(martin-t) We're using 64 bit regs even though FML only has 32 bit ints.
         // LATER(martin-t) In case we decide to impl calls, we need to align the stack.
+        // LATER(martin-t) Handle more than 6 args, more opcodes, methods, ...
+        // LATER(martin-t) Add Push/Pop instructions for memory/immediates to avoid mov+push.
 
         // Functioin prologue.
         is.push(Push(Rbp));
         is.push(MovRR(Rbp, Rsp));
 
         // Save arguments to the stack.
-        let arity = method.arity.value();
+        let arity: i32 = method.arity.value().into();
         if arity >= 1 {
             is.push(Push(Rdi));
         }
@@ -238,6 +240,10 @@ where
             continue 'int_fn;
         }
 
+        // Allocate space for locals.
+        let locals_size: i32 = method.locals.value().into();
+        is.push(SubRI(Rsp, locals_size * 8));
+
         let begin = method.code.start().value_usize();
         let end = begin + method.code.length();
         for i in begin..end {
@@ -250,18 +256,38 @@ where
 
             #[allow(unused_variables)]
             match opcode {
-                OpCode::Literal { index } => continue 'int_fn,
+                OpCode::Literal { index } => {
+                    let lit = program.constant_pool.get(index).unwrap();
+                    match lit {
+                        ProgramObject::Integer(val) => {
+                            is.push(MovRI(Rax, (*val).into()));
+                            is.push(Push(Rax));
+                        }
+                        _ => continue 'int_fn,
+                    }
+                }
                 OpCode::GetLocal { index } => {
-                    if index.value() >= method.arity.value().into() {
+                    let index: i32 = index.value().into();
+                    if index >= arity + locals_size {
                         continue 'int_fn;
                     }
 
-                    let index: i32 = index.value().into();
                     let offset = -(index + 1) * 8;
                     is.push(MovRM(Rax, Mem::base_offset(Rbp, offset)));
                     is.push(Push(Rax));
                 }
-                OpCode::SetLocal { index } => continue 'int_fn,
+                OpCode::SetLocal { index } => {
+                    let index: i32 = index.value().into();
+                    if index >= arity + locals_size {
+                        continue 'int_fn;
+                    }
+
+                    let offset = -(index + 1) * 8;
+                    // is.push(Pop(Rax));
+                    // is.push(Push(Rax));
+                    is.push(MovRM(Rax, Mem::base(Rsp)));
+                    is.push(MovMR(Mem::base_offset(Rbp, offset), Rax));
+                }
                 OpCode::GetGlobal { name } => continue 'int_fn,
                 OpCode::SetGlobal { name } => continue 'int_fn,
                 OpCode::Object { class } => continue 'int_fn,
@@ -276,6 +302,7 @@ where
                         continue 'int_fn;
                     }
 
+                    // Left operand is in Rax, right is in Rcx.
                     is.push(Pop(Rcx));
                     is.push(Pop(Rax));
                     match name {
@@ -286,23 +313,40 @@ where
                             is.push(Cqo);
                             is.push(IdivR(Rcx));
                         }
+                        "<=" => {
+                            is.push(CmpRR(Rax, Rcx));
+                        }
                         _ => continue 'int_fn,
                     }
-                    is.push(Push(Rax));
+                    // LATER(martin-t) Massive HACK to make collatz.fml work.
+                    if name != "<=" {
+                        is.push(Push(Rax));
+                    }
                 }
                 OpCode::CallFunction { name, arity } => continue 'int_fn,
-                OpCode::Label { name } => continue 'int_fn,
+                OpCode::Label { name } => {
+                    // Make sure the label doesn't collide with others.
+                    // LATER(martin-t) This is a HACK.
+                    let label = usize::MAX / 2 + name.as_usize();
+                    is.push(Label(label));
+                }
                 OpCode::Print { format, arity } => continue 'int_fn,
-                OpCode::Jump { label } => continue 'int_fn,
-                OpCode::Branch { label } => continue 'int_fn,
+                OpCode::Jump { label } => {
+                    let label = usize::MAX / 2 + label.as_usize();
+                    is.push(JmpLabel(label));
+                }
+                OpCode::Branch { label } => {
+                    let label = usize::MAX / 2 + label.as_usize();
+                    // LATER(martin-t) Massive HACK to make collatz.fml work.
+                    is.push(JleLabel(label));
+                }
                 OpCode::Return => {
                     // Get the return value from the "operand stack".
                     is.push(Pop(Rax));
 
-                    // Pop saved arguments from the stack.
-                    for _ in 0..arity {
-                        is.push(Pop(Rcx));
-                    }
+                    // Deallocate space for locals and arguments.
+                    let locals_size: i32 = method.locals.value().into();
+                    is.push(AddRI(Rsp, (arity + locals_size) * 8));
 
                     // Function epilogue.
                     is.push(Pop(Rbp));
