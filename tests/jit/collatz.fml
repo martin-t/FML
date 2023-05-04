@@ -1,7 +1,7 @@
 // Collatz Conjecture
-let n = 1;
-let max = 500;
-while n <= max do begin
+
+function collatz(n) ->
+begin
     let i = n;
     let count = 0;
     while i != 1 do begin
@@ -11,6 +11,13 @@ while n <= max do begin
             i <- 3 * i + 1;
         count <- count + 1;
     end;
+    count
+end;
+
+let n = 1;
+let max = 500;
+while n <= max do begin
+    let count = collatz(n);
     print("n=~, count=~\n", n, count);
     n <- n + 1;
 end;
