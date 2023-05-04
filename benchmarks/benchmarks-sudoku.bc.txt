@@ -1,0 +1,3197 @@
+Constant Pool:
+0: "λ:"
+1: "board"
+2: "coordinates"
+3: 0
+4: 8
+5: "set"
+6: 1
+7: 2
+8: 3
+9: 4
+10: 5
+11: 6
+12: 7
+13: 9
+14: "puzzle_one"
+15: method #14 args:0 locals:1 0000-0571
+16: "puzzle_two"
+17: method #16 args:0 locals:1 0572-1143
+18: "puzzle_three"
+19: method #18 args:0 locals:1 1144-1715
+20: "puzzle_four"
+21: method #20 args:0 locals:1 1716-2287
+22: null
+23: "row"
+24: slot #23
+25: "column"
+26: slot #25
+27: "if:consequent:0"
+28: "if:end:0"
+29: "=="
+30: "&"
+31: false
+32: method #29 args:2 locals:0 2288-2307
+33: "if:consequent:1"
+34: "if:end:1"
+35: "!="
+36: true
+37: method #35 args:2 locals:0 2308-2327
+38: "+"
+39: "*"
+40: "flatten"
+41: method #40 args:1 locals:0 2328-2335
+42: class #24,#26,#32,#37,#41
+43: method #2 args:2 locals:0 2336-2340
+44: slot #1
+45: "get"
+46: method #45 args:2 locals:0 2341-2346
+47: method #5 args:3 locals:0 2347-2353
+48: "loop:body:2"
+49: "loop:condition:2"
+50: "loop:body:3"
+51: "loop:condition:3"
+52: "if:consequent:4"
+53: "if:end:4"
+54: "~"
+55: " "
+56: "if:consequent:5"
+57: "if:end:5"
+58: "%"
+59: "|"
+60: "<"
+61: "\n"
+62: "if:consequent:6"
+63: "if:end:6"
+64: "---+---+---\n"
+65: "show"
+66: method #65 args:1 locals:3 2354-2451
+67: class #44,#46,#47,#66
+68: method #1 args:0 locals:0 2452-2459
+69: 10
+70: "checks"
+71: slot #70
+72: "mark"
+73: method #72 args:2 locals:0 2460-2470
+74: "loop:body:7"
+75: "loop:condition:7"
+76: "<="
+77: "is_good"
+78: method #77 args:1 locals:2 2471-2500
+79: "[["
+80: "loop:body:8"
+81: "loop:condition:8"
+82: "if:consequent:9"
+83: "if:end:9"
+84: ","
+85: "]]\n"
+86: method #65 args:1 locals:1 2501-2533
+87: class #71,#44,#73,#78,#86
+88: "check_list"
+89: method #88 args:1 locals:0 2534-2540
+90: "loop:body:10"
+91: "loop:condition:10"
+92: "loop:body:11"
+93: "loop:condition:11"
+94: "are_rows_good"
+95: method #94 args:1 locals:4 2541-2595
+96: "loop:body:12"
+97: "loop:condition:12"
+98: "loop:body:13"
+99: "loop:condition:13"
+100: "are_columns_good"
+101: method #100 args:1 locals:4 2596-2650
+102: "loop:body:14"
+103: "loop:condition:14"
+104: "/"
+105: "loop:body:15"
+106: "loop:condition:15"
+107: "loop:body:16"
+108: "loop:condition:16"
+109: "are_cells_good"
+110: method #109 args:1 locals:7 2651-2738
+111: method #77 args:1 locals:0 2739-2747
+112: class #44,#95,#101,#110,#111
+113: "checker"
+114: method #113 args:1 locals:0 2748-2751
+115: "if:consequent:17"
+116: "if:end:17"
+117: "inner_solve"
+118: "solve"
+119: method #118 args:1 locals:0 2752-2762
+120: "if:consequent:18"
+121: "if:end:18"
+122: 81
+123: "if:consequent:19"
+124: "if:end:19"
+125: "loop:body:20"
+126: "loop:condition:20"
+127: "if:consequent:21"
+128: "if:end:21"
+129: "if:consequent:22"
+130: "if:end:22"
+131: "if:consequent:23"
+132: "if:end:23"
+133: method #117 args:2 locals:2 2763-2854
+134: class #44,#119,#133
+135: "solver"
+136: method #135 args:1 locals:0 2855-2858
+137: "loop:body:24"
+138: "loop:condition:24"
+139: "problem ~:\n"
+140: "solution ~:\n"
+141: "if:consequent:25"
+142: "if:end:25"
+143: "no solution found\n"
+144: method #0 args:0 locals:3 2859-2933
+Entry: #144
+Globals:
+0: #15
+1: #17
+2: #19
+3: #21
+4: #43
+5: #68
+6: #89
+7: #114
+8: #136
+Code:
+0: call #1 0
+1: set local ::0
+2: drop
+3: get local ::0
+4: lit #3
+5: lit #3
+6: call #2 2
+7: lit #4
+8: call slot #5 3
+9: drop
+10: get local ::0
+11: lit #3
+12: lit #6
+13: call #2 2
+14: lit #3
+15: call slot #5 3
+16: drop
+17: get local ::0
+18: lit #3
+19: lit #7
+20: call #2 2
+21: lit #3
+22: call slot #5 3
+23: drop
+24: get local ::0
+25: lit #3
+26: lit #8
+27: call #2 2
+28: lit #6
+29: call slot #5 3
+30: drop
+31: get local ::0
+32: lit #3
+33: lit #9
+34: call #2 2
+35: lit #3
+36: call slot #5 3
+37: drop
+38: get local ::0
+39: lit #3
+40: lit #10
+41: call #2 2
+42: lit #8
+43: call slot #5 3
+44: drop
+45: get local ::0
+46: lit #3
+47: lit #11
+48: call #2 2
+49: lit #9
+50: call slot #5 3
+51: drop
+52: get local ::0
+53: lit #3
+54: lit #12
+55: call #2 2
+56: lit #3
+57: call slot #5 3
+58: drop
+59: get local ::0
+60: lit #3
+61: lit #4
+62: call #2 2
+63: lit #3
+64: call slot #5 3
+65: drop
+66: get local ::0
+67: lit #6
+68: lit #3
+69: call #2 2
+70: lit #3
+71: call slot #5 3
+72: drop
+73: get local ::0
+74: lit #6
+75: lit #6
+76: call #2 2
+77: lit #8
+78: call slot #5 3
+79: drop
+80: get local ::0
+81: lit #6
+82: lit #7
+83: call #2 2
+84: lit #10
+85: call slot #5 3
+86: drop
+87: get local ::0
+88: lit #6
+89: lit #8
+90: call #2 2
+91: lit #12
+92: call slot #5 3
+93: drop
+94: get local ::0
+95: lit #6
+96: lit #9
+97: call #2 2
+98: lit #4
+99: call slot #5 3
+100: drop
+101: get local ::0
+102: lit #6
+103: lit #10
+104: call #2 2
+105: lit #3
+106: call slot #5 3
+107: drop
+108: get local ::0
+109: lit #6
+110: lit #11
+111: call #2 2
+112: lit #3
+113: call slot #5 3
+114: drop
+115: get local ::0
+116: lit #6
+117: lit #12
+118: call #2 2
+119: lit #11
+120: call slot #5 3
+121: drop
+122: get local ::0
+123: lit #6
+124: lit #4
+125: call #2 2
+126: lit #7
+127: call slot #5 3
+128: drop
+129: get local ::0
+130: lit #7
+131: lit #3
+132: call #2 2
+133: lit #9
+134: call slot #5 3
+135: drop
+136: get local ::0
+137: lit #7
+138: lit #6
+139: call #2 2
+140: lit #12
+141: call slot #5 3
+142: drop
+143: get local ::0
+144: lit #7
+145: lit #7
+146: call #2 2
+147: lit #3
+148: call slot #5 3
+149: drop
+150: get local ::0
+151: lit #7
+152: lit #8
+153: call #2 2
+154: lit #3
+155: call slot #5 3
+156: drop
+157: get local ::0
+158: lit #7
+159: lit #9
+160: call #2 2
+161: lit #3
+162: call slot #5 3
+163: drop
+164: get local ::0
+165: lit #7
+166: lit #10
+167: call #2 2
+168: lit #11
+169: call slot #5 3
+170: drop
+171: get local ::0
+172: lit #7
+173: lit #11
+174: call #2 2
+175: lit #3
+176: call slot #5 3
+177: drop
+178: get local ::0
+179: lit #7
+180: lit #12
+181: call #2 2
+182: lit #13
+183: call slot #5 3
+184: drop
+185: get local ::0
+186: lit #7
+187: lit #4
+188: call #2 2
+189: lit #3
+190: call slot #5 3
+191: drop
+192: get local ::0
+193: lit #8
+194: lit #3
+195: call #2 2
+196: lit #3
+197: call slot #5 3
+198: drop
+199: get local ::0
+200: lit #8
+201: lit #6
+202: call #2 2
+203: lit #3
+204: call slot #5 3
+205: drop
+206: get local ::0
+207: lit #8
+208: lit #7
+209: call #2 2
+210: lit #3
+211: call slot #5 3
+212: drop
+213: get local ::0
+214: lit #8
+215: lit #8
+216: call #2 2
+217: lit #3
+218: call slot #5 3
+219: drop
+220: get local ::0
+221: lit #8
+222: lit #9
+223: call #2 2
+224: lit #3
+225: call slot #5 3
+226: drop
+227: get local ::0
+228: lit #8
+229: lit #10
+230: call #2 2
+231: lit #3
+232: call slot #5 3
+233: drop
+234: get local ::0
+235: lit #8
+236: lit #11
+237: call #2 2
+238: lit #3
+239: call slot #5 3
+240: drop
+241: get local ::0
+242: lit #8
+243: lit #12
+244: call #2 2
+245: lit #7
+246: call slot #5 3
+247: drop
+248: get local ::0
+249: lit #8
+250: lit #4
+251: call #2 2
+252: lit #9
+253: call slot #5 3
+254: drop
+255: get local ::0
+256: lit #9
+257: lit #3
+258: call #2 2
+259: lit #3
+260: call slot #5 3
+261: drop
+262: get local ::0
+263: lit #9
+264: lit #6
+265: call #2 2
+266: lit #6
+267: call slot #5 3
+268: drop
+269: get local ::0
+270: lit #9
+271: lit #7
+272: call #2 2
+273: lit #3
+274: call slot #5 3
+275: drop
+276: get local ::0
+277: lit #9
+278: lit #8
+279: call #2 2
+280: lit #8
+281: call slot #5 3
+282: drop
+283: get local ::0
+284: lit #9
+285: lit #9
+286: call #2 2
+287: lit #3
+288: call slot #5 3
+289: drop
+290: get local ::0
+291: lit #9
+292: lit #10
+293: call #2 2
+294: lit #10
+295: call slot #5 3
+296: drop
+297: get local ::0
+298: lit #9
+299: lit #11
+300: call #2 2
+301: lit #3
+302: call slot #5 3
+303: drop
+304: get local ::0
+305: lit #9
+306: lit #12
+307: call #2 2
+308: lit #4
+309: call slot #5 3
+310: drop
+311: get local ::0
+312: lit #9
+313: lit #4
+314: call #2 2
+315: lit #3
+316: call slot #5 3
+317: drop
+318: get local ::0
+319: lit #10
+320: lit #3
+321: call #2 2
+322: lit #7
+323: call slot #5 3
+324: drop
+325: get local ::0
+326: lit #10
+327: lit #6
+328: call #2 2
+329: lit #4
+330: call slot #5 3
+331: drop
+332: get local ::0
+333: lit #10
+334: lit #7
+335: call #2 2
+336: lit #3
+337: call slot #5 3
+338: drop
+339: get local ::0
+340: lit #10
+341: lit #8
+342: call #2 2
+343: lit #3
+344: call slot #5 3
+345: drop
+346: get local ::0
+347: lit #10
+348: lit #9
+349: call #2 2
+350: lit #3
+351: call slot #5 3
+352: drop
+353: get local ::0
+354: lit #10
+355: lit #10
+356: call #2 2
+357: lit #3
+358: call slot #5 3
+359: drop
+360: get local ::0
+361: lit #10
+362: lit #11
+363: call #2 2
+364: lit #3
+365: call slot #5 3
+366: drop
+367: get local ::0
+368: lit #10
+369: lit #12
+370: call #2 2
+371: lit #3
+372: call slot #5 3
+373: drop
+374: get local ::0
+375: lit #10
+376: lit #4
+377: call #2 2
+378: lit #3
+379: call slot #5 3
+380: drop
+381: get local ::0
+382: lit #11
+383: lit #3
+384: call #2 2
+385: lit #3
+386: call slot #5 3
+387: drop
+388: get local ::0
+389: lit #11
+390: lit #6
+391: call #2 2
+392: lit #7
+393: call slot #5 3
+394: drop
+395: get local ::0
+396: lit #11
+397: lit #7
+398: call #2 2
+399: lit #3
+400: call slot #5 3
+401: drop
+402: get local ::0
+403: lit #11
+404: lit #8
+405: call #2 2
+406: lit #11
+407: call slot #5 3
+408: drop
+409: get local ::0
+410: lit #11
+411: lit #9
+412: call #2 2
+413: lit #3
+414: call slot #5 3
+415: drop
+416: get local ::0
+417: lit #11
+418: lit #10
+419: call #2 2
+420: lit #3
+421: call slot #5 3
+422: drop
+423: get local ::0
+424: lit #11
+425: lit #11
+426: call #2 2
+427: lit #3
+428: call slot #5 3
+429: drop
+430: get local ::0
+431: lit #11
+432: lit #12
+433: call #2 2
+434: lit #8
+435: call slot #5 3
+436: drop
+437: get local ::0
+438: lit #11
+439: lit #4
+440: call #2 2
+441: lit #13
+442: call slot #5 3
+443: drop
+444: get local ::0
+445: lit #12
+446: lit #3
+447: call #2 2
+448: lit #6
+449: call slot #5 3
+450: drop
+451: get local ::0
+452: lit #12
+453: lit #6
+454: call #2 2
+455: lit #13
+456: call slot #5 3
+457: drop
+458: get local ::0
+459: lit #12
+460: lit #7
+461: call #2 2
+462: lit #3
+463: call slot #5 3
+464: drop
+465: get local ::0
+466: lit #12
+467: lit #8
+468: call #2 2
+469: lit #3
+470: call slot #5 3
+471: drop
+472: get local ::0
+473: lit #12
+474: lit #9
+475: call #2 2
+476: lit #12
+477: call slot #5 3
+478: drop
+479: get local ::0
+480: lit #12
+481: lit #10
+482: call #2 2
+483: lit #7
+484: call slot #5 3
+485: drop
+486: get local ::0
+487: lit #12
+488: lit #11
+489: call #2 2
+490: lit #11
+491: call slot #5 3
+492: drop
+493: get local ::0
+494: lit #12
+495: lit #12
+496: call #2 2
+497: lit #9
+498: call slot #5 3
+499: drop
+500: get local ::0
+501: lit #12
+502: lit #4
+503: call #2 2
+504: lit #3
+505: call slot #5 3
+506: drop
+507: get local ::0
+508: lit #4
+509: lit #3
+510: call #2 2
+511: lit #3
+512: call slot #5 3
+513: drop
+514: get local ::0
+515: lit #4
+516: lit #6
+517: call #2 2
+518: lit #3
+519: call slot #5 3
+520: drop
+521: get local ::0
+522: lit #4
+523: lit #7
+524: call #2 2
+525: lit #4
+526: call slot #5 3
+527: drop
+528: get local ::0
+529: lit #4
+530: lit #8
+531: call #2 2
+532: lit #10
+533: call slot #5 3
+534: drop
+535: get local ::0
+536: lit #4
+537: lit #9
+538: call #2 2
+539: lit #3
+540: call slot #5 3
+541: drop
+542: get local ::0
+543: lit #4
+544: lit #10
+545: call #2 2
+546: lit #13
+547: call slot #5 3
+548: drop
+549: get local ::0
+550: lit #4
+551: lit #11
+552: call #2 2
+553: lit #3
+554: call slot #5 3
+555: drop
+556: get local ::0
+557: lit #4
+558: lit #12
+559: call #2 2
+560: lit #3
+561: call slot #5 3
+562: drop
+563: get local ::0
+564: lit #4
+565: lit #4
+566: call #2 2
+567: lit #6
+568: call slot #5 3
+569: drop
+570: get local ::0
+571: return
+572: call #1 0
+573: set local ::0
+574: drop
+575: get local ::0
+576: lit #3
+577: lit #3
+578: call #2 2
+579: lit #3
+580: call slot #5 3
+581: drop
+582: get local ::0
+583: lit #3
+584: lit #6
+585: call #2 2
+586: lit #3
+587: call slot #5 3
+588: drop
+589: get local ::0
+590: lit #3
+591: lit #7
+592: call #2 2
+593: lit #6
+594: call slot #5 3
+595: drop
+596: get local ::0
+597: lit #3
+598: lit #8
+599: call #2 2
+600: lit #3
+601: call slot #5 3
+602: drop
+603: get local ::0
+604: lit #3
+605: lit #9
+606: call #2 2
+607: lit #3
+608: call slot #5 3
+609: drop
+610: get local ::0
+611: lit #3
+612: lit #10
+613: call #2 2
+614: lit #11
+615: call slot #5 3
+616: drop
+617: get local ::0
+618: lit #3
+619: lit #11
+620: call #2 2
+621: lit #9
+622: call slot #5 3
+623: drop
+624: get local ::0
+625: lit #3
+626: lit #12
+627: call #2 2
+628: lit #8
+629: call slot #5 3
+630: drop
+631: get local ::0
+632: lit #3
+633: lit #4
+634: call #2 2
+635: lit #10
+636: call slot #5 3
+637: drop
+638: get local ::0
+639: lit #6
+640: lit #3
+641: call #2 2
+642: lit #3
+643: call slot #5 3
+644: drop
+645: get local ::0
+646: lit #6
+647: lit #6
+648: call #2 2
+649: lit #3
+650: call slot #5 3
+651: drop
+652: get local ::0
+653: lit #6
+654: lit #7
+655: call #2 2
+656: lit #3
+657: call slot #5 3
+658: drop
+659: get local ::0
+660: lit #6
+661: lit #8
+662: call #2 2
+663: lit #3
+664: call slot #5 3
+665: drop
+666: get local ::0
+667: lit #6
+668: lit #9
+669: call #2 2
+670: lit #3
+671: call slot #5 3
+672: drop
+673: get local ::0
+674: lit #6
+675: lit #10
+676: call #2 2
+677: lit #6
+678: call slot #5 3
+679: drop
+680: get local ::0
+681: lit #6
+682: lit #11
+683: call #2 2
+684: lit #3
+685: call slot #5 3
+686: drop
+687: get local ::0
+688: lit #6
+689: lit #12
+690: call #2 2
+691: lit #3
+692: call slot #5 3
+693: drop
+694: get local ::0
+695: lit #6
+696: lit #4
+697: call #2 2
+698: lit #3
+699: call slot #5 3
+700: drop
+701: get local ::0
+702: lit #7
+703: lit #3
+704: call #2 2
+705: lit #3
+706: call slot #5 3
+707: drop
+708: get local ::0
+709: lit #7
+710: lit #6
+711: call #2 2
+712: lit #10
+713: call slot #5 3
+714: drop
+715: get local ::0
+716: lit #7
+717: lit #7
+718: call #2 2
+719: lit #3
+720: call slot #5 3
+721: drop
+722: get local ::0
+723: lit #7
+724: lit #8
+725: call #2 2
+726: lit #9
+727: call slot #5 3
+728: drop
+729: get local ::0
+730: lit #7
+731: lit #9
+732: call #2 2
+733: lit #12
+734: call slot #5 3
+735: drop
+736: get local ::0
+737: lit #7
+738: lit #10
+739: call #2 2
+740: lit #3
+741: call slot #5 3
+742: drop
+743: get local ::0
+744: lit #7
+745: lit #11
+746: call #2 2
+747: lit #13
+748: call slot #5 3
+749: drop
+750: get local ::0
+751: lit #7
+752: lit #12
+753: call #2 2
+754: lit #4
+755: call slot #5 3
+756: drop
+757: get local ::0
+758: lit #7
+759: lit #4
+760: call #2 2
+761: lit #3
+762: call slot #5 3
+763: drop
+764: get local ::0
+765: lit #8
+766: lit #3
+767: call #2 2
+768: lit #3
+769: call slot #5 3
+770: drop
+771: get local ::0
+772: lit #8
+773: lit #6
+774: call #2 2
+775: lit #3
+776: call slot #5 3
+777: drop
+778: get local ::0
+779: lit #8
+780: lit #7
+781: call #2 2
+782: lit #7
+783: call slot #5 3
+784: drop
+785: get local ::0
+786: lit #8
+787: lit #8
+788: call #2 2
+789: lit #3
+790: call slot #5 3
+791: drop
+792: get local ::0
+793: lit #8
+794: lit #9
+795: call #2 2
+796: lit #4
+797: call slot #5 3
+798: drop
+799: get local ::0
+800: lit #8
+801: lit #10
+802: call #2 2
+803: lit #3
+804: call slot #5 3
+805: drop
+806: get local ::0
+807: lit #8
+808: lit #11
+809: call #2 2
+810: lit #12
+811: call slot #5 3
+812: drop
+813: get local ::0
+814: lit #8
+815: lit #12
+816: call #2 2
+817: lit #3
+818: call slot #5 3
+819: drop
+820: get local ::0
+821: lit #8
+822: lit #4
+823: call #2 2
+824: lit #13
+825: call slot #5 3
+826: drop
+827: get local ::0
+828: lit #9
+829: lit #3
+830: call #2 2
+831: lit #3
+832: call slot #5 3
+833: drop
+834: get local ::0
+835: lit #9
+836: lit #6
+837: call #2 2
+838: lit #3
+839: call slot #5 3
+840: drop
+841: get local ::0
+842: lit #9
+843: lit #7
+844: call #2 2
+845: lit #4
+846: call slot #5 3
+847: drop
+848: get local ::0
+849: lit #9
+850: lit #8
+851: call #2 2
+852: lit #12
+853: call slot #5 3
+854: drop
+855: get local ::0
+856: lit #9
+857: lit #9
+858: call #2 2
+859: lit #3
+860: call slot #5 3
+861: drop
+862: get local ::0
+863: lit #9
+864: lit #10
+865: call #2 2
+866: lit #3
+867: call slot #5 3
+868: drop
+869: get local ::0
+870: lit #9
+871: lit #11
+872: call #2 2
+873: lit #11
+874: call slot #5 3
+875: drop
+876: get local ::0
+877: lit #9
+878: lit #12
+879: call #2 2
+880: lit #6
+881: call slot #5 3
+882: drop
+883: get local ::0
+884: lit #9
+885: lit #4
+886: call #2 2
+887: lit #7
+888: call slot #5 3
+889: drop
+890: get local ::0
+891: lit #10
+892: lit #3
+893: call #2 2
+894: lit #3
+895: call slot #5 3
+896: drop
+897: get local ::0
+898: lit #10
+899: lit #6
+900: call #2 2
+901: lit #11
+902: call slot #5 3
+903: drop
+904: get local ::0
+905: lit #10
+906: lit #7
+907: call #2 2
+908: lit #9
+909: call slot #5 3
+910: drop
+911: get local ::0
+912: lit #10
+913: lit #8
+914: call #2 2
+915: lit #3
+916: call slot #5 3
+917: drop
+918: get local ::0
+919: lit #10
+920: lit #9
+921: call #2 2
+922: lit #6
+923: call slot #5 3
+924: drop
+925: get local ::0
+926: lit #10
+927: lit #10
+928: call #2 2
+929: lit #3
+930: call slot #5 3
+931: drop
+932: get local ::0
+933: lit #10
+934: lit #11
+935: call #2 2
+936: lit #3
+937: call slot #5 3
+938: drop
+939: get local ::0
+940: lit #10
+941: lit #12
+942: call #2 2
+943: lit #10
+944: call slot #5 3
+945: drop
+946: get local ::0
+947: lit #10
+948: lit #4
+949: call #2 2
+950: lit #3
+951: call slot #5 3
+952: drop
+953: get local ::0
+954: lit #11
+955: lit #3
+956: call #2 2
+957: lit #13
+958: call slot #5 3
+959: drop
+960: get local ::0
+961: lit #11
+962: lit #6
+963: call #2 2
+964: lit #6
+965: call slot #5 3
+966: drop
+967: get local ::0
+968: lit #11
+969: lit #7
+970: call #2 2
+971: lit #3
+972: call slot #5 3
+973: drop
+974: get local ::0
+975: lit #11
+976: lit #8
+977: call #2 2
+978: lit #8
+979: call slot #5 3
+980: drop
+981: get local ::0
+982: lit #11
+983: lit #9
+984: call #2 2
+985: lit #9
+986: call slot #5 3
+987: drop
+988: get local ::0
+989: lit #11
+990: lit #10
+991: call #2 2
+992: lit #7
+993: call slot #5 3
+994: drop
+995: get local ::0
+996: lit #11
+997: lit #11
+998: call #2 2
+999: lit #4
+1000: call slot #5 3
+1001: drop
+1002: get local ::0
+1003: lit #11
+1004: lit #12
+1005: call #2 2
+1006: lit #3
+1007: call slot #5 3
+1008: drop
+1009: get local ::0
+1010: lit #11
+1011: lit #4
+1012: call #2 2
+1013: lit #12
+1014: call slot #5 3
+1015: drop
+1016: get local ::0
+1017: lit #12
+1018: lit #3
+1019: call #2 2
+1020: lit #3
+1021: call slot #5 3
+1022: drop
+1023: get local ::0
+1024: lit #12
+1025: lit #6
+1026: call #2 2
+1027: lit #7
+1028: call slot #5 3
+1029: drop
+1030: get local ::0
+1031: lit #12
+1032: lit #7
+1033: call #2 2
+1034: lit #12
+1035: call slot #5 3
+1036: drop
+1037: get local ::0
+1038: lit #12
+1039: lit #8
+1040: call #2 2
+1041: lit #3
+1042: call slot #5 3
+1043: drop
+1044: get local ::0
+1045: lit #12
+1046: lit #9
+1047: call #2 2
+1048: lit #3
+1049: call slot #5 3
+1050: drop
+1051: get local ::0
+1052: lit #12
+1053: lit #10
+1054: call #2 2
+1055: lit #3
+1056: call slot #5 3
+1057: drop
+1058: get local ::0
+1059: lit #12
+1060: lit #11
+1061: call #2 2
+1062: lit #3
+1063: call slot #5 3
+1064: drop
+1065: get local ::0
+1066: lit #12
+1067: lit #12
+1068: call #2 2
+1069: lit #13
+1070: call slot #5 3
+1071: drop
+1072: get local ::0
+1073: lit #12
+1074: lit #4
+1075: call #2 2
+1076: lit #3
+1077: call slot #5 3
+1078: drop
+1079: get local ::0
+1080: lit #4
+1081: lit #3
+1082: call #2 2
+1083: lit #11
+1084: call slot #5 3
+1085: drop
+1086: get local ::0
+1087: lit #4
+1088: lit #6
+1089: call #2 2
+1090: lit #3
+1091: call slot #5 3
+1092: drop
+1093: get local ::0
+1094: lit #4
+1095: lit #7
+1096: call #2 2
+1097: lit #8
+1098: call slot #5 3
+1099: drop
+1100: get local ::0
+1101: lit #4
+1102: lit #8
+1103: call #2 2
+1104: lit #3
+1105: call slot #5 3
+1106: drop
+1107: get local ::0
+1108: lit #4
+1109: lit #9
+1110: call #2 2
+1111: lit #13
+1112: call slot #5 3
+1113: drop
+1114: get local ::0
+1115: lit #4
+1116: lit #10
+1117: call #2 2
+1118: lit #3
+1119: call slot #5 3
+1120: drop
+1121: get local ::0
+1122: lit #4
+1123: lit #11
+1124: call #2 2
+1125: lit #10
+1126: call slot #5 3
+1127: drop
+1128: get local ::0
+1129: lit #4
+1130: lit #12
+1131: call #2 2
+1132: lit #3
+1133: call slot #5 3
+1134: drop
+1135: get local ::0
+1136: lit #4
+1137: lit #4
+1138: call #2 2
+1139: lit #3
+1140: call slot #5 3
+1141: drop
+1142: get local ::0
+1143: return
+1144: call #1 0
+1145: set local ::0
+1146: drop
+1147: get local ::0
+1148: lit #3
+1149: lit #3
+1150: call #2 2
+1151: lit #4
+1152: call slot #5 3
+1153: drop
+1154: get local ::0
+1155: lit #3
+1156: lit #6
+1157: call #2 2
+1158: lit #10
+1159: call slot #5 3
+1160: drop
+1161: get local ::0
+1162: lit #3
+1163: lit #7
+1164: call #2 2
+1165: lit #3
+1166: call slot #5 3
+1167: drop
+1168: get local ::0
+1169: lit #3
+1170: lit #8
+1171: call #2 2
+1172: lit #3
+1173: call slot #5 3
+1174: drop
+1175: get local ::0
+1176: lit #3
+1177: lit #9
+1178: call #2 2
+1179: lit #3
+1180: call slot #5 3
+1181: drop
+1182: get local ::0
+1183: lit #3
+1184: lit #10
+1185: call #2 2
+1186: lit #6
+1187: call slot #5 3
+1188: drop
+1189: get local ::0
+1190: lit #3
+1191: lit #11
+1192: call #2 2
+1193: lit #3
+1194: call slot #5 3
+1195: drop
+1196: get local ::0
+1197: lit #3
+1198: lit #12
+1199: call #2 2
+1200: lit #3
+1201: call slot #5 3
+1202: drop
+1203: get local ::0
+1204: lit #3
+1205: lit #4
+1206: call #2 2
+1207: lit #11
+1208: call slot #5 3
+1209: drop
+1210: get local ::0
+1211: lit #6
+1212: lit #3
+1213: call #2 2
+1214: lit #3
+1215: call slot #5 3
+1216: drop
+1217: get local ::0
+1218: lit #6
+1219: lit #6
+1220: call #2 2
+1221: lit #3
+1222: call slot #5 3
+1223: drop
+1224: get local ::0
+1225: lit #6
+1226: lit #7
+1227: call #2 2
+1228: lit #12
+1229: call slot #5 3
+1230: drop
+1231: get local ::0
+1232: lit #6
+1233: lit #8
+1234: call #2 2
+1235: lit #3
+1236: call slot #5 3
+1237: drop
+1238: get local ::0
+1239: lit #6
+1240: lit #9
+1241: call #2 2
+1242: lit #11
+1243: call slot #5 3
+1244: drop
+1245: get local ::0
+1246: lit #6
+1247: lit #10
+1248: call #2 2
+1249: lit #9
+1250: call slot #5 3
+1251: drop
+1252: get local ::0
+1253: lit #6
+1254: lit #11
+1255: call #2 2
+1256: lit #6
+1257: call slot #5 3
+1258: drop
+1259: get local ::0
+1260: lit #6
+1261: lit #12
+1262: call #2 2
+1263: lit #3
+1264: call slot #5 3
+1265: drop
+1266: get local ::0
+1267: lit #6
+1268: lit #4
+1269: call #2 2
+1270: lit #3
+1271: call slot #5 3
+1272: drop
+1273: get local ::0
+1274: lit #7
+1275: lit #3
+1276: call #2 2
+1277: lit #3
+1278: call slot #5 3
+1279: drop
+1280: get local ::0
+1281: lit #7
+1282: lit #6
+1283: call #2 2
+1284: lit #3
+1285: call slot #5 3
+1286: drop
+1287: get local ::0
+1288: lit #7
+1289: lit #7
+1290: call #2 2
+1291: lit #9
+1292: call slot #5 3
+1293: drop
+1294: get local ::0
+1295: lit #7
+1296: lit #8
+1297: call #2 2
+1298: lit #3
+1299: call slot #5 3
+1300: drop
+1301: get local ::0
+1302: lit #7
+1303: lit #9
+1304: call #2 2
+1305: lit #12
+1306: call slot #5 3
+1307: drop
+1308: get local ::0
+1309: lit #7
+1310: lit #10
+1311: call #2 2
+1312: lit #3
+1313: call slot #5 3
+1314: drop
+1315: get local ::0
+1316: lit #7
+1317: lit #11
+1318: call #2 2
+1319: lit #10
+1320: call slot #5 3
+1321: drop
+1322: get local ::0
+1323: lit #7
+1324: lit #12
+1325: call #2 2
+1326: lit #13
+1327: call slot #5 3
+1328: drop
+1329: get local ::0
+1330: lit #7
+1331: lit #4
+1332: call #2 2
+1333: lit #3
+1334: call slot #5 3
+1335: drop
+1336: get local ::0
+1337: lit #8
+1338: lit #3
+1339: call #2 2
+1340: lit #7
+1341: call slot #5 3
+1342: drop
+1343: get local ::0
+1344: lit #8
+1345: lit #6
+1346: call #2 2
+1347: lit #3
+1348: call slot #5 3
+1349: drop
+1350: get local ::0
+1351: lit #8
+1352: lit #7
+1353: call #2 2
+1354: lit #3
+1355: call slot #5 3
+1356: drop
+1357: get local ::0
+1358: lit #8
+1359: lit #8
+1360: call #2 2
+1361: lit #3
+1362: call slot #5 3
+1363: drop
+1364: get local ::0
+1365: lit #8
+1366: lit #9
+1367: call #2 2
+1368: lit #10
+1369: call slot #5 3
+1370: drop
+1371: get local ::0
+1372: lit #8
+1373: lit #10
+1374: call #2 2
+1375: lit #11
+1376: call slot #5 3
+1377: drop
+1378: get local ::0
+1379: lit #8
+1380: lit #11
+1381: call #2 2
+1382: lit #3
+1383: call slot #5 3
+1384: drop
+1385: get local ::0
+1386: lit #8
+1387: lit #12
+1388: call #2 2
+1389: lit #3
+1390: call slot #5 3
+1391: drop
+1392: get local ::0
+1393: lit #8
+1394: lit #4
+1395: call #2 2
+1396: lit #9
+1397: call slot #5 3
+1398: drop
+1399: get local ::0
+1400: lit #9
+1401: lit #3
+1402: call #2 2
+1403: lit #11
+1404: call slot #5 3
+1405: drop
+1406: get local ::0
+1407: lit #9
+1408: lit #6
+1409: call #2 2
+1410: lit #3
+1411: call slot #5 3
+1412: drop
+1413: get local ::0
+1414: lit #9
+1415: lit #7
+1416: call #2 2
+1417: lit #3
+1418: call slot #5 3
+1419: drop
+1420: get local ::0
+1421: lit #9
+1422: lit #8
+1423: call #2 2
+1424: lit #6
+1425: call slot #5 3
+1426: drop
+1427: get local ::0
+1428: lit #9
+1429: lit #9
+1430: call #2 2
+1431: lit #3
+1432: call slot #5 3
+1433: drop
+1434: get local ::0
+1435: lit #9
+1436: lit #10
+1437: call #2 2
+1438: lit #13
+1439: call slot #5 3
+1440: drop
+1441: get local ::0
+1442: lit #9
+1443: lit #11
+1444: call #2 2
+1445: lit #3
+1446: call slot #5 3
+1447: drop
+1448: get local ::0
+1449: lit #9
+1450: lit #12
+1451: call #2 2
+1452: lit #12
+1453: call slot #5 3
+1454: drop
+1455: get local ::0
+1456: lit #9
+1457: lit #4
+1458: call #2 2
+1459: lit #3
+1460: call slot #5 3
+1461: drop
+1462: get local ::0
+1463: lit #10
+1464: lit #3
+1465: call #2 2
+1466: lit #12
+1467: call slot #5 3
+1468: drop
+1469: get local ::0
+1470: lit #10
+1471: lit #6
+1472: call #2 2
+1473: lit #3
+1474: call slot #5 3
+1475: drop
+1476: get local ::0
+1477: lit #10
+1478: lit #7
+1479: call #2 2
+1480: lit #6
+1481: call slot #5 3
+1482: drop
+1483: get local ::0
+1484: lit #10
+1485: lit #8
+1486: call #2 2
+1487: lit #3
+1488: call slot #5 3
+1489: drop
+1490: get local ::0
+1491: lit #10
+1492: lit #9
+1493: call #2 2
+1494: lit #9
+1495: call slot #5 3
+1496: drop
+1497: get local ::0
+1498: lit #10
+1499: lit #10
+1500: call #2 2
+1501: lit #3
+1502: call slot #5 3
+1503: drop
+1504: get local ::0
+1505: lit #10
+1506: lit #11
+1507: call #2 2
+1508: lit #3
+1509: call slot #5 3
+1510: drop
+1511: get local ::0
+1512: lit #10
+1513: lit #12
+1514: call #2 2
+1515: lit #3
+1516: call slot #5 3
+1517: drop
+1518: get local ::0
+1519: lit #10
+1520: lit #4
+1521: call #2 2
+1522: lit #13
+1523: call slot #5 3
+1524: drop
+1525: get local ::0
+1526: lit #11
+1527: lit #3
+1528: call #2 2
+1529: lit #3
+1530: call slot #5 3
+1531: drop
+1532: get local ::0
+1533: lit #11
+1534: lit #6
+1535: call #2 2
+1536: lit #6
+1537: call slot #5 3
+1538: drop
+1539: get local ::0
+1540: lit #11
+1541: lit #7
+1542: call #2 2
+1543: lit #3
+1544: call slot #5 3
+1545: drop
+1546: get local ::0
+1547: lit #11
+1548: lit #8
+1549: call #2 2
+1550: lit #13
+1551: call slot #5 3
+1552: drop
+1553: get local ::0
+1554: lit #11
+1555: lit #9
+1556: call #2 2
+1557: lit #3
+1558: call slot #5 3
+1559: drop
+1560: get local ::0
+1561: lit #11
+1562: lit #10
+1563: call #2 2
+1564: lit #3
+1565: call slot #5 3
+1566: drop
+1567: get local ::0
+1568: lit #11
+1569: lit #11
+1570: call #2 2
+1571: lit #9
+1572: call slot #5 3
+1573: drop
+1574: get local ::0
+1575: lit #11
+1576: lit #12
+1577: call #2 2
+1578: lit #11
+1579: call slot #5 3
+1580: drop
+1581: get local ::0
+1582: lit #11
+1583: lit #4
+1584: call #2 2
+1585: lit #3
+1586: call slot #5 3
+1587: drop
+1588: get local ::0
+1589: lit #12
+1590: lit #3
+1591: call #2 2
+1592: lit #3
+1593: call slot #5 3
+1594: drop
+1595: get local ::0
+1596: lit #12
+1597: lit #6
+1598: call #2 2
+1599: lit #13
+1600: call slot #5 3
+1601: drop
+1602: get local ::0
+1603: lit #12
+1604: lit #7
+1605: call #2 2
+1606: lit #11
+1607: call slot #5 3
+1608: drop
+1609: get local ::0
+1610: lit #12
+1611: lit #8
+1612: call #2 2
+1613: lit #3
+1614: call slot #5 3
+1615: drop
+1616: get local ::0
+1617: lit #12
+1618: lit #9
+1619: call #2 2
+1620: lit #3
+1621: call slot #5 3
+1622: drop
+1623: get local ::0
+1624: lit #12
+1625: lit #10
+1626: call #2 2
+1627: lit #4
+1628: call slot #5 3
+1629: drop
+1630: get local ::0
+1631: lit #12
+1632: lit #11
+1633: call #2 2
+1634: lit #3
+1635: call slot #5 3
+1636: drop
+1637: get local ::0
+1638: lit #12
+1639: lit #12
+1640: call #2 2
+1641: lit #3
+1642: call slot #5 3
+1643: drop
+1644: get local ::0
+1645: lit #12
+1646: lit #4
+1647: call #2 2
+1648: lit #12
+1649: call slot #5 3
+1650: drop
+1651: get local ::0
+1652: lit #4
+1653: lit #3
+1654: call #2 2
+1655: lit #3
+1656: call slot #5 3
+1657: drop
+1658: get local ::0
+1659: lit #4
+1660: lit #6
+1661: call #2 2
+1662: lit #12
+1663: call slot #5 3
+1664: drop
+1665: get local ::0
+1666: lit #4
+1667: lit #7
+1668: call #2 2
+1669: lit #3
+1670: call slot #5 3
+1671: drop
+1672: get local ::0
+1673: lit #4
+1674: lit #8
+1675: call #2 2
+1676: lit #11
+1677: call slot #5 3
+1678: drop
+1679: get local ::0
+1680: lit #4
+1681: lit #9
+1682: call #2 2
+1683: lit #3
+1684: call slot #5 3
+1685: drop
+1686: get local ::0
+1687: lit #4
+1688: lit #10
+1689: call #2 2
+1690: lit #3
+1691: call slot #5 3
+1692: drop
+1693: get local ::0
+1694: lit #4
+1695: lit #11
+1696: call #2 2
+1697: lit #3
+1698: call slot #5 3
+1699: drop
+1700: get local ::0
+1701: lit #4
+1702: lit #12
+1703: call #2 2
+1704: lit #3
+1705: call slot #5 3
+1706: drop
+1707: get local ::0
+1708: lit #4
+1709: lit #4
+1710: call #2 2
+1711: lit #6
+1712: call slot #5 3
+1713: drop
+1714: get local ::0
+1715: return
+1716: call #1 0
+1717: set local ::0
+1718: drop
+1719: get local ::0
+1720: lit #3
+1721: lit #3
+1722: call #2 2
+1723: lit #13
+1724: call slot #5 3
+1725: drop
+1726: get local ::0
+1727: lit #3
+1728: lit #6
+1729: call #2 2
+1730: lit #3
+1731: call slot #5 3
+1732: drop
+1733: get local ::0
+1734: lit #3
+1735: lit #7
+1736: call #2 2
+1737: lit #12
+1738: call slot #5 3
+1739: drop
+1740: get local ::0
+1741: lit #3
+1742: lit #8
+1743: call #2 2
+1744: lit #3
+1745: call slot #5 3
+1746: drop
+1747: get local ::0
+1748: lit #3
+1749: lit #9
+1750: call #2 2
+1751: lit #10
+1752: call slot #5 3
+1753: drop
+1754: get local ::0
+1755: lit #3
+1756: lit #10
+1757: call #2 2
+1758: lit #3
+1759: call slot #5 3
+1760: drop
+1761: get local ::0
+1762: lit #3
+1763: lit #11
+1764: call #2 2
+1765: lit #8
+1766: call slot #5 3
+1767: drop
+1768: get local ::0
+1769: lit #3
+1770: lit #12
+1771: call #2 2
+1772: lit #3
+1773: call slot #5 3
+1774: drop
+1775: get local ::0
+1776: lit #3
+1777: lit #4
+1778: call #2 2
+1779: lit #3
+1780: call slot #5 3
+1781: drop
+1782: get local ::0
+1783: lit #6
+1784: lit #3
+1785: call #2 2
+1786: lit #3
+1787: call slot #5 3
+1788: drop
+1789: get local ::0
+1790: lit #6
+1791: lit #6
+1792: call #2 2
+1793: lit #3
+1794: call slot #5 3
+1795: drop
+1796: get local ::0
+1797: lit #6
+1798: lit #7
+1799: call #2 2
+1800: lit #11
+1801: call slot #5 3
+1802: drop
+1803: get local ::0
+1804: lit #6
+1805: lit #8
+1806: call #2 2
+1807: lit #3
+1808: call slot #5 3
+1809: drop
+1810: get local ::0
+1811: lit #6
+1812: lit #9
+1813: call #2 2
+1814: lit #3
+1815: call slot #5 3
+1816: drop
+1817: get local ::0
+1818: lit #6
+1819: lit #10
+1820: call #2 2
+1821: lit #8
+1822: call slot #5 3
+1823: drop
+1824: get local ::0
+1825: lit #6
+1826: lit #11
+1827: call #2 2
+1828: lit #13
+1829: call slot #5 3
+1830: drop
+1831: get local ::0
+1832: lit #6
+1833: lit #12
+1834: call #2 2
+1835: lit #3
+1836: call slot #5 3
+1837: drop
+1838: get local ::0
+1839: lit #6
+1840: lit #4
+1841: call #2 2
+1842: lit #10
+1843: call slot #5 3
+1844: drop
+1845: get local ::0
+1846: lit #7
+1847: lit #3
+1848: call #2 2
+1849: lit #8
+1850: call slot #5 3
+1851: drop
+1852: get local ::0
+1853: lit #7
+1854: lit #6
+1855: call #2 2
+1856: lit #3
+1857: call slot #5 3
+1858: drop
+1859: get local ::0
+1860: lit #7
+1861: lit #7
+1862: call #2 2
+1863: lit #6
+1864: call slot #5 3
+1865: drop
+1866: get local ::0
+1867: lit #7
+1868: lit #8
+1869: call #2 2
+1870: lit #3
+1871: call slot #5 3
+1872: drop
+1873: get local ::0
+1874: lit #7
+1875: lit #9
+1876: call #2 2
+1877: lit #7
+1878: call slot #5 3
+1879: drop
+1880: get local ::0
+1881: lit #7
+1882: lit #10
+1883: call #2 2
+1884: lit #3
+1885: call slot #5 3
+1886: drop
+1887: get local ::0
+1888: lit #7
+1889: lit #11
+1890: call #2 2
+1891: lit #3
+1892: call slot #5 3
+1893: drop
+1894: get local ::0
+1895: lit #7
+1896: lit #12
+1897: call #2 2
+1898: lit #9
+1899: call slot #5 3
+1900: drop
+1901: get local ::0
+1902: lit #7
+1903: lit #4
+1904: call #2 2
+1905: lit #3
+1906: call slot #5 3
+1907: drop
+1908: get local ::0
+1909: lit #8
+1910: lit #3
+1911: call #2 2
+1912: lit #3
+1913: call slot #5 3
+1914: drop
+1915: get local ::0
+1916: lit #8
+1917: lit #6
+1918: call #2 2
+1919: lit #3
+1920: call slot #5 3
+1921: drop
+1922: get local ::0
+1923: lit #8
+1924: lit #7
+1925: call #2 2
+1926: lit #4
+1927: call slot #5 3
+1928: drop
+1929: get local ::0
+1930: lit #8
+1931: lit #8
+1932: call #2 2
+1933: lit #10
+1934: call slot #5 3
+1935: drop
+1936: get local ::0
+1937: lit #8
+1938: lit #9
+1939: call #2 2
+1940: lit #3
+1941: call slot #5 3
+1942: drop
+1943: get local ::0
+1944: lit #8
+1945: lit #10
+1946: call #2 2
+1947: lit #12
+1948: call slot #5 3
+1949: drop
+1950: get local ::0
+1951: lit #8
+1952: lit #11
+1953: call #2 2
+1954: lit #11
+1955: call slot #5 3
+1956: drop
+1957: get local ::0
+1958: lit #8
+1959: lit #12
+1960: call #2 2
+1961: lit #3
+1962: call slot #5 3
+1963: drop
+1964: get local ::0
+1965: lit #8
+1966: lit #4
+1967: call #2 2
+1968: lit #3
+1969: call slot #5 3
+1970: drop
+1971: get local ::0
+1972: lit #9
+1973: lit #3
+1974: call #2 2
+1975: lit #11
+1976: call slot #5 3
+1977: drop
+1978: get local ::0
+1979: lit #9
+1980: lit #6
+1981: call #2 2
+1982: lit #3
+1983: call slot #5 3
+1984: drop
+1985: get local ::0
+1986: lit #9
+1987: lit #7
+1988: call #2 2
+1989: lit #9
+1990: call slot #5 3
+1991: drop
+1992: get local ::0
+1993: lit #9
+1994: lit #8
+1995: call #2 2
+1996: lit #3
+1997: call slot #5 3
+1998: drop
+1999: get local ::0
+2000: lit #9
+2001: lit #9
+2002: call #2 2
+2003: lit #13
+2004: call slot #5 3
+2005: drop
+2006: get local ::0
+2007: lit #9
+2008: lit #10
+2009: call #2 2
+2010: lit #3
+2011: call slot #5 3
+2012: drop
+2013: get local ::0
+2014: lit #9
+2015: lit #11
+2016: call #2 2
+2017: lit #6
+2018: call slot #5 3
+2019: drop
+2020: get local ::0
+2021: lit #9
+2022: lit #12
+2023: call #2 2
+2024: lit #3
+2025: call slot #5 3
+2026: drop
+2027: get local ::0
+2028: lit #9
+2029: lit #4
+2030: call #2 2
+2031: lit #12
+2032: call slot #5 3
+2033: drop
+2034: get local ::0
+2035: lit #10
+2036: lit #3
+2037: call #2 2
+2038: lit #3
+2039: call slot #5 3
+2040: drop
+2041: get local ::0
+2042: lit #10
+2043: lit #6
+2044: call #2 2
+2045: lit #13
+2046: call slot #5 3
+2047: drop
+2048: get local ::0
+2049: lit #10
+2050: lit #7
+2051: call #2 2
+2052: lit #3
+2053: call slot #5 3
+2054: drop
+2055: get local ::0
+2056: lit #10
+2057: lit #8
+2058: call #2 2
+2059: lit #3
+2060: call slot #5 3
+2061: drop
+2062: get local ::0
+2063: lit #10
+2064: lit #9
+2065: call #2 2
+2066: lit #11
+2067: call slot #5 3
+2068: drop
+2069: get local ::0
+2070: lit #10
+2071: lit #10
+2072: call #2 2
+2073: lit #3
+2074: call slot #5 3
+2075: drop
+2076: get local ::0
+2077: lit #10
+2078: lit #11
+2079: call #2 2
+2080: lit #4
+2081: call slot #5 3
+2082: drop
+2083: get local ::0
+2084: lit #10
+2085: lit #12
+2086: call #2 2
+2087: lit #3
+2088: call slot #5 3
+2089: drop
+2090: get local ::0
+2091: lit #10
+2092: lit #4
+2093: call #2 2
+2094: lit #3
+2095: call slot #5 3
+2096: drop
+2097: get local ::0
+2098: lit #11
+2099: lit #3
+2100: call #2 2
+2101: lit #10
+2102: call slot #5 3
+2103: drop
+2104: get local ::0
+2105: lit #11
+2106: lit #6
+2107: call #2 2
+2108: lit #3
+2109: call slot #5 3
+2110: drop
+2111: get local ::0
+2112: lit #11
+2113: lit #7
+2114: call #2 2
+2115: lit #13
+2116: call slot #5 3
+2117: drop
+2118: get local ::0
+2119: lit #11
+2120: lit #8
+2121: call #2 2
+2122: lit #3
+2123: call slot #5 3
+2124: drop
+2125: get local ::0
+2126: lit #11
+2127: lit #9
+2128: call #2 2
+2129: lit #3
+2130: call slot #5 3
+2131: drop
+2132: get local ::0
+2133: lit #11
+2134: lit #10
+2135: call #2 2
+2136: lit #11
+2137: call slot #5 3
+2138: drop
+2139: get local ::0
+2140: lit #11
+2141: lit #11
+2142: call #2 2
+2143: lit #3
+2144: call slot #5 3
+2145: drop
+2146: get local ::0
+2147: lit #11
+2148: lit #12
+2149: call #2 2
+2150: lit #12
+2151: call slot #5 3
+2152: drop
+2153: get local ::0
+2154: lit #11
+2155: lit #4
+2156: call #2 2
+2157: lit #8
+2158: call slot #5 3
+2159: drop
+2160: get local ::0
+2161: lit #12
+2162: lit #3
+2163: call #2 2
+2164: lit #3
+2165: call slot #5 3
+2166: drop
+2167: get local ::0
+2168: lit #12
+2169: lit #6
+2170: call #2 2
+2171: lit #3
+2172: call slot #5 3
+2173: drop
+2174: get local ::0
+2175: lit #12
+2176: lit #7
+2177: call #2 2
+2178: lit #7
+2179: call slot #5 3
+2180: drop
+2181: get local ::0
+2182: lit #12
+2183: lit #8
+2184: call #2 2
+2185: lit #3
+2186: call slot #5 3
+2187: drop
+2188: get local ::0
+2189: lit #12
+2190: lit #9
+2191: call #2 2
+2192: lit #6
+2193: call slot #5 3
+2194: drop
+2195: get local ::0
+2196: lit #12
+2197: lit #10
+2198: call #2 2
+2199: lit #3
+2200: call slot #5 3
+2201: drop
+2202: get local ::0
+2203: lit #12
+2204: lit #11
+2205: call #2 2
+2206: lit #3
+2207: call slot #5 3
+2208: drop
+2209: get local ::0
+2210: lit #12
+2211: lit #12
+2212: call #2 2
+2213: lit #3
+2214: call slot #5 3
+2215: drop
+2216: get local ::0
+2217: lit #12
+2218: lit #4
+2219: call #2 2
+2220: lit #3
+2221: call slot #5 3
+2222: drop
+2223: get local ::0
+2224: lit #4
+2225: lit #3
+2226: call #2 2
+2227: lit #4
+2228: call slot #5 3
+2229: drop
+2230: get local ::0
+2231: lit #4
+2232: lit #6
+2233: call #2 2
+2234: lit #3
+2235: call slot #5 3
+2236: drop
+2237: get local ::0
+2238: lit #4
+2239: lit #7
+2240: call #2 2
+2241: lit #3
+2242: call slot #5 3
+2243: drop
+2244: get local ::0
+2245: lit #4
+2246: lit #8
+2247: call #2 2
+2248: lit #12
+2249: call slot #5 3
+2250: drop
+2251: get local ::0
+2252: lit #4
+2253: lit #9
+2254: call #2 2
+2255: lit #9
+2256: call slot #5 3
+2257: drop
+2258: get local ::0
+2259: lit #4
+2260: lit #10
+2261: call #2 2
+2262: lit #3
+2263: call slot #5 3
+2264: drop
+2265: get local ::0
+2266: lit #4
+2267: lit #11
+2268: call #2 2
+2269: lit #7
+2270: call slot #5 3
+2271: drop
+2272: get local ::0
+2273: lit #4
+2274: lit #12
+2275: call #2 2
+2276: lit #3
+2277: call slot #5 3
+2278: drop
+2279: get local ::0
+2280: lit #4
+2281: lit #4
+2282: call #2 2
+2283: lit #13
+2284: call slot #5 3
+2285: drop
+2286: get local ::0
+2287: return
+2288: get local ::1
+2289: lit #22
+2290: call slot #29 2
+2291: branch #27
+2292: get local ::0
+2293: get slot #23
+2294: get local ::1
+2295: get slot #23
+2296: call slot #29 2
+2297: get local ::0
+2298: get slot #25
+2299: get local ::1
+2300: get slot #25
+2301: call slot #29 2
+2302: call slot #30 2
+2303: goto #28
+2304: label #27
+2305: lit #31
+2306: label #28
+2307: return
+2308: get local ::1
+2309: lit #22
+2310: call slot #29 2
+2311: branch #33
+2312: get local ::0
+2313: get slot #23
+2314: get local ::1
+2315: get slot #23
+2316: call slot #35 2
+2317: get local ::0
+2318: get slot #25
+2319: get local ::1
+2320: get slot #25
+2321: call slot #35 2
+2322: call slot #30 2
+2323: goto #34
+2324: label #33
+2325: lit #36
+2326: label #34
+2327: return
+2328: get local ::0
+2329: get slot #23
+2330: lit #13
+2331: call slot #39 2
+2332: get local ::0
+2333: get slot #25
+2334: call slot #38 2
+2335: return
+2336: lit #22
+2337: get local ::0
+2338: get local ::1
+2339: object #42
+2340: return
+2341: get local ::0
+2342: get slot #1
+2343: get local ::1
+2344: call slot #40 1
+2345: call slot #45 2
+2346: return
+2347: get local ::0
+2348: get slot #1
+2349: get local ::1
+2350: call slot #40 1
+2351: get local ::2
+2352: call slot #5 3
+2353: return
+2354: lit #3
+2355: set local ::1
+2356: drop
+2357: goto #49
+2358: label #48
+2359: lit #3
+2360: set local ::2
+2361: drop
+2362: goto #51
+2363: label #50
+2364: get local ::0
+2365: get slot #1
+2366: get local ::1
+2367: lit #13
+2368: call slot #39 2
+2369: get local ::2
+2370: call slot #38 2
+2371: call slot #45 2
+2372: set local ::3
+2373: drop
+2374: get local ::3
+2375: lit #3
+2376: call slot #29 2
+2377: branch #52
+2378: get local ::3
+2379: printf #54 1
+2380: drop
+2381: goto #53
+2382: label #52
+2383: printf #55 0
+2384: drop
+2385: label #53
+2386: get local ::2
+2387: lit #6
+2388: call slot #38 2
+2389: set local ::2
+2390: drop
+2391: get local ::2
+2392: lit #3
+2393: call slot #35 2
+2394: get local ::2
+2395: lit #13
+2396: call slot #35 2
+2397: call slot #30 2
+2398: get local ::2
+2399: lit #8
+2400: call slot #58 2
+2401: lit #3
+2402: call slot #29 2
+2403: call slot #30 2
+2404: branch #56
+2405: lit #22
+2406: drop
+2407: goto #57
+2408: label #56
+2409: printf #59 0
+2410: drop
+2411: label #57
+2412: label #51
+2413: get local ::2
+2414: lit #13
+2415: call slot #60 2
+2416: branch #50
+2417: printf #61 0
+2418: drop
+2419: get local ::1
+2420: lit #6
+2421: call slot #38 2
+2422: set local ::1
+2423: drop
+2424: get local ::1
+2425: lit #3
+2426: call slot #35 2
+2427: get local ::1
+2428: lit #13
+2429: call slot #35 2
+2430: call slot #30 2
+2431: get local ::1
+2432: lit #8
+2433: call slot #58 2
+2434: lit #3
+2435: call slot #29 2
+2436: call slot #30 2
+2437: branch #62
+2438: lit #22
+2439: drop
+2440: goto #63
+2441: label #62
+2442: printf #64 0
+2443: drop
+2444: label #63
+2445: label #49
+2446: get local ::1
+2447: lit #13
+2448: call slot #60 2
+2449: branch #48
+2450: printf #61 0
+2451: return
+2452: lit #22
+2453: lit #13
+2454: lit #13
+2455: call slot #39 2
+2456: lit #3
+2457: array
+2458: object #67
+2459: return
+2460: get local ::0
+2461: get slot #70
+2462: get local ::1
+2463: get local ::0
+2464: get slot #70
+2465: get local ::1
+2466: call slot #45 2
+2467: lit #6
+2468: call slot #38 2
+2469: call slot #5 3
+2470: return
+2471: lit #36
+2472: set local ::1
+2473: drop
+2474: lit #6
+2475: set local ::2
+2476: drop
+2477: goto #75
+2478: label #74
+2479: get local ::1
+2480: get local ::0
+2481: get slot #70
+2482: get local ::2
+2483: call slot #45 2
+2484: lit #6
+2485: call slot #76 2
+2486: call slot #30 2
+2487: set local ::1
+2488: drop
+2489: get local ::2
+2490: lit #6
+2491: call slot #38 2
+2492: set local ::2
+2493: drop
+2494: label #75
+2495: get local ::2
+2496: lit #69
+2497: call slot #60 2
+2498: branch #74
+2499: get local ::1
+2500: return
+2501: lit #3
+2502: set local ::1
+2503: drop
+2504: printf #79 0
+2505: drop
+2506: goto #81
+2507: label #80
+2508: get local ::1
+2509: lit #3
+2510: call slot #35 2
+2511: branch #82
+2512: lit #22
+2513: drop
+2514: goto #83
+2515: label #82
+2516: printf #84 0
+2517: drop
+2518: label #83
+2519: get local ::1
+2520: printf #54 1
+2521: drop
+2522: get local ::1
+2523: lit #6
+2524: call slot #38 2
+2525: set local ::1
+2526: drop
+2527: label #81
+2528: get local ::1
+2529: lit #69
+2530: call slot #60 2
+2531: branch #80
+2532: printf #85 0
+2533: return
+2534: lit #22
+2535: lit #69
+2536: lit #3
+2537: array
+2538: get local ::0
+2539: object #87
+2540: return
+2541: lit #36
+2542: set local ::1
+2543: drop
+2544: lit #3
+2545: set local ::2
+2546: drop
+2547: goto #91
+2548: label #90
+2549: get local ::0
+2550: get slot #1
+2551: call #88 1
+2552: set local ::3
+2553: drop
+2554: lit #3
+2555: set local ::4
+2556: drop
+2557: goto #93
+2558: label #92
+2559: get local ::3
+2560: get local ::0
+2561: get slot #1
+2562: get local ::2
+2563: get local ::4
+2564: call #2 2
+2565: call slot #45 2
+2566: call slot #72 2
+2567: drop
+2568: get local ::4
+2569: lit #6
+2570: call slot #38 2
+2571: set local ::4
+2572: drop
+2573: label #93
+2574: get local ::4
+2575: lit #13
+2576: call slot #60 2
+2577: branch #92
+2578: get local ::1
+2579: get local ::3
+2580: call slot #77 1
+2581: call slot #30 2
+2582: set local ::1
+2583: drop
+2584: get local ::2
+2585: lit #6
+2586: call slot #38 2
+2587: set local ::2
+2588: drop
+2589: label #91
+2590: get local ::2
+2591: lit #13
+2592: call slot #60 2
+2593: branch #90
+2594: get local ::1
+2595: return
+2596: lit #36
+2597: set local ::1
+2598: drop
+2599: lit #3
+2600: set local ::2
+2601: drop
+2602: goto #97
+2603: label #96
+2604: get local ::0
+2605: get slot #1
+2606: call #88 1
+2607: set local ::3
+2608: drop
+2609: lit #3
+2610: set local ::4
+2611: drop
+2612: goto #99
+2613: label #98
+2614: get local ::3
+2615: get local ::0
+2616: get slot #1
+2617: get local ::4
+2618: get local ::2
+2619: call #2 2
+2620: call slot #45 2
+2621: call slot #72 2
+2622: drop
+2623: get local ::4
+2624: lit #6
+2625: call slot #38 2
+2626: set local ::4
+2627: drop
+2628: label #99
+2629: get local ::4
+2630: lit #13
+2631: call slot #60 2
+2632: branch #98
+2633: get local ::1
+2634: get local ::3
+2635: call slot #77 1
+2636: call slot #30 2
+2637: set local ::1
+2638: drop
+2639: get local ::2
+2640: lit #6
+2641: call slot #38 2
+2642: set local ::2
+2643: drop
+2644: label #97
+2645: get local ::2
+2646: lit #13
+2647: call slot #60 2
+2648: branch #96
+2649: get local ::1
+2650: return
+2651: lit #36
+2652: set local ::1
+2653: drop
+2654: lit #3
+2655: set local ::2
+2656: drop
+2657: goto #103
+2658: label #102
+2659: get local ::0
+2660: get slot #1
+2661: call #88 1
+2662: set local ::3
+2663: drop
+2664: get local ::2
+2665: lit #8
+2666: call slot #104 2
+2667: lit #8
+2668: call slot #39 2
+2669: set local ::4
+2670: drop
+2671: get local ::2
+2672: lit #8
+2673: call slot #58 2
+2674: lit #8
+2675: call slot #39 2
+2676: set local ::5
+2677: drop
+2678: get local ::4
+2679: set local ::6
+2680: drop
+2681: goto #106
+2682: label #105
+2683: get local ::5
+2684: set local ::7
+2685: drop
+2686: goto #108
+2687: label #107
+2688: get local ::3
+2689: get local ::0
+2690: get slot #1
+2691: get local ::6
+2692: get local ::7
+2693: call #2 2
+2694: call slot #45 2
+2695: call slot #72 2
+2696: drop
+2697: get local ::7
+2698: lit #6
+2699: call slot #38 2
+2700: set local ::7
+2701: drop
+2702: label #108
+2703: get local ::7
+2704: get local ::5
+2705: lit #8
+2706: call slot #38 2
+2707: call slot #60 2
+2708: branch #107
+2709: get local ::6
+2710: lit #6
+2711: call slot #38 2
+2712: set local ::6
+2713: drop
+2714: label #106
+2715: get local ::6
+2716: get local ::4
+2717: lit #8
+2718: call slot #38 2
+2719: call slot #60 2
+2720: branch #105
+2721: get local ::1
+2722: get local ::3
+2723: call slot #77 1
+2724: call slot #30 2
+2725: set local ::1
+2726: drop
+2727: get local ::2
+2728: lit #6
+2729: call slot #38 2
+2730: set local ::2
+2731: drop
+2732: label #103
+2733: get local ::2
+2734: lit #13
+2735: call slot #60 2
+2736: branch #102
+2737: get local ::1
+2738: return
+2739: get local ::0
+2740: call slot #94 1
+2741: get local ::0
+2742: call slot #100 1
+2743: call slot #30 2
+2744: get local ::0
+2745: call slot #109 1
+2746: call slot #30 2
+2747: return
+2748: lit #22
+2749: get local ::0
+2750: object #112
+2751: return
+2752: get local ::0
+2753: lit #3
+2754: call slot #117 2
+2755: branch #115
+2756: lit #22
+2757: goto #116
+2758: label #115
+2759: get local ::0
+2760: get slot #1
+2761: label #116
+2762: return
+2763: get local ::1
+2764: lit #122
+2765: call slot #29 2
+2766: branch #120
+2767: get local ::0
+2768: get slot #1
+2769: get slot #1
+2770: get local ::1
+2771: call slot #45 2
+2772: lit #3
+2773: call slot #35 2
+2774: branch #123
+2775: lit #31
+2776: set local ::2
+2777: drop
+2778: lit #6
+2779: set local ::3
+2780: drop
+2781: goto #126
+2782: label #125
+2783: get local ::2
+2784: lit #31
+2785: call slot #29 2
+2786: branch #127
+2787: lit #22
+2788: drop
+2789: goto #128
+2790: label #127
+2791: get local ::0
+2792: get slot #1
+2793: get slot #1
+2794: get local ::1
+2795: get local ::3
+2796: call slot #5 3
+2797: drop
+2798: get local ::0
+2799: get slot #1
+2800: call #113 1
+2801: call slot #77 1
+2802: branch #129
+2803: lit #22
+2804: drop
+2805: goto #130
+2806: label #129
+2807: get local ::2
+2808: get local ::0
+2809: get local ::1
+2810: lit #6
+2811: call slot #38 2
+2812: call slot #117 2
+2813: call slot #59 2
+2814: set local ::2
+2815: drop
+2816: label #130
+2817: label #128
+2818: get local ::3
+2819: lit #6
+2820: call slot #38 2
+2821: set local ::3
+2822: drop
+2823: label #126
+2824: get local ::3
+2825: lit #13
+2826: call slot #76 2
+2827: branch #125
+2828: get local ::2
+2829: branch #131
+2830: get local ::0
+2831: get slot #1
+2832: get slot #1
+2833: get local ::1
+2834: lit #3
+2835: call slot #5 3
+2836: drop
+2837: lit #31
+2838: goto #132
+2839: label #131
+2840: lit #36
+2841: label #132
+2842: goto #124
+2843: label #123
+2844: get local ::0
+2845: get local ::1
+2846: lit #6
+2847: call slot #38 2
+2848: call slot #117 2
+2849: label #124
+2850: goto #121
+2851: label #120
+2852: lit #36
+2853: label #121
+2854: return
+2855: lit #22
+2856: get local ::0
+2857: object #134
+2858: return
+2859: lit #9
+2860: lit #22
+2861: array
+2862: set local ::0
+2863: drop
+2864: get local ::0
+2865: lit #3
+2866: call #14 0
+2867: call slot #5 3
+2868: drop
+2869: get local ::0
+2870: lit #6
+2871: call #16 0
+2872: call slot #5 3
+2873: drop
+2874: get local ::0
+2875: lit #7
+2876: call #18 0
+2877: call slot #5 3
+2878: drop
+2879: get local ::0
+2880: lit #8
+2881: call #20 0
+2882: call slot #5 3
+2883: drop
+2884: lit #3
+2885: set local ::1
+2886: drop
+2887: goto #138
+2888: label #137
+2889: get local ::1
+2890: lit #6
+2891: call slot #38 2
+2892: printf #139 1
+2893: drop
+2894: get local ::0
+2895: get local ::1
+2896: call slot #45 2
+2897: call slot #65 1
+2898: drop
+2899: get local ::0
+2900: get local ::1
+2901: call slot #45 2
+2902: call #135 1
+2903: call slot #118 1
+2904: set local ::2
+2905: drop
+2906: get local ::1
+2907: lit #6
+2908: call slot #38 2
+2909: printf #140 1
+2910: drop
+2911: lit #22
+2912: get local ::2
+2913: call slot #29 2
+2914: branch #141
+2915: get local ::2
+2916: call slot #65 1
+2917: drop
+2918: goto #142
+2919: label #141
+2920: printf #143 0
+2921: drop
+2922: label #142
+2923: get local ::1
+2924: lit #6
+2925: call slot #38 2
+2926: set local ::1
+2927: drop
+2928: label #138
+2929: get local ::1
+2930: lit #9
+2931: call slot #60 2
+2932: branch #137
+2933: lit #22
+
+// > problem 1:
+// > 8  |1 3|4  
+// >  35|78 | 62
+// > 47 |  6| 9 
+// > ---+---+---
+// >    |   | 24
+// >  1 |3 5| 8 
+// > 28 |   |   
+// > ---+---+---
+// >  2 |6  | 39
+// > 19 | 72|64 
+// >   8|5 9|  1
+// > 
+// > solution 1:
+// > 862|193|457
+// > 935|784|162
+// > 471|256|398
+// > ---+---+---
+// > 356|918|724
+// > 714|325|986
+// > 289|467|513
+// > ---+---+---
+// > 527|641|839
+// > 193|872|645
+// > 648|539|271
+// > 
+// > problem 2:
+// >   1|  6|435
+// >    |  1|   
+// >  5 |47 |98 
+// > ---+---+---
+// >   2| 8 |7 9
+// >   8|7  |612
+// >  64| 1 | 5 
+// > ---+---+---
+// > 91 |342|8 7
+// >  27|   | 9 
+// > 6 3| 9 |5  
+// > 
+// > solution 2:
+// > 871|926|435
+// > 349|851|276
+// > 256|473|981
+// > ---+---+---
+// > 132|685|749
+// > 598|734|612
+// > 764|219|358
+// > ---+---+---
+// > 915|342|867
+// > 427|568|193
+// > 683|197|524
+// > 
+// > problem 3:
+// > 85 |  1|  6
+// >   7| 64|1  
+// >   4| 7 |59 
+// > ---+---+---
+// > 2  | 56|  4
+// > 6  |1 9| 7 
+// > 7 1| 4 |  9
+// > ---+---+---
+// >  1 |9  |46 
+// >  96|  8|  7
+// >  7 |6  |  1
+// > 
+// > solution 3:
+// > 853|291|746
+// > 927|564|138
+// > 164|873|592
+// > ---+---+---
+// > 239|756|814
+// > 645|189|273
+// > 781|342|659
+// > ---+---+---
+// > 318|927|465
+// > 596|418|327
+// > 472|635|981
+// > 
+// > problem 4:
+// > 9 7| 5 |3  
+// >   6|  3|9 5
+// > 3 1| 2 | 4 
+// > ---+---+---
+// >   8|5 7|6  
+// > 6 4| 9 |1 7
+// >  9 | 6 |8  
+// > ---+---+---
+// > 5 9|  6| 73
+// >   2| 1 |   
+// > 8  |74 |2 9
+// > 
+// > solution 4:
+// > 987|654|321
+// > 246|173|985
+// > 351|928|746
+// > ---+---+---
+// > 128|537|694
+// > 634|892|157
+// > 795|461|832
+// > ---+---+---
+// > 519|286|473
+// > 472|319|568
+// > 863|745|219
+// > 

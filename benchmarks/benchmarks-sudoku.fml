@@ -1,0 +1,714 @@
+function puzzle_one() -> 
+begin
+    let board = board();
+
+    board[coordinates(0, 0)] <- 8;
+    board[coordinates(0, 1)] <- 0;
+    board[coordinates(0, 2)] <- 0;
+    board[coordinates(0, 3)] <- 1;
+    board[coordinates(0, 4)] <- 0;
+    board[coordinates(0, 5)] <- 3;
+    board[coordinates(0, 6)] <- 4;
+    board[coordinates(0, 7)] <- 0;
+    board[coordinates(0, 8)] <- 0;
+
+    board[coordinates(1, 0)] <- 0;
+    board[coordinates(1, 1)] <- 3;
+    board[coordinates(1, 2)] <- 5;
+    board[coordinates(1, 3)] <- 7;
+    board[coordinates(1, 4)] <- 8;
+    board[coordinates(1, 5)] <- 0;
+    board[coordinates(1, 6)] <- 0;
+    board[coordinates(1, 7)] <- 6;
+    board[coordinates(1, 8)] <- 2;
+
+    board[coordinates(2, 0)] <- 4;
+    board[coordinates(2, 1)] <- 7;
+    board[coordinates(2, 2)] <- 0;
+    board[coordinates(2, 3)] <- 0;
+    board[coordinates(2, 4)] <- 0;
+    board[coordinates(2, 5)] <- 6;
+    board[coordinates(2, 6)] <- 0;
+    board[coordinates(2, 7)] <- 9;
+    board[coordinates(2, 8)] <- 0;
+
+    board[coordinates(3, 0)] <- 0;
+    board[coordinates(3, 1)] <- 0;
+    board[coordinates(3, 2)] <- 0;
+    board[coordinates(3, 3)] <- 0;
+    board[coordinates(3, 4)] <- 0;
+    board[coordinates(3, 5)] <- 0;
+    board[coordinates(3, 6)] <- 0;
+    board[coordinates(3, 7)] <- 2;
+    board[coordinates(3, 8)] <- 4;
+
+    board[coordinates(4, 0)] <- 0;
+    board[coordinates(4, 1)] <- 1;
+    board[coordinates(4, 2)] <- 0;
+    board[coordinates(4, 3)] <- 3;
+    board[coordinates(4, 4)] <- 0;
+    board[coordinates(4, 5)] <- 5;
+    board[coordinates(4, 6)] <- 0;
+    board[coordinates(4, 7)] <- 8;
+    board[coordinates(4, 8)] <- 0;
+
+    board[coordinates(5, 0)] <- 2;
+    board[coordinates(5, 1)] <- 8;
+    board[coordinates(5, 2)] <- 0;
+    board[coordinates(5, 3)] <- 0;
+    board[coordinates(5, 4)] <- 0;
+    board[coordinates(5, 5)] <- 0;
+    board[coordinates(5, 6)] <- 0;
+    board[coordinates(5, 7)] <- 0;
+    board[coordinates(5, 8)] <- 0;
+
+    board[coordinates(6, 0)] <- 0;
+    board[coordinates(6, 1)] <- 2;
+    board[coordinates(6, 2)] <- 0;
+    board[coordinates(6, 3)] <- 6;
+    board[coordinates(6, 4)] <- 0;
+    board[coordinates(6, 5)] <- 0;
+    board[coordinates(6, 6)] <- 0;
+    board[coordinates(6, 7)] <- 3;
+    board[coordinates(6, 8)] <- 9;
+
+    board[coordinates(7, 0)] <- 1;
+    board[coordinates(7, 1)] <- 9;
+    board[coordinates(7, 2)] <- 0;
+    board[coordinates(7, 3)] <- 0;
+    board[coordinates(7, 4)] <- 7;
+    board[coordinates(7, 5)] <- 2;
+    board[coordinates(7, 6)] <- 6;
+    board[coordinates(7, 7)] <- 4;
+    board[coordinates(7, 8)] <- 0;
+
+    board[coordinates(8, 0)] <- 0;
+    board[coordinates(8, 1)] <- 0;
+    board[coordinates(8, 2)] <- 8;
+    board[coordinates(8, 3)] <- 5;
+    board[coordinates(8, 4)] <- 0;
+    board[coordinates(8, 5)] <- 9;
+    board[coordinates(8, 6)] <- 0;
+    board[coordinates(8, 7)] <- 0;
+    board[coordinates(8, 8)] <- 1;
+
+    board
+end;
+
+function puzzle_two() -> 
+begin
+    let board = board();
+
+    board[coordinates(0, 0)] <- 0;
+    board[coordinates(0, 1)] <- 0;
+    board[coordinates(0, 2)] <- 1;
+    board[coordinates(0, 3)] <- 0;
+    board[coordinates(0, 4)] <- 0;
+    board[coordinates(0, 5)] <- 6;
+    board[coordinates(0, 6)] <- 4;
+    board[coordinates(0, 7)] <- 3;
+    board[coordinates(0, 8)] <- 5;
+
+    board[coordinates(1, 0)] <- 0;
+    board[coordinates(1, 1)] <- 0;
+    board[coordinates(1, 2)] <- 0;
+    board[coordinates(1, 3)] <- 0;
+    board[coordinates(1, 4)] <- 0;
+    board[coordinates(1, 5)] <- 1;
+    board[coordinates(1, 6)] <- 0;
+    board[coordinates(1, 7)] <- 0;
+    board[coordinates(1, 8)] <- 0;
+
+    board[coordinates(2, 0)] <- 0;
+    board[coordinates(2, 1)] <- 5;
+    board[coordinates(2, 2)] <- 0;
+    board[coordinates(2, 3)] <- 4;
+    board[coordinates(2, 4)] <- 7;
+    board[coordinates(2, 5)] <- 0;
+    board[coordinates(2, 6)] <- 9;
+    board[coordinates(2, 7)] <- 8;
+    board[coordinates(2, 8)] <- 0;
+
+    board[coordinates(3, 0)] <- 0;
+    board[coordinates(3, 1)] <- 0;
+    board[coordinates(3, 2)] <- 2;
+    board[coordinates(3, 3)] <- 0;
+    board[coordinates(3, 4)] <- 8;
+    board[coordinates(3, 5)] <- 0;
+    board[coordinates(3, 6)] <- 7;
+    board[coordinates(3, 7)] <- 0;
+    board[coordinates(3, 8)] <- 9;
+
+    board[coordinates(4, 0)] <- 0;
+    board[coordinates(4, 1)] <- 0;
+    board[coordinates(4, 2)] <- 8;
+    board[coordinates(4, 3)] <- 7;
+    board[coordinates(4, 4)] <- 0;
+    board[coordinates(4, 5)] <- 0;
+    board[coordinates(4, 6)] <- 6;
+    board[coordinates(4, 7)] <- 1;
+    board[coordinates(4, 8)] <- 2;
+
+    board[coordinates(5, 0)] <- 0;
+    board[coordinates(5, 1)] <- 6;
+    board[coordinates(5, 2)] <- 4;
+    board[coordinates(5, 3)] <- 0;
+    board[coordinates(5, 4)] <- 1;
+    board[coordinates(5, 5)] <- 0;
+    board[coordinates(5, 6)] <- 0;
+    board[coordinates(5, 7)] <- 5;
+    board[coordinates(5, 8)] <- 0;
+
+    board[coordinates(6, 0)] <- 9;
+    board[coordinates(6, 1)] <- 1;
+    board[coordinates(6, 2)] <- 0;
+    board[coordinates(6, 3)] <- 3;
+    board[coordinates(6, 4)] <- 4;
+    board[coordinates(6, 5)] <- 2;
+    board[coordinates(6, 6)] <- 8;
+    board[coordinates(6, 7)] <- 0;
+    board[coordinates(6, 8)] <- 7;
+
+    board[coordinates(7, 0)] <- 0;
+    board[coordinates(7, 1)] <- 2;
+    board[coordinates(7, 2)] <- 7;
+    board[coordinates(7, 3)] <- 0;
+    board[coordinates(7, 4)] <- 0;
+    board[coordinates(7, 5)] <- 0;
+    board[coordinates(7, 6)] <- 0;
+    board[coordinates(7, 7)] <- 9;
+    board[coordinates(7, 8)] <- 0;
+
+    board[coordinates(8, 0)] <- 6;
+    board[coordinates(8, 1)] <- 0;
+    board[coordinates(8, 2)] <- 3;
+    board[coordinates(8, 3)] <- 0;
+    board[coordinates(8, 4)] <- 9;
+    board[coordinates(8, 5)] <- 0;
+    board[coordinates(8, 6)] <- 5;
+    board[coordinates(8, 7)] <- 0;
+    board[coordinates(8, 8)] <- 0;
+
+    board
+end;
+
+function puzzle_three() ->
+begin
+    let board = board();
+
+    board[coordinates(0, 0)] <- 8;
+    board[coordinates(0, 1)] <- 5;
+    board[coordinates(0, 2)] <- 0;
+    board[coordinates(0, 3)] <- 0;
+    board[coordinates(0, 4)] <- 0;
+    board[coordinates(0, 5)] <- 1;
+    board[coordinates(0, 6)] <- 0;
+    board[coordinates(0, 7)] <- 0;
+    board[coordinates(0, 8)] <- 6;
+
+    board[coordinates(1, 0)] <- 0;
+    board[coordinates(1, 1)] <- 0;
+    board[coordinates(1, 2)] <- 7;
+    board[coordinates(1, 3)] <- 0;
+    board[coordinates(1, 4)] <- 6;
+    board[coordinates(1, 5)] <- 4;
+    board[coordinates(1, 6)] <- 1;
+    board[coordinates(1, 7)] <- 0;
+    board[coordinates(1, 8)] <- 0;
+
+    board[coordinates(2, 0)] <- 0;
+    board[coordinates(2, 1)] <- 0;
+    board[coordinates(2, 2)] <- 4;
+    board[coordinates(2, 3)] <- 0;
+    board[coordinates(2, 4)] <- 7;
+    board[coordinates(2, 5)] <- 0;
+    board[coordinates(2, 6)] <- 5;
+    board[coordinates(2, 7)] <- 9;
+    board[coordinates(2, 8)] <- 0;
+
+    board[coordinates(3, 0)] <- 2;
+    board[coordinates(3, 1)] <- 0;
+    board[coordinates(3, 2)] <- 0;
+    board[coordinates(3, 3)] <- 0;
+    board[coordinates(3, 4)] <- 5;
+    board[coordinates(3, 5)] <- 6;
+    board[coordinates(3, 6)] <- 0;
+    board[coordinates(3, 7)] <- 0;
+    board[coordinates(3, 8)] <- 4;
+
+    board[coordinates(4, 0)] <- 6;
+    board[coordinates(4, 1)] <- 0;
+    board[coordinates(4, 2)] <- 0;
+    board[coordinates(4, 3)] <- 1;
+    board[coordinates(4, 4)] <- 0;
+    board[coordinates(4, 5)] <- 9;
+    board[coordinates(4, 6)] <- 0;
+    board[coordinates(4, 7)] <- 7;
+    board[coordinates(4, 8)] <- 0;
+
+    board[coordinates(5, 0)] <- 7;
+    board[coordinates(5, 1)] <- 0;
+    board[coordinates(5, 2)] <- 1;
+    board[coordinates(5, 3)] <- 0;
+    board[coordinates(5, 4)] <- 4;
+    board[coordinates(5, 5)] <- 0;
+    board[coordinates(5, 6)] <- 0;
+    board[coordinates(5, 7)] <- 0;
+    board[coordinates(5, 8)] <- 9;
+
+    board[coordinates(6, 0)] <- 0;
+    board[coordinates(6, 1)] <- 1;
+    board[coordinates(6, 2)] <- 0;
+    board[coordinates(6, 3)] <- 9;
+    board[coordinates(6, 4)] <- 0;
+    board[coordinates(6, 5)] <- 0;
+    board[coordinates(6, 6)] <- 4;
+    board[coordinates(6, 7)] <- 6;
+    board[coordinates(6, 8)] <- 0;
+
+    board[coordinates(7, 0)] <- 0;
+    board[coordinates(7, 1)] <- 9;
+    board[coordinates(7, 2)] <- 6;
+    board[coordinates(7, 3)] <- 0;
+    board[coordinates(7, 4)] <- 0;
+    board[coordinates(7, 5)] <- 8;
+    board[coordinates(7, 6)] <- 0;
+    board[coordinates(7, 7)] <- 0;
+    board[coordinates(7, 8)] <- 7;
+
+    board[coordinates(8, 0)] <- 0;
+    board[coordinates(8, 1)] <- 7;
+    board[coordinates(8, 2)] <- 0;
+    board[coordinates(8, 3)] <- 6;
+    board[coordinates(8, 4)] <- 0;
+    board[coordinates(8, 5)] <- 0;
+    board[coordinates(8, 6)] <- 0;
+    board[coordinates(8, 7)] <- 0;
+    board[coordinates(8, 8)] <- 1;
+
+    board
+end;
+
+function puzzle_four() ->
+begin
+    let board = board();
+
+    board[coordinates(0, 0)] <- 9;
+    board[coordinates(0, 1)] <- 0;
+    board[coordinates(0, 2)] <- 7;
+    board[coordinates(0, 3)] <- 0;
+    board[coordinates(0, 4)] <- 5;
+    board[coordinates(0, 5)] <- 0;
+    board[coordinates(0, 6)] <- 3;
+    board[coordinates(0, 7)] <- 0;
+    board[coordinates(0, 8)] <- 0;
+
+    board[coordinates(1, 0)] <- 0;
+    board[coordinates(1, 1)] <- 0;
+    board[coordinates(1, 2)] <- 6;
+    board[coordinates(1, 3)] <- 0;
+    board[coordinates(1, 4)] <- 0;
+    board[coordinates(1, 5)] <- 3;
+    board[coordinates(1, 6)] <- 9;
+    board[coordinates(1, 7)] <- 0;
+    board[coordinates(1, 8)] <- 5;
+
+    board[coordinates(2, 0)] <- 3;
+    board[coordinates(2, 1)] <- 0;
+    board[coordinates(2, 2)] <- 1;
+    board[coordinates(2, 3)] <- 0;
+    board[coordinates(2, 4)] <- 2;
+    board[coordinates(2, 5)] <- 0;
+    board[coordinates(2, 6)] <- 0;
+    board[coordinates(2, 7)] <- 4;
+    board[coordinates(2, 8)] <- 0;
+
+    board[coordinates(3, 0)] <- 0;
+    board[coordinates(3, 1)] <- 0;
+    board[coordinates(3, 2)] <- 8;
+    board[coordinates(3, 3)] <- 5;
+    board[coordinates(3, 4)] <- 0;
+    board[coordinates(3, 5)] <- 7;
+    board[coordinates(3, 6)] <- 6;
+    board[coordinates(3, 7)] <- 0;
+    board[coordinates(3, 8)] <- 0;
+
+    board[coordinates(4, 0)] <- 6;
+    board[coordinates(4, 1)] <- 0;
+    board[coordinates(4, 2)] <- 4;
+    board[coordinates(4, 3)] <- 0;
+    board[coordinates(4, 4)] <- 9;
+    board[coordinates(4, 5)] <- 0;
+    board[coordinates(4, 6)] <- 1;
+    board[coordinates(4, 7)] <- 0;
+    board[coordinates(4, 8)] <- 7;
+
+    board[coordinates(5, 0)] <- 0;
+    board[coordinates(5, 1)] <- 9;
+    board[coordinates(5, 2)] <- 0;
+    board[coordinates(5, 3)] <- 0;
+    board[coordinates(5, 4)] <- 6;
+    board[coordinates(5, 5)] <- 0;
+    board[coordinates(5, 6)] <- 8;
+    board[coordinates(5, 7)] <- 0;
+    board[coordinates(5, 8)] <- 0;
+
+    board[coordinates(6, 0)] <- 5;
+    board[coordinates(6, 1)] <- 0;
+    board[coordinates(6, 2)] <- 9;
+    board[coordinates(6, 3)] <- 0;
+    board[coordinates(6, 4)] <- 0;
+    board[coordinates(6, 5)] <- 6;
+    board[coordinates(6, 6)] <- 0;
+    board[coordinates(6, 7)] <- 7;
+    board[coordinates(6, 8)] <- 3;
+
+    board[coordinates(7, 0)] <- 0;
+    board[coordinates(7, 1)] <- 0;
+    board[coordinates(7, 2)] <- 2;
+    board[coordinates(7, 3)] <- 0;
+    board[coordinates(7, 4)] <- 1;
+    board[coordinates(7, 5)] <- 0;
+    board[coordinates(7, 6)] <- 0;
+    board[coordinates(7, 7)] <- 0;
+    board[coordinates(7, 8)] <- 0;
+
+    board[coordinates(8, 0)] <- 8;
+    board[coordinates(8, 1)] <- 0;
+    board[coordinates(8, 2)] <- 0;
+    board[coordinates(8, 3)] <- 7;
+    board[coordinates(8, 4)] <- 4;
+    board[coordinates(8, 5)] <- 0;
+    board[coordinates(8, 6)] <- 2;
+    board[coordinates(8, 7)] <- 0;
+    board[coordinates(8, 8)] <- 9;
+
+    board
+end;
+
+function coordinates(row /*int*/, column /*int*/) -> 
+object begin
+    let row = row; 
+    let column = column;
+
+    function ==(other) -> 
+        if other == null 
+        then false
+        else this.row == other.row & this.column == other.column;
+
+    function !=(other) -> 
+        if other == null 
+        then true
+        else this.row != other.row & this.column != other.column;
+
+    function flatten() -> this.row * 9 + this.column;
+end;
+
+function board() -> 
+object begin
+    let board = array(9 * 9, 0);
+
+    function get(coordinates /*coordinates*/) -> 
+        this.board[coordinates.flatten()];
+
+    function set(coordinates /*coordinates*/, value) -> 
+        this.board[coordinates.flatten()] <- value;    
+
+    function show() -> 
+    begin
+        let row = 0;
+        while row < 9 
+        do begin
+            let column = 0;
+            while column < 9 
+            do begin
+                let value = this.board[row * 9 + column];
+                if value == 0 then print(" ") else print("~", value);                
+                column <- column + 1;
+                if column != 0 & column != 9 & column % 3 == 0 then print("|");
+            end;
+            print("\n");            
+            row <- row + 1;
+            if row != 0 & row != 9 & row % 3 == 0 then print("---+---+---\n");
+        end;
+        print("\n")
+    end        
+end;
+
+function check_list(board /*board*/) ->
+object begin
+    let checks = array(10, 0);
+    let board = board;
+
+    function mark(index /*int*/) -> 
+        this.checks[index] <- this.checks[index] + 1;
+
+    function is_good() ->
+    begin
+        let good = true;
+        let i = 1;
+        while i < 10        
+        do begin
+            good <- good & (this.checks[i] <= 1);
+            i <- i + 1;
+        end;
+        good
+    end;
+
+    function show() -> 
+    begin
+        let i = 0;
+        print("[[");
+        while i < 10
+        do begin
+            if i != 0 then print(",");
+            print("~", i);            
+            i <- i + 1;
+        end;
+        print("]]\n");
+    end;
+end;
+
+function checker(board) ->
+object begin 
+    let board = board;
+
+    function are_rows_good() ->
+    begin
+        let good = true;
+        let row = 0;
+        while row < 9 
+        do begin
+            let check_list = check_list(this.board);
+            let column = 0;
+            while column < 9 
+            do begin
+                check_list.mark(this.board[coordinates(row, column)]);
+                column <- column + 1;
+            end;         
+            good <- good & check_list.is_good();
+            row <- row + 1;
+        end;
+        good
+    end;
+
+    function are_columns_good() ->
+    begin
+        let good = true;
+        let column = 0;
+        while column < 9 
+        do begin
+            let check_list = check_list(this.board);
+            let row = 0;
+            while row < 9 
+            do begin
+                check_list.mark(this.board[coordinates(row, column)]);
+                row <- row + 1;
+            end;         
+            good <- good & check_list.is_good();
+            column <- column + 1;
+        end;
+        good
+    end;
+
+    function are_cells_good() ->
+    begin
+        let good = true;
+        let cell = 0;
+        while cell < 9 
+        do begin
+            let check_list = check_list(this.board);
+            let row = (cell / 3) * 3;
+            let column = (cell % 3) * 3;
+            let r = row;
+            while r < row + 3
+            do begin
+                let c = column;
+                while c < column + 3
+                do begin
+                    check_list.mark(this.board[coordinates(r, c)]);
+                    c <- c + 1;
+                end;                     
+                r <- r + 1;
+            end;
+            good <- good & check_list.is_good();
+            cell <- cell + 1;
+        end;
+        good
+    end;
+
+    function is_good() ->
+        this.are_rows_good() & 
+        this.are_columns_good() & 
+        this.are_cells_good();
+end;
+
+function solver(board) ->
+object begin 
+    let board = board;
+
+    function solve() -> /* board|null */
+        if this.inner_solve(0) then this.board else null;
+
+    function inner_solve(i /*int*/) -> /*boolean*/
+    begin
+        if i == 81 
+        then true
+
+        else if this.board.board[i] != 0 
+        then begin 
+            this.inner_solve(i + 1)
+        end
+
+        else begin
+            let solved = false;
+
+            let n = 1;
+            while n <= 9
+            do begin
+                if solved == false 
+                then begin
+                    this.board.board[i] <- n;
+                    if checker(this.board).is_good() 
+                    then solved <- solved | this.inner_solve(i + 1);
+                end;
+                n <- n + 1;
+            end;
+
+            if solved then true
+            else begin
+                this.board.board[i] <- 0;
+                false
+            end;
+        end;
+    end;
+end;
+
+begin 
+    let problems = array(4, null);
+    problems[0] <- puzzle_one();
+    problems[1] <- puzzle_two();
+    problems[2] <- puzzle_three();
+    problems[3] <- puzzle_four();
+
+    let i = 0;
+    while i < 4 
+    do begin
+        print("problem ~:\n", i+1);        
+        problems[i].show();
+
+        let solution = solver(problems[i]).solve();
+
+        print("solution ~:\n", i+1);
+        if null == solution 
+        then print("no solution found\n")
+        else solution.show();
+
+        i <- i + 1;
+    end;
+end
+
+// > problem 1:
+// > 8  |1 3|4  
+// >  35|78 | 62
+// > 47 |  6| 9 
+// > ---+---+---
+// >    |   | 24
+// >  1 |3 5| 8 
+// > 28 |   |   
+// > ---+---+---
+// >  2 |6  | 39
+// > 19 | 72|64 
+// >   8|5 9|  1
+// > 
+// > solution 1:
+// > 862|193|457
+// > 935|784|162
+// > 471|256|398
+// > ---+---+---
+// > 356|918|724
+// > 714|325|986
+// > 289|467|513
+// > ---+---+---
+// > 527|641|839
+// > 193|872|645
+// > 648|539|271
+// > 
+// > problem 2:
+// >   1|  6|435
+// >    |  1|   
+// >  5 |47 |98 
+// > ---+---+---
+// >   2| 8 |7 9
+// >   8|7  |612
+// >  64| 1 | 5 
+// > ---+---+---
+// > 91 |342|8 7
+// >  27|   | 9 
+// > 6 3| 9 |5  
+// > 
+// > solution 2:
+// > 871|926|435
+// > 349|851|276
+// > 256|473|981
+// > ---+---+---
+// > 132|685|749
+// > 598|734|612
+// > 764|219|358
+// > ---+---+---
+// > 915|342|867
+// > 427|568|193
+// > 683|197|524
+// > 
+// > problem 3:
+// > 85 |  1|  6
+// >   7| 64|1  
+// >   4| 7 |59 
+// > ---+---+---
+// > 2  | 56|  4
+// > 6  |1 9| 7 
+// > 7 1| 4 |  9
+// > ---+---+---
+// >  1 |9  |46 
+// >  96|  8|  7
+// >  7 |6  |  1
+// > 
+// > solution 3:
+// > 853|291|746
+// > 927|564|138
+// > 164|873|592
+// > ---+---+---
+// > 239|756|814
+// > 645|189|273
+// > 781|342|659
+// > ---+---+---
+// > 318|927|465
+// > 596|418|327
+// > 472|635|981
+// > 
+// > problem 4:
+// > 9 7| 5 |3  
+// >   6|  3|9 5
+// > 3 1| 2 | 4 
+// > ---+---+---
+// >   8|5 7|6  
+// > 6 4| 9 |1 7
+// >  9 | 6 |8  
+// > ---+---+---
+// > 5 9|  6| 73
+// >   2| 1 |   
+// > 8  |74 |2 9
+// > 
+// > solution 4:
+// > 987|654|321
+// > 246|173|985
+// > 351|928|746
+// > ---+---+---
+// > 128|537|694
+// > 634|892|157
+// > 795|461|832
+// > ---+---+---
+// > 519|286|473
+// > 472|319|568
+// > 863|745|219
+// > 
