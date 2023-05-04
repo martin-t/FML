@@ -296,8 +296,6 @@ where
                     }
 
                     let offset = -(index + 1) * 8;
-                    // is.push(Pop(Rax));
-                    // is.push(Push(Rax));
                     is.push(MovRM(Rax, Mem::base(Rsp)));
                     is.push(MovMR(Mem::base_offset(Rbp, offset), Rax));
                 }

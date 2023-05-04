@@ -32,7 +32,6 @@ impl JitMemory {
 
         let mut memptr: *mut c_void = std::ptr::null_mut();
 
-        // SAFETY: TODO
         unsafe {
             // Despite the name, this allocates.
             // OS X requires alignment: https://www.jntrnr.com/building-a-simple-jit-in-rust/

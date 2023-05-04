@@ -5,7 +5,6 @@ use std::{
     iter,
 };
 
-/// TODO Explain relative offsets for call/jump.
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Instr {

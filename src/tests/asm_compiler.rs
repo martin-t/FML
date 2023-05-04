@@ -43,12 +43,12 @@ fn factorial_handwritten(jg: Instr) {
         Ret,           // 1 byte
         // Recursive case
         Label(LABEL_RECURSIVE),
-        Push(Rdi),
+        Push(Rdi), // Save RDI
         Push(Rdi), // Align stack
         SubRI(Edi, 1),
         CallLabel(label_factorial),
-        Pop(Rdi),
-        Pop(Rdi),
+        Pop(Rdi), // Unalign stack
+        Pop(Rdi), // Restore RDI
         ImulR(Edi),
         // Epilogue
         Pop(Rbp),
