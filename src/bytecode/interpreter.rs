@@ -555,7 +555,7 @@ fn dispatch_array_method(array: &mut ArrayInstance, method_name: &str, arguments
     }
 }
 
-fn dispatch_array_get_method(array: &mut ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
+fn dispatch_array_get_method(array: &ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
     ensure!(
         arguments.len() == 1,
         "Invalid number of arguments for method `{}` in array `{}`, expecting 1",

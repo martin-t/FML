@@ -282,7 +282,7 @@ impl Code {
         let first = self.upcoming_address();
         let length = code.len();
         // println!("code {} {} {:?}", first, length, code.0);
-        self.0.extend(code.0.into_iter());
+        self.0.extend(code.0);
         (first, length)
     }
     pub fn emit(&mut self, opcode: OpCode) {
