@@ -51,6 +51,7 @@ pub trait VariableAddr: Sized {
     ///   becuse it'll be invalid by the time you can use it.
     /// - Functions are already pointers so taking then by reference
     ///   also creates a temporary and therefore useless address.
+    #[cfg(test)]
     fn var_addr_mut(&mut self) -> i64 {
         self as *mut _ as i64
     }

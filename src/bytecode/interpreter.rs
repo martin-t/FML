@@ -10,7 +10,6 @@ use crate::bytecode::opcodes::OpCode;
 use crate::bytecode::program::*;
 use crate::bytecode::state::*;
 use crate::jit::*;
-use crate::veccat;
 
 #[allow(dead_code)]
 pub fn evaluate(program: &Program) -> Result<()> {

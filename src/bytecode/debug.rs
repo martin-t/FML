@@ -1,9 +1,9 @@
 use std::io::Write;
 
 use super::opcodes::OpCode;
-use super::program::{Code, Program};
 use crate::bytecode::program::*;
 
+#[allow(dead_code)]
 pub trait PrettyPrint: UglyPrint {
     fn pretty_print<W: Write>(&self, sink: &mut W) {
         self.ugly_print(sink, 0, false);
@@ -19,6 +19,7 @@ pub trait PrettyPrint: UglyPrint {
     }
 }
 
+#[allow(dead_code)]
 pub trait PrettyPrintWithContext: UglyPrintWithContext {
     fn pretty_print<W: Write>(&self, sink: &mut W, code: &Code) {
         self.ugly_print(sink, code, 0, false);

@@ -279,6 +279,7 @@ pub trait Compiled {
         keep_result: bool,
     ) -> Result<()>;
 
+    #[cfg(test)]
     fn compile(&self, global_environment: &mut Environment, current_frame: &mut Frame) -> Result<Program> {
         let mut program = ProgramGenerator::new();
         let mut active_buffer: Code = Code::new();
