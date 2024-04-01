@@ -564,7 +564,7 @@ fn dispatch_array_get_method(array: &ArrayInstance, method_name: &str, arguments
 
     let index_pointer = arguments.first().unwrap();
     let index = index_pointer.as_usize()?;
-    array.get_element(index).map(|e| *e)
+    array.get_element(index).copied()
 }
 
 fn dispatch_array_set_method(array: &mut ArrayInstance, method_name: &str, arguments: Vec<Pointer>) -> Result<Pointer> {
@@ -578,7 +578,7 @@ fn dispatch_array_set_method(array: &mut ArrayInstance, method_name: &str, argum
     let index_pointer = arguments.first().unwrap();
     let value_pointer = arguments.last().unwrap();
     let index = index_pointer.as_usize()?;
-    array.set_element(index, *value_pointer).map(|e| *e)
+    array.set_element(index, *value_pointer).copied()
 }
 
 fn dispatch_object_method(
