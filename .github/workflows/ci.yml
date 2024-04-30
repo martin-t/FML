@@ -29,7 +29,7 @@ jobs:
       matrix:
         rust: [stable, nightly]
         # For reference: https://github.com/actions/virtual-environments#available-environments
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-13]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
