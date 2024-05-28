@@ -278,8 +278,13 @@ impl Instr {
                 let modrm;
                 let imm;
 
+                // B8 supports 64-bit immediates, but if the register is 64-bit
+                // then the immediate has to also be 64-bit.
+                // C7 only supports 32-bit immediates
+                // but can move them to both 32 and 64-bit registers.
+                //
                 // Existing assemblers seem to try to use fewer bytes when possible
-                // and use the B8 opcode with a 32 bit immediate when possible,
+                // and use the C7 opcode with a 32 bit immediate when possible,
                 // even when moving to a 64 bit register. We do the same
                 // to make generating tests easier.
                 //
@@ -291,6 +296,9 @@ impl Instr {
                 let imm32: Option<i32> = imm64.try_into().ok();
                 if let Some(imm32) = imm32 {
                     if dst.is_64bit() {
+                        // This is the same as encoding register and immediate
+                        // with opcode 0xC7 and extension 0
+                        // but that would need an early return.
                         opcode = 0xC7;
                         modrm = Some(ModRm {
                             mod_: MODRM_MOD_DIRECT,
@@ -424,7 +432,7 @@ impl Instr {
     }
 
     /// Note there are often 2 ways to encode some instructions.
-    /// E.g. AddRR can be 0x01 or 0x03 with opeerands swapped.
+    /// E.g. AddRR can be 0x01 or 0x03 with operands swapped.
     /// We do what NASM does to make generating tests easier.
     fn encode_reg_reg(opcode: u8, rm: Reg, reg: Reg) -> Encoding {
         assert_eq!(rm.is_64bit(), reg.is_64bit());
