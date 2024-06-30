@@ -88,8 +88,8 @@ pub enum Instr {
     OrRI(Reg, i32),
     OrMI(Mem, i32),
 
-    Pop(Reg),
-    Push(Reg),
+    PopR(Reg),
+    PushR(Reg),
 
     Ret,
 
@@ -684,8 +684,8 @@ impl Display for Instr {
             Instr::OrRM(dst, src) => write!(f, "or {dst}, {src}"),
             Instr::OrRI(dst, imm) => write!(f, "or {dst}, {imm}"),
             Instr::OrMI(dst, imm) => write!(f, "or {dst}, {imm}"),
-            Instr::Pop(op) => write!(f, "pop {op}"),
-            Instr::Push(op) => write!(f, "push {op}"),
+            Instr::PopR(op) => write!(f, "pop {op}"),
+            Instr::PushR(op) => write!(f, "push {op}"),
             Instr::Ret => write!(f, "ret"),
             Instr::SubRR(dst, src) => write!(f, "sub {dst}, {src}"),
             Instr::SubMR(dst, src) => write!(f, "sub {dst}, {src}"),
@@ -777,8 +777,8 @@ impl LowerHex for Instr {
             Instr::OrRM(dst, src) => write!(f, "or {dst}, {src:x}"),
             Instr::OrRI(dst, imm) => write!(f, "or {dst}, {}", Hex(imm)),
             Instr::OrMI(dst, imm) => write!(f, "or dword {dst:x}, {}", Hex(imm)),
-            Instr::Pop(op) => write!(f, "pop {op}"),
-            Instr::Push(op) => write!(f, "push {op}"),
+            Instr::PopR(op) => write!(f, "pop {op}"),
+            Instr::PushR(op) => write!(f, "push {op}"),
             Instr::Ret => write!(f, "ret"),
             Instr::SubRR(dst, src) => write!(f, "sub {dst}, {src}"),
             Instr::SubMR(dst, src) => write!(f, "sub {dst:x}, {src}"),

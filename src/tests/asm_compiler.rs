@@ -33,25 +33,25 @@ fn factorial_handwritten(jg: Instr) {
         // factorial(i32) -> i32:
         Label(label_factorial),
         // Prologue
-        Push(Rbp),
+        PushR(Rbp),
         MovRR(Rbp, Rsp),
         // Base case
         CmpRI(Edi, 1),
         jg,
         MovRI(Eax, 1), // 5 bytes
-        Pop(Rbp),      // 1 byte
+        PopR(Rbp),      // 1 byte
         Ret,           // 1 byte
         // Recursive case
         Label(LABEL_RECURSIVE),
-        Push(Rdi), // Save RDI
-        Push(Rdi), // Align stack
+        PushR(Rdi), // Save RDI
+        PushR(Rdi), // Align stack
         SubRI(Edi, 1),
         CallLabel(label_factorial),
-        Pop(Rdi), // Unalign stack
-        Pop(Rdi), // Restore RDI
+        PopR(Rdi), // Unalign stack
+        PopR(Rdi), // Restore RDI
         ImulR(Edi),
         // Epilogue
-        Pop(Rbp),
+        PopR(Rbp),
         Ret,
     ];
 
@@ -103,7 +103,7 @@ fn factorial_godbolt() {
     let instrs = vec![
         // factorial(i32) -> i32:
         Label(label_factorial),
-        Push(Rax), // Align stack
+        PushR(Rax), // Align stack
         MovMR(Mem::base(Rsp), Edi),
         CmpRI(Edi, 1),
         JleLabel(label_one),
@@ -119,7 +119,7 @@ fn factorial_godbolt() {
         MovMI(Mem::base_offset(Rsp, 4), 1),
         Label(label_return),
         MovRM(Eax, Mem::base_offset(Rsp, 4)),
-        Pop(Rcx), // Undo align stack (don't care about result)
+        PopR(Rcx), // Undo align stack (don't care about result)
         Ret,
     ];
 
@@ -170,7 +170,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
         Ret,
         // factorial(i32) -> i32:
         Label(label_factorial),
-        Push(reg),
+        PushR(reg),
         SubRI(Rsp, 16),
         MovRR(reg, Rsp),
         MovMR(Mem::base(reg), Edi),
@@ -189,7 +189,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
         Label(label_return),
         MovRM(Eax, Mem::base_offset(reg, 4)),
         AddRI(Rsp, 16),
-        Pop(reg),
+        PopR(reg),
         Ret,
     ];
 
@@ -250,30 +250,30 @@ fn call_functions() {
         // fn start():
         // Allocate space for 2 i32s.
         Label(label_start),
-        Push(Rax),
+        PushR(Rax),
         _CallRel(12), // 5 bytes
         _CallRel(7),  // 5 bytes
-        Pop(Rcx),     // 1 byte
+        PopR(Rcx),     // 1 byte
         Ret,          // 1 byte
         // --------------------
         // alloc(i32):
         // Allocate space for an i32.
         Label(label_alloc),
-        Push(Rax),
+        PushR(Rax),
         MovRI(R10, allocate_addr),
         MovRI(Rdi, heap_addr),
         MovRI(Rsi, 4),
         CallAbsR(R10),
-        Pop(Rcx),
+        PopR(Rcx),
         Ret,
         // --------------------
         // entry:
         Label(label_entry),
-        Push(R14), // R14 is callee-saved
+        PushR(R14), // R14 is callee-saved
         // Allocate space for another i32
         // (if start was called previously, 3 slots will be allocated in total).
         CallLabel(label_alloc),
-        Push(R15), // R15 is callee-saved
+        PushR(R15), // R15 is callee-saved
         MovRR(R15, Rax),
         // Save 1 to the first slot.
         MovMI(Mem::base(R15), 1),
@@ -285,11 +285,11 @@ fn call_functions() {
         MovRI(R8, 5),
         MovRI(R9, 6),
         MovRI(Rax, 9),
-        Push(Rax),
+        PushR(Rax),
         MovRI(Rax, 8),
-        Push(Rax),
+        PushR(Rax),
         MovRI(Rax, 7),
-        Push(Rax),
+        PushR(Rax),
         MovRI(R14, take_9_args_addr),
         CallAbsR(R14),
         AddRI(Rsp, 24),
@@ -305,29 +305,29 @@ fn call_functions() {
         MovRI(R9, 6),
         // Args 7-9 on the stack in reverse order
         MovRI(Rax, 9),
-        Push(Rax),
+        PushR(Rax),
         MovRI(Rax, 8),
-        Push(Rax),
+        PushR(Rax),
         MovRI(Rax, 7),
-        Push(Rax),
+        PushR(Rax),
         CallLabel(label_reverse),
         AddRI(Rsp, 24),
         // Save the result to the third slot.
         MovMR(Mem::base_offset(R15, 8), Rax),
-        Pop(R15),
-        Pop(R14),
+        PopR(R15),
+        PopR(R14),
         Ret,
         // --------------------
         // reverse:
         Label(label_reverse),
-        Push(Rbp),
+        PushR(Rbp),
         MovRR(Rbp, Rsp),
         // Call f with reverse's args reversed
         // Push args 7-9 first so we can use the registers.
-        Push(Rax), // Dummy so stack ends up aligned
-        Push(Rdi),
-        Push(Rsi),
-        Push(Rdx),
+        PushR(Rax), // Dummy so stack ends up aligned
+        PushR(Rdi),
+        PushR(Rsi),
+        PushR(Rdx),
         // Args 1-3 from the stack
         MovRM(Rdi, Mem::base_offset(Rbp, 32)),
         MovRM(Rsi, Mem::base_offset(Rbp, 24)),
@@ -339,7 +339,7 @@ fn call_functions() {
         MovRI(R11, take_9_args_addr),
         CallAbsR(R11),
         AddRI(Rsp, 32),
-        Pop(Rbp),
+        PopR(Rbp),
         Ret,
     ];
 

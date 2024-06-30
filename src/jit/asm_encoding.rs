@@ -326,13 +326,13 @@ impl Instr {
             Instr::OrRM(dst, src) => Self::encode_mem_reg(0x0B, src, dst),
             Instr::OrRI(dst, imm) => Self::encode_reg_imm(0x81, 1, dst, imm),
             Instr::OrMI(dst, imm) => Self::encode_mem_imm(0x81, 1, dst, imm),
-            Instr::Pop(op) => {
+            Instr::PopR(op) => {
                 // 58+ rd            POP r64
-                Self::encode_pop_push(0x58, op)
+                Self::encode_pop_push_reg(0x58, op)
             }
-            Instr::Push(op) => {
+            Instr::PushR(op) => {
                 // 50+ rd            PUSH r64
-                Self::encode_pop_push(0x50, op)
+                Self::encode_pop_push_reg(0x50, op)
             }
             Instr::Ret => {
                 // In x64 we should only need ret near.
@@ -539,7 +539,7 @@ impl Instr {
         }
     }
 
-    fn encode_pop_push(opcode: u8, op: Reg) -> Encoding {
+    fn encode_pop_push_reg(opcode: u8, op: Reg) -> Encoding {
         assert!(op.is_64bit());
 
         let (op_b, op_bbb) = op.encode();

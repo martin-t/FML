@@ -417,8 +417,8 @@ fn test_pop_push() {
         if reg.is_32bit() {
             continue;
         }
-        instrs.push(Instr::Pop(reg));
-        instrs.push(Instr::Push(reg));
+        instrs.push(Instr::PopR(reg));
+        instrs.push(Instr::PushR(reg));
     }
     let expecteds: &[&[u8]] = &include!("data/pop_push.in");
     assert_encoding_and_serialization(&instrs, expecteds);
@@ -741,11 +741,11 @@ fn test_rip_relative() {
 #[test]
 #[should_panic]
 fn test_pop_32bit() {
-    Instr::Pop(Eax).encode();
+    Instr::PopR(Eax).encode();
 }
 
 #[test]
 #[should_panic]
 fn test_push_32bit() {
-    Instr::Push(Eax).encode();
+    Instr::PushR(Eax).encode();
 }

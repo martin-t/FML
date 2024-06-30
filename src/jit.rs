@@ -222,28 +222,28 @@ where
         // LATER(martin-t) Add Push/Pop instructions for memory/immediates to avoid mov+push.
 
         // Functioin prologue.
-        is.push(Push(Rbp));
+        is.push(PushR(Rbp));
         is.push(MovRR(Rbp, Rsp));
 
         // Save arguments to the stack.
         let arity: i32 = method.arity.value().into();
         if arity >= 1 {
-            is.push(Push(Rdi));
+            is.push(PushR(Rdi));
         }
         if arity >= 2 {
-            is.push(Push(Rsi));
+            is.push(PushR(Rsi));
         }
         if arity >= 3 {
-            is.push(Push(Rdx));
+            is.push(PushR(Rdx));
         }
         if arity >= 4 {
-            is.push(Push(Rcx));
+            is.push(PushR(Rcx));
         }
         if arity >= 5 {
-            is.push(Push(R8));
+            is.push(PushR(R8));
         }
         if arity >= 6 {
-            is.push(Push(R9));
+            is.push(PushR(R9));
         }
         if arity >= 7 {
             continue 'int_fn;
@@ -275,7 +275,7 @@ where
                     match lit {
                         ProgramObject::Integer(val) => {
                             is.push(MovRI(Rax, (*val).into()));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         _ => continue 'int_fn,
                     }
@@ -288,7 +288,7 @@ where
 
                     let offset = -(index + 1) * 8;
                     is.push(MovRM(Rax, Mem::base_offset(Rbp, offset)));
-                    is.push(Push(Rax));
+                    is.push(PushR(Rax));
                 }
                 OpCode::SetLocal { index } => {
                     let index: i32 = index.value().into();
@@ -325,25 +325,25 @@ where
                     }
 
                     // Left operand is in Rax, right is in Rcx.
-                    is.push(Pop(Rcx));
-                    is.push(Pop(Rax));
+                    is.push(PopR(Rcx));
+                    is.push(PopR(Rax));
                     match name {
                         "+" => {
                             is.push(AddRR(Rax, Rcx));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         "-" => {
                             is.push(SubRR(Rax, Rcx));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         "*" => {
                             is.push(ImulRR(Rax, Rcx));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         "/" => {
                             is.push(Cqo);
                             is.push(IdivR(Rcx));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         "%" => {
                             // LATER(martin-t) This is wrong for negative numbers:
@@ -355,7 +355,7 @@ where
                             is.push(Cqo);
                             is.push(IdivR(Rcx));
                             is.push(MovRR(Rax, Rdx));
-                            is.push(Push(Rax));
+                            is.push(PushR(Rax));
                         }
                         "<=" => {
                             is.push(CmpRR(Rax, Rcx));
@@ -412,19 +412,19 @@ where
                 }
                 OpCode::Return => {
                     // Get the return value from the "operand stack".
-                    is.push(Pop(Rax));
+                    is.push(PopR(Rax));
 
                     // Deallocate space for locals and arguments.
                     let locals_size: i32 = method.locals.value().into();
                     is.push(AddRI(Rsp, (arity + locals_size) * 8));
 
                     // Function epilogue.
-                    is.push(Pop(Rbp));
+                    is.push(PopR(Rbp));
 
                     is.push(Ret);
                 }
                 OpCode::Drop => {
-                    is.push(Pop(Rax));
+                    is.push(PopR(Rax));
                 }
             }
         }
@@ -459,12 +459,12 @@ where
             // into other jitted FML functions.
             //
             // This also aligns the stack.
-            instrs.push(Push(R12));
-            instrs.push(Push(R13));
-            instrs.push(Push(R14));
-            instrs.push(Push(R15));
+            instrs.push(PushR(R12));
+            instrs.push(PushR(R13));
+            instrs.push(PushR(R14));
+            instrs.push(PushR(R15));
             // Dummy to align stack
-            instrs.push(Push(Rax));
+            instrs.push(PushR(Rax));
             // ^ Don't forget to update epilogue when changing this.
 
             // Now save the arguments.
@@ -493,7 +493,7 @@ where
             // Arguments and return values are handled by the interpreter's stack.
 
             // Align stack
-            instrs.push(Push(Rax));
+            instrs.push(PushR(Rax));
             // ^ Don't forget to update epilogue when changing this.
         }
 
@@ -674,7 +674,7 @@ where
                     instrs.push(CallAbsR(Rax));
 
                     assert_ne!(cpi, entry_cpi, "entry function should not have Return opcode");
-                    instrs.push(Pop(Rcx)); // Unalign stack
+                    instrs.push(PopR(Rcx)); // Unalign stack
                     instrs.push(Ret);
                 }
                 OpCode::Drop => {
@@ -695,11 +695,11 @@ where
             }
 
             // Restore saved registers (and unalign stack)
-            instrs.push(Pop(Rcx));
-            instrs.push(Pop(R15));
-            instrs.push(Pop(R14));
-            instrs.push(Pop(R13));
-            instrs.push(Pop(R12));
+            instrs.push(PopR(Rcx));
+            instrs.push(PopR(R15));
+            instrs.push(PopR(R14));
+            instrs.push(PopR(R13));
+            instrs.push(PopR(R12));
             // The entry function doesn't have a Return opcode in bytecode
             // but it needs a return in assembly so we get out of it.
             instrs.push(Ret);
