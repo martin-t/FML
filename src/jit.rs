@@ -219,7 +219,7 @@ where
         // LATER(martin-t) We're using 64 bit regs even though FML only has 32 bit ints.
         // LATER(martin-t) In case we decide to impl calls, we need to align the stack.
         // LATER(martin-t) Handle more than 6 args, more opcodes, methods, ...
-        // LATER(martin-t) Add Push/Pop instructions for memory/immediates to avoid mov+push.
+        // LATER(martin-t) Use Push/Pop instructions for memory/immediates to avoid mov+push.
 
         // Functioin prologue.
         is.push(PushR(Rbp));

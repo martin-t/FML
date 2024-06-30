@@ -330,9 +330,17 @@ impl Instr {
                 // 58+ rd            POP r64
                 Self::encode_pop_push_reg(0x58, op)
             }
+            Instr::PopM(op) => {
+                // 8F /0             POP r/m64
+                Self::encode_mem(0x8F, 0, op)
+            }
             Instr::PushR(op) => {
                 // 50+ rd            PUSH r64
                 Self::encode_pop_push_reg(0x50, op)
+            }
+            Instr::PushM(op)=>{
+                // FF /6             PUSH r/m64
+                Self::encode_mem(0xFF, 6, op)
             }
             Instr::Ret => {
                 // In x64 we should only need ret near.
@@ -887,6 +895,16 @@ impl Encoding {
                 // MovRR, MovMR, MovRM
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
             }
+            0x8f => {
+                Self::deserialize_modrm(bytes, &mut i, &mut encoding);
+                let extension = encoding.modrm.unwrap().reg;
+                match extension{
+                    0 => {
+                        // PopM
+                    }
+                    _ => panic!("opcode {opcode:02x}, unknown extension {extension}"),
+                }
+            }
             0x90 => {
                 // Nop
             }
@@ -951,9 +969,17 @@ impl Encoding {
                 }
             }
             0xFF => {
-                // CallAbs
-                // LATER(martin-t) Modrm.reg is opcode extension (2 for CALL)
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
+                let extension = encoding.modrm.unwrap().reg;
+                match extension{
+                    2 => {
+                        // CallAbs
+                    }
+                    6 => {
+                        // PushM
+                    }
+                    _ => panic!("opcode {opcode:02x}, unknown extension {extension}"),
+                }
             }
             _ => panic!("unknown opcode {:02x}", opcode),
         }

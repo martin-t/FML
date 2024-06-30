@@ -89,7 +89,9 @@ pub enum Instr {
     OrMI(Mem, i32),
 
     PopR(Reg),
+    PopM(Mem),
     PushR(Reg),
+    PushM(Mem),
 
     Ret,
 
@@ -685,7 +687,9 @@ impl Display for Instr {
             Instr::OrRI(dst, imm) => write!(f, "or {dst}, {imm}"),
             Instr::OrMI(dst, imm) => write!(f, "or {dst}, {imm}"),
             Instr::PopR(op) => write!(f, "pop {op}"),
+            Instr::PopM(op) => write!(f, "pop {op}"),
             Instr::PushR(op) => write!(f, "push {op}"),
+            Instr::PushM(op) => write!(f, "push {op}"),
             Instr::Ret => write!(f, "ret"),
             Instr::SubRR(dst, src) => write!(f, "sub {dst}, {src}"),
             Instr::SubMR(dst, src) => write!(f, "sub {dst}, {src}"),
@@ -778,7 +782,9 @@ impl LowerHex for Instr {
             Instr::OrRI(dst, imm) => write!(f, "or {dst}, {}", Hex(imm)),
             Instr::OrMI(dst, imm) => write!(f, "or dword {dst:x}, {}", Hex(imm)),
             Instr::PopR(op) => write!(f, "pop {op}"),
+            Instr::PopM(op) => write!(f, "pop {op:x}"),
             Instr::PushR(op) => write!(f, "push {op}"),
+            Instr::PushM(op) => write!(f, "push {op:x}"),
             Instr::Ret => write!(f, "ret"),
             Instr::SubRR(dst, src) => write!(f, "sub {dst}, {src}"),
             Instr::SubMR(dst, src) => write!(f, "sub {dst:x}, {src}"),
@@ -947,7 +953,7 @@ impl Display for Num {
 /// We don't want to print integers using {:x} because
 /// it's less readable for humans.
 /// It also makes NASM pick a larger instruction unnecessarily
-/// (and in a way tat makes writing predictable test cases harder).
+/// (and in a way that makes writing predictable test cases harder).
 /// E.g. jump uses i32 as offset. That means `jmp -2`
 /// would become `jmp 0xfffffffe` and NASM would use a 5 byte JMP.
 /// With Hex it becomes `jmp -0x2` and NASM uses the 2 byte form.

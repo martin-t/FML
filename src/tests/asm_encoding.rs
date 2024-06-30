@@ -411,7 +411,7 @@ fn test_mov_mem_imm() {
 }
 
 #[test]
-fn test_pop_push() {
+fn test_pop_push_reg() {
     let mut instrs = Vec::new();
     for reg in Reg::variants() {
         if reg.is_32bit() {
@@ -420,7 +420,18 @@ fn test_pop_push() {
         instrs.push(Instr::PopR(reg));
         instrs.push(Instr::PushR(reg));
     }
-    let expecteds: &[&[u8]] = &include!("data/pop_push.in");
+    let expecteds: &[&[u8]] = &include!("data/pop_push_reg.in");
+    assert_encoding_and_serialization(&instrs, expecteds);
+}
+
+#[test]
+fn test_pop_push_mem() {
+    let mut instrs = Vec::new();
+    for mem in combinations_mem() {
+        instrs.push(Instr::PopM(mem));
+        instrs.push(Instr::PushM(mem));
+    }
+    let expecteds: &[&[u8]] = &include!("data/pop_push_mem.in");
     assert_encoding_and_serialization(&instrs, expecteds);
 }
 
@@ -595,6 +606,7 @@ fn combinations_mem() -> Vec<Mem> {
 }
 
 /// Test a couple combinations of everything.
+/// A few registers, a few scales, a few immediates.
 fn combinations_mem_mix() -> Vec<Mem> {
     let mut ret = Vec::new();
 
@@ -621,7 +633,7 @@ fn combinations_mem_mix() -> Vec<Mem> {
     ret
 }
 
-/// Test more possible values in each position:
+/// Test more possible values in each position but not all combinations:
 /// - all registers except those we explicitly don't support
 /// - all 4 scales
 /// - more displacements
