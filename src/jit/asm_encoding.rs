@@ -340,6 +340,7 @@ impl Instr {
             }
             Instr::PopM(op) => {
                 // 8F /0             POP r/m64
+                // TODO Assert mem is qword, also in PushM.
                 Self::encode_mem(0x8F, 0, op)
             }
             Instr::PushR(op) => {
