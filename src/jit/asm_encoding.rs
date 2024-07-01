@@ -121,53 +121,12 @@ impl Instr {
             Instr::CallAbsR(abs) => {
                 // FF /2            CALL r/m64
                 assert!(abs.is_64bit());
-                let (abs_b, abs_bbb) = abs.encode();
-                let rex = Rex {
-                    w: 0,
-                    r: 0,
-                    x: 0,
-                    b: abs_b,
-                };
-                let opcode = 0xFF;
-                let modrm = ModRm {
-                    mod_: MODRM_MOD_DIRECT,
-                    reg: 2,
-                    rm: abs_bbb,
-                };
-                Encoding {
-                    rex: if rex.is_used() { Some(rex) } else { None },
-                    opcode,
-                    modrm: Some(modrm),
-                    ..Default::default()
-                }
+                Self::encode_reg(0xFF, 2, abs, true)
             }
             Instr::CallAbsM(abs) => {
                 // FF /2            CALL r/m64
                 // TODO Assert qword.
-                let EncodedMem {
-                    rex_x,
-                    rex_b,
-                    mod_,
-                    rm,
-                    sib,
-                    disp,
-                } = abs.encode();
-                let rex = Rex {
-                    w: 0,
-                    r: 0,
-                    x: rex_x,
-                    b: rex_b,
-                };
-                let opcode = 0xFF;
-                let modrm = ModRm { mod_, reg: 2, rm };
-                Encoding {
-                    rex: if rex.is_used() { Some(rex) } else { None },
-                    opcode,
-                    modrm: Some(modrm),
-                    sib,
-                    disp,
-                    ..Default::default()
-                }
+                Self::encode_mem(0xFF, 2, abs)
             }
             Instr::CmpRR(dst, src) => Self::encode_reg_reg(0x39, dst, src),
             Instr::CmpMR(dst, src) => Self::encode_mem_reg(0x39, dst, src),
@@ -194,7 +153,7 @@ impl Instr {
             Instr::IdivR(op) => {
                 // F7 /7            IDIV r/m32
                 // REX.W + F7 /7    IDIV r/m64
-                Self::encode_reg(0xF7, 7, op)
+                Self::encode_reg(0xF7, 7, op, false)
             }
             Instr::IdivM(op) => {
                 // F7 /7            IDIV r/m32
@@ -204,7 +163,7 @@ impl Instr {
             Instr::ImulR(op) => {
                 // F7 /5            IMUL r/m32
                 // REX.W + F7 /5    IMUL r/m64
-                Self::encode_reg(0xF7, 5, op)
+                Self::encode_reg(0xF7, 5, op, false)
             }
             Instr::ImulM(op) => {
                 // F7 /5            IMUL r/m32
@@ -386,12 +345,14 @@ impl Instr {
         }
     }
 
-    fn encode_reg(opcode: u8, extension: u8, dst: Reg) -> Encoding {
+    fn encode_reg(opcode: u8, extension: u8, reg: Reg, operand_default_64_bits: bool) -> Encoding {
         assert!(extension <= 7);
 
-        let (dst_b, dst_bbb) = dst.encode();
+        let (dst_b, dst_bbb) = reg.encode();
+        let needs_rex_w = !operand_default_64_bits;
+        let w = needs_rex_w && reg.is_64bit();
         let rex = Rex {
-            w: dst.is_64bit().into(),
+            w: w.into(),
             r: 0,
             x: 0,
             b: dst_b,
@@ -410,7 +371,7 @@ impl Instr {
         }
     }
 
-    fn encode_mem(opcode: u8, extension: u8, dst: Mem) -> Encoding {
+    fn encode_mem(opcode: u8, extension: u8, mem: Mem) -> Encoding {
         let EncodedMem {
             rex_x,
             rex_b,
@@ -418,7 +379,7 @@ impl Instr {
             rm,
             sib,
             disp,
-        } = dst.encode();
+        } = mem.encode();
         let rex = Rex {
             w: 0,
             r: 0,
@@ -504,7 +465,7 @@ impl Instr {
     fn encode_reg_imm(opcode: u8, extension: u8, dst: Reg, imm: i32) -> Encoding {
         Encoding {
             imm: Some(Num::Num32(imm)),
-            ..Self::encode_reg(opcode, extension, dst)
+            ..Self::encode_reg(opcode, extension, dst, false)
         }
     }
 
