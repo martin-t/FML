@@ -347,7 +347,7 @@ impl Instr {
                 // 50+ rd            PUSH r64
                 Self::encode_pop_push_reg(0x50, op)
             }
-            Instr::PushM(op)=>{
+            Instr::PushM(op) => {
                 // FF /6             PUSH r/m64
                 Self::encode_mem(0xFF, 6, op)
             }
@@ -907,7 +907,7 @@ impl Encoding {
             0x8f => {
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
                 let extension = encoding.modrm.unwrap().reg;
-                match extension{
+                match extension {
                     0 => {
                         // PopM
                     }
@@ -980,7 +980,7 @@ impl Encoding {
             0xFF => {
                 Self::deserialize_modrm(bytes, &mut i, &mut encoding);
                 let extension = encoding.modrm.unwrap().reg;
-                match extension{
+                match extension {
                     2 => {
                         // CallAbs
                     }
