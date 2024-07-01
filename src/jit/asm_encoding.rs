@@ -120,6 +120,7 @@ impl Instr {
             Instr::CallRel32(rel) => Self::encode_call32(0xE8, rel),
             Instr::CallAbsR(abs) => {
                 // FF /2            CALL r/m64
+                assert!(abs.is_64bit());
                 let (abs_b, abs_bbb) = abs.encode();
                 let rex = Rex {
                     w: 0,
@@ -142,6 +143,7 @@ impl Instr {
             }
             Instr::CallAbsM(abs) => {
                 // FF /2            CALL r/m64
+                // TODO Assert qword.
                 let EncodedMem {
                     rex_x,
                     rex_b,

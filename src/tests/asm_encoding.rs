@@ -752,6 +752,12 @@ fn test_rip_relative() {
 
 #[test]
 #[should_panic]
+fn test_call_32bit() {
+    Instr::CallAbsR(Eax).encode();
+}
+
+#[test]
+#[should_panic]
 fn test_pop_32bit() {
     Instr::PopR(Eax).encode();
 }
