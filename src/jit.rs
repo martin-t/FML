@@ -119,13 +119,13 @@ macro_rules! jit_fn {
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )? ) => {
         unsafe {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<_, F>($jit.code)
+            ::std::mem::transmute::<*mut u8, F>($jit.code)
         }
     };
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )?, $offset:expr ) => {
         unsafe {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<_, F>($jit.code.add($offset))
+            ::std::mem::transmute::<*mut u8, F>($jit.code.add($offset))
         }
     }
 }
