@@ -39,7 +39,7 @@ fn factorial_handwritten(jg: Instr) {
         CmpRI(Edi, 1),
         jg,
         MovRI(Eax, 1), // 5 bytes
-        PopR(Rbp),      // 1 byte
+        PopR(Rbp),     // 1 byte
         Ret,           // 1 byte
         // Recursive case
         Label(LABEL_RECURSIVE),
@@ -253,7 +253,7 @@ fn call_functions() {
         PushR(Rax),
         _CallRel(12), // 5 bytes
         _CallRel(7),  // 5 bytes
-        PopR(Rcx),     // 1 byte
+        PopR(Rcx),    // 1 byte
         Ret,          // 1 byte
         // --------------------
         // alloc(i32):
