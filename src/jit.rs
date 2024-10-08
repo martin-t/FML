@@ -119,13 +119,13 @@ macro_rules! jit_fn {
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )? ) => {
         unsafe {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<_, F>($jit.code)
+            ::std::mem::transmute::<*mut u8, F>($jit.code)
         }
     };
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )?, $offset:expr ) => {
         unsafe {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<_, F>($jit.code.add($offset))
+            ::std::mem::transmute::<*mut u8, F>($jit.code.add($offset))
         }
     }
 }
@@ -164,7 +164,8 @@ impl JitState {
 /// and then also perform a jump/call/return in assembly.
 /// This means the interpreter's instruction pointer is no longer necessary
 /// which can provide an additional speedup (another ~10%).
-// LATER(martin-t) Split into a struct and methods.
+///
+/// LATER(martin-t) Split into a struct and methods.
 pub fn jit_program<W>(program: &Program, state: &mut State, output: &mut W)
 where
     W: Write,
@@ -778,7 +779,7 @@ where
 /// Rust fns have an unstable/unspecified calling convention
 /// and some types used by eval_<opcode> such as Result are not FFI-safe.
 ///
-/// We also _should_ to catch panics here because unwinding through
+/// We also _should_ catch panics here because unwinding through
 /// an FFI boundary is very likely undefined behavior.
 /// This is not certain - the Rustonomicon recently changed
 /// with the introduction of *-unwind ABI's (which are still unstable)
@@ -788,7 +789,8 @@ where
 /// So for now we use panic = "abort" in Cargo.toml.
 /// This is not ideal because it means we still have UB in test and bench
 /// profiles which don't support panic = "abort".
-// LATER(martin-t) Find a way to catch panics here.
+///
+/// LATER(martin-t) Find a way to catch panics here.
 extern "sysv64" fn jit_literal(program: &Program, state: &mut State, literal_index: ConstantPoolIndex) {
     eval_literal(program, state, literal_index).unwrap();
 }
