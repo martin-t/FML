@@ -109,6 +109,14 @@ macro_rules! fn_to_addr {
 ///
 /// By default this points to the beginning of JIT memory
 /// but you can optionally specify an offset.
+///
+/// # Safety
+///
+/// Note that this macro is not marked unsafe but incorrect usage
+/// can still lead to UB. This is because of the nature of a JIT compiler.
+/// Any bug anywhere in the assembler or compiler can lead to UB
+/// so everything would have to be marked unsafe
+/// and at that point, it loses its meaning.
 #[macro_export]
 macro_rules! jit_fn {
     // There's no way to take the whole fn signature like `$f:ty`
@@ -117,15 +125,22 @@ macro_rules! jit_fn {
     // So we have to match the individual parts instead,
     // even the optional return type.
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )? ) => {
-        unsafe {
+        {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<*mut u8, F>($jit.code)
+            let jit = &$jit;
+            unsafe {
+                ::std::mem::transmute::<*mut u8, F>(jit.code)
+            }
         }
     };
     ( $jit:expr, fn( $($args:ty),* ) $( -> $ret:ty )?, $offset:expr ) => {
-        unsafe {
+        {
             type F = extern "sysv64" fn( $($args),* ) $( -> $ret )?;
-            ::std::mem::transmute::<*mut u8, F>($jit.code.add($offset))
+            let jit = &$jit;
+            let offset = $offset;
+            unsafe {
+                ::std::mem::transmute::<*mut u8, F>(jit.code.add(offset))
+            }
         }
     }
 }
@@ -631,7 +646,7 @@ where
                     // The asm label should be before calling jit_label,
                     // to match behavior of the bytecode interpreter.
                     //
-                    // However if all opcodes are jitted,
+                    // However, if all opcodes are jitted,
                     // we don't need the instruction pointer anymore.
                     // So we can put if after jit_label or better yet
                     // we don't need to call jit_label at all.

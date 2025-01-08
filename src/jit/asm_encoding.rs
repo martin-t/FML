@@ -808,7 +808,7 @@ impl Encoding {
                     0x0B => {
                         // Ud2
                     }
-                    0x84 | 0x8F | 0x8D | 0x8C | 0x8E | 0x85 => {
+                    0x84 | 0x85 | 0x8C | 0x8D | 0x8E | 0x8F => {
                         // Jcc - 32 bit offset
                         Self::deserialize_num(bytes, &mut i, &mut encoding, 4)
                     }
@@ -1074,11 +1074,11 @@ impl Display for Encoding {
             0x0f => match self.opcode2.unwrap() {
                 0x0b => writeln!(f, "ud2")?,
                 0x84 => writeln!(f, "je rel32")?,
-                0x8F => writeln!(f, "jg rel32")?,
-                0x8D => writeln!(f, "jge rel32")?,
-                0x8C => writeln!(f, "jl rel32")?,
-                0x8E => writeln!(f, "jle rel32")?,
                 0x85 => writeln!(f, "jne rel32")?,
+                0x8c => writeln!(f, "jl rel32")?,
+                0x8d => writeln!(f, "jge rel32")?,
+                0x8e => writeln!(f, "jle rel32")?,
+                0x8f => writeln!(f, "jg rel32")?,
                 0xaf => writeln!(f, "imul r32, r/m32 | r64, r/m64")?,
                 opcode2 => eprintln!("OPCODE {:02x}, opcode2 {:02x}: unknown/todo", self.opcode, opcode2),
             },
@@ -1108,6 +1108,10 @@ impl Display for Encoding {
             0x85 => writeln!(f, "test r/m32, r32 | r/m64, r64")?,
             0x89 => writeln!(f, "mov r/m32, r32 | r/m64, r64")?,
             0x8b => writeln!(f, "mov r32, r/m32 | r64, r/m64")?,
+            0x8f => match self.modrm.unwrap().reg {
+                0 => writeln!(f, "pop r/m64")?,
+                ext => eprintln!("OPCODE {:02x}, EXTENSION {ext}: unknown/todo", self.opcode),
+            },
             0x90 => writeln!(f, "nop")?,
             0x99 => writeln!(f, "cdq | cqo")?,
             0xb8..=0xbf => writeln!(f, "mov r32, imm32 | r64, imm32")?,
@@ -1125,7 +1129,11 @@ impl Display for Encoding {
                 7 => writeln!(f, "idiv r/m32 | r/m64")?,
                 ext => eprintln!("OPCODE {:02x}, EXTENSION {ext}: unknown/todo", self.opcode),
             },
-            0xff => writeln!(f, "call r/m64")?,
+            0xff => match self.modrm.unwrap().reg {
+                2 => writeln!(f, "call r/m64")?,
+                6 => writeln!(f, "push r/m64")?,
+                ext => eprintln!("OPCODE {:02x}, EXTENSION {ext}: unknown/todo", self.opcode),
+            },
             _ => eprintln!("OPCODE 0x{:02x}: unknown/todo", self.opcode),
         }
         if let Some(modrm) = &self.modrm {
