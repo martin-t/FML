@@ -636,7 +636,7 @@ impl Compiled for AST {
                     name: name_index,
                     locals: Size::from_usize(locals_in_frame - parameters.len()),
                     arity: Arity::from_usize(parameters.len()),
-                    code: AddressRange::new(start_address, function_length),
+                    code_range: AddressRange::new(start_address, function_length),
                 });
 
                 let constant = program.constant_pool.register(method);
@@ -775,7 +775,7 @@ impl Compiled for AST {
                     name: function_name_index,
                     locals: Size::from_usize(global_environment.count_locals()),
                     arity: Arity::from_usize(0),
-                    code: AddressRange::new(start_address, function_length),
+                    code_range: AddressRange::new(start_address, function_length),
                 });
 
                 let function_index = program.constant_pool.register(method);
@@ -844,7 +844,7 @@ fn compile_function_definition(
         name: name_index,
         locals: Size::from_usize(locals_in_frame - expected_arguments),
         arity: Arity::from_usize(expected_arguments),
-        code: AddressRange::new(start_address, length),
+        code_range: AddressRange::new(start_address, length),
     });
 
     Ok(program.constant_pool.register(method))

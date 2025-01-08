@@ -777,7 +777,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(3),
             locals: Size::new(0),
-            code: AddressRange::from(0, 2),
+            code_range: AddressRange::from(0, 2),
         }),
     ]);
 
@@ -896,7 +896,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(1),    // "implies"
             arity: Arity::new(1+1),
             locals: Size::new(0),
-            code: AddressRange::from(0, 2),     // opcodes: 0, 1
+            code_range: AddressRange::from(0, 2),     // opcodes: 0, 1
         }),
 
         /* 03 */ ProgramObject::from_i32(1),
@@ -908,7 +908,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(6),    // identity
             arity: Arity::new(0+1),
             locals: Size::new(0),
-            code: AddressRange::from(2, 2),     // addresses: 2, 3
+            code_range: AddressRange::from(2, 2),     // addresses: 2, 3
         }),
 
         /* 08 */ ProgramObject::from_str("or"),
@@ -916,7 +916,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(8),    // or
             arity: Arity::new(1+1),
             locals: Size::new(0),
-            code: AddressRange::from(4, 2),     // addresses: 5, 6
+            code_range: AddressRange::from(4, 2),     // addresses: 5, 6
         }),
 
         /* 10 */ ProgramObject::from_str("and"),
@@ -924,7 +924,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(10),    // and
             arity: Arity::new(1+1),
             locals: Size::new(0),
-            code: AddressRange::from(6, 2),     // addresses: 7, 8
+            code_range: AddressRange::from(6, 2),     // addresses: 7, 8
         }),
 
         /* 12 */ ProgramObject::from_str("hash"),
@@ -935,7 +935,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(14),          // +
             arity: Arity::new(1+1),
             locals: Size::new(0),
-            code: AddressRange::from(8, 2),           // addresses: 7, 8
+            code_range: AddressRange::from(8, 2),           // addresses: 7, 8
         }),
 
         /* 16 */ ProgramObject::from_str("*"),
@@ -943,7 +943,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(16),          // *
             arity: Arity::new(1+1),
             locals: Size::new(0),
-            code: AddressRange::from(10, 2),           // addresses: 9, 10
+            code_range: AddressRange::from(10, 2),           // addresses: 9, 10
         }),
 
         /* 18 */ ProgramObject::from_str("me"),
@@ -951,7 +951,7 @@ use crate::bytecode::compiler::*;
             name: ConstantPoolIndex::new(18),          // *
             arity: Arity::new(1),
             locals: Size::new(0),
-            code: AddressRange::from(12, 2),
+            code_range: AddressRange::from(12, 2),
         }),
 
         /* 20 */ ProgramObject::class_from_vec(vec!(2, 5, 7, 9, 11, 13, 15, 17, 19)),

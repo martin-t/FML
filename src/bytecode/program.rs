@@ -116,7 +116,7 @@ pub struct Method {
     pub name: ConstantPoolIndex,
     pub arity: Arity,
     pub locals: Size,
-    pub code: AddressRange,
+    pub code_range: AddressRange,
 }
 
 #[repr(C)]
@@ -729,7 +729,7 @@ impl SerializableWithContext for ProgramObject {
                 method.name.serialize(sink)?;
                 method.arity.serialize(sink)?;
                 method.locals.serialize(sink)?;
-                OpCode::write_opcode_vector(sink, &code.materialize(&method.code)?)
+                OpCode::write_opcode_vector(sink, &code.materialize(&method.code_range)?)
             }
         }
     }
@@ -745,7 +745,7 @@ impl SerializableWithContext for ProgramObject {
                 name: ConstantPoolIndex::from_bytes(input),
                 arity: Arity::from_bytes(input),
                 locals: Size::from_bytes(input),
-                code: code.append(OpCode::read_opcode_vector(input)),
+                code_range: code.append(OpCode::read_opcode_vector(input)),
             }),
             0x04 => ProgramObject::Slot {
                 name: ConstantPoolIndex::from_bytes(input),
@@ -862,7 +862,7 @@ impl Display for ProgramObject {
                 write!(
                     f,
                     "method {} args:{} locals:{} {}",
-                    method.name, method.arity, method.locals, method.code
+                    method.name, method.arity, method.locals, method.code_range
                 )
             }
             ProgramObject::Class(members) => {

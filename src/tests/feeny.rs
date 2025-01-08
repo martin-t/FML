@@ -95,7 +95,7 @@ fn feeny_method_argument_order_program() -> Program {
             name: ConstantPoolIndex::from_usize(2),
             arity: Arity::from_usize(4),
             locals: Size::from_usize(0),
-            code: AddressRange:: from(0, 9),
+            code_range: AddressRange:: from(0, 9),
         }),
         /*  4 */ ProgramObject::Class(vec![ConstantPoolIndex::from_usize(3)]),
         /*  5 */ ProgramObject::from_i32(1),
@@ -106,14 +106,14 @@ fn feeny_method_argument_order_program() -> Program {
             name: ConstantPoolIndex::from_usize(8),
             arity: Arity::from_usize(0),
             locals: Size::from_usize(1),
-            code: AddressRange:: from(9, 10),
+            code_range: AddressRange:: from(9, 10),
         }),
         /* 10 */ ProgramObject::from_str("entry38"),
         /* 11 */ ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(10),
             arity: Arity::from_usize(0),
             locals: Size::from_usize(0),
-            code: AddressRange:: from(19, 4),
+            code_range: AddressRange:: from(19, 4),
         }),
     ]);
 
@@ -285,7 +285,7 @@ fn feeny_object_member_order_program() -> Program {
             name: ConstantPoolIndex::from_usize(11),
             arity: Arity::from_usize(1),
             locals: Size::from_usize(0),
-            code: AddressRange:: from(0, 12),
+            code_range: AddressRange:: from(0, 12),
         }),
         ProgramObject::Class(vec![ConstantPoolIndex::from_usize(5),
                                   ConstantPoolIndex::from_usize(7),
@@ -296,14 +296,14 @@ fn feeny_object_member_order_program() -> Program {
             name: ConstantPoolIndex::from_usize(14),
             arity: Arity::from_usize(0),
             locals: Size::from_usize(1),
-            code: AddressRange:: from(12, 10),
+            code_range: AddressRange:: from(12, 10),
         }),
         ProgramObject::from_str("entry38"),
         ProgramObject::Method(Method {
             name: ConstantPoolIndex::from_usize(16),
             arity: Arity::from_usize(0),
             locals: Size::from_usize(0),
-            code: AddressRange:: from(22, 4),
+            code_range: AddressRange:: from(22, 4),
         }),
     ]);
 
@@ -422,7 +422,7 @@ fn feeny_print_argument_order_program() -> Program {
             name: ConstantPoolIndex::new(4),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(0, 5),
+            code_range: AddressRange::from(0, 5),
         }),
         /* 6 */ ProgramObject::Null,
         /* 7 */ ProgramObject::from_str("entry35"),
@@ -430,7 +430,7 @@ fn feeny_print_argument_order_program() -> Program {
             name: ConstantPoolIndex::new(7),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(5, 4),
+            code_range: AddressRange::from(5, 4),
         }),
     ]);
 
@@ -555,7 +555,7 @@ fn feeny_function_argument_order_program() -> Program {
                     name: ConstantPoolIndex::new(1),
                     arity: Arity::new(3),
                     locals: Size::new(0),
-                    code: AddressRange::from(0, 9),
+                    code_range: AddressRange::from(0, 9),
                 }),
         /*  3 */ ProgramObject::from_i32(1),
         /*  4 */ ProgramObject::from_i32(2),
@@ -565,7 +565,7 @@ fn feeny_function_argument_order_program() -> Program {
                     name: ConstantPoolIndex::new(6),
                     arity: Arity::new(0),
                     locals: Size::new(0),
-                    code: AddressRange::from(9, 5),
+                    code_range: AddressRange::from(9, 5),
                 }),
         /*  8 */ ProgramObject::Null,
         /*  9 */ ProgramObject::from_str("entry36"),
@@ -573,7 +573,7 @@ fn feeny_function_argument_order_program() -> Program {
                     name: ConstantPoolIndex::new(9),
                     arity: Arity::new(0),
                     locals: Size::new(0),
-                    code: AddressRange::from(14, 4),
+                    code_range: AddressRange::from(14, 4),
                 }),
     ]);
 
@@ -661,7 +661,7 @@ fn feeny_hello_world_program() -> Program {
             name: ConstantPoolIndex::new(1),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(0, 2),
+            code_range: AddressRange::from(0, 2),
         }),
         /* #3 */ ProgramObject::Null,
         /* #4 */ ProgramObject::String("entry35".to_string()),
@@ -669,7 +669,7 @@ fn feeny_hello_world_program() -> Program {
             name: ConstantPoolIndex::new(4),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(2, 4),
+            code_range: AddressRange::from(2, 4),
         }),
     ]);
 
@@ -1009,7 +1009,7 @@ fn feeny_fibonacci_program () -> Program {
             name: ConstantPoolIndex::new(14),
             arity: Arity::new(1),
             locals: Size::new(3),
-            code: AddressRange::from(0, 49),
+            code_range: AddressRange::from(0, 49),
         }),
         /* #16 0x10 */ ProgramObject::String("test45".to_string()),
         /* #17 0x11 */ ProgramObject::String("loop46".to_string()),
@@ -1021,14 +1021,14 @@ fn feeny_fibonacci_program () -> Program {
             name: ConstantPoolIndex::new(21),
             arity: Arity::new(0),
             locals: Size::new(1),
-            code: AddressRange::from(49, 22),
+            code_range: AddressRange::from(49, 22),
         }),
         /* #23 0x15 */ ProgramObject::String("entry47".to_string()),
         /* #24 0x16 */ ProgramObject::Method(Method {                             // entry47
             name: ConstantPoolIndex::new(23),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: AddressRange::from(71,4),
+            code_range: AddressRange::from(71,4),
         })
     ]);
 

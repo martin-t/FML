@@ -173,7 +173,7 @@ impl UglyPrintWithContext for ProgramObject {
                 name,
                 arity,
                 locals,
-                code: range,
+                code_range: range,
             }) => {
                 write_string!(sink, first!(indent, prefix_first_line), "Method(");
                 name.pretty_print_no_indent(sink);

@@ -59,8 +59,8 @@ impl State {
             .with_context(|| "Cannot find entry method.")?
             .as_method()?;
 
-        let instruction_pointer = if entry_method.code.length() > 0 {
-            InstructionPointer::from(entry_method.code.start())
+        let instruction_pointer = if entry_method.code_range.length() > 0 {
+            InstructionPointer::from(entry_method.code_range.start())
         } else {
             InstructionPointer::new()
         };

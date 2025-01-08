@@ -256,8 +256,8 @@ where
 
         let mut branch_next = None;
 
-        let begin = method.code.start().value_usize();
-        let end = begin + method.code.length();
+        let begin = method.code_range.start().value_usize();
+        let end = begin + method.code_range.length();
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();
@@ -498,8 +498,8 @@ where
             // ^ Don't forget to update epilogue when changing this.
         }
 
-        let begin = method.code.start().value_usize();
-        let end = begin + method.code.length();
+        let begin = method.code_range.start().value_usize();
+        let end = begin + method.code_range.length();
         for i in begin..end {
             let address = Address::from_usize(i);
             let opcode = program.code.get(address).unwrap();

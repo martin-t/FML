@@ -745,7 +745,7 @@ fn call_function_zero() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(0),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
@@ -803,7 +803,7 @@ fn call_function_one() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::from(vec![ConstantPoolIndex::new(1)]);
@@ -854,7 +854,7 @@ fn call_function_three() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(3),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::new();
@@ -913,7 +913,7 @@ fn returns() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(3),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
 
@@ -959,7 +959,7 @@ fn object_zero() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
         /*2*/ ProgramObject::Class(vec![ConstantPoolIndex::new(1)]),
     ]);
@@ -1012,7 +1012,7 @@ fn object_one() {
             name: ConstantPoolIndex::new(2),
             arity: Arity::new(1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
         /*4*/ ProgramObject::Class(vec![ConstantPoolIndex::new(1), ConstantPoolIndex::new(3)]),
     ]);
@@ -1070,7 +1070,7 @@ fn object_two() {
             name: ConstantPoolIndex::new(4),
             arity: Arity::new(1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
         /*6*/
         ProgramObject::Class(vec![
@@ -1233,7 +1233,7 @@ fn call_method_zero() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(0 + 1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::new();
@@ -1292,7 +1292,7 @@ fn call_method_one() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(1 + 1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::new();
@@ -1352,7 +1352,7 @@ fn call_method_three() {
             name: ConstantPoolIndex::new(0),
             arity: Arity::new(3 + 1),
             locals: Size::new(0),
-            code: TEST_ADDRESS_RANGE,
+            code_range: TEST_ADDRESS_RANGE,
         }),
     ]);
     let globals = Globals::new();

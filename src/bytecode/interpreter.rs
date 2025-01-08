@@ -637,7 +637,7 @@ fn eval_call_object_method(
         veccat!(vec![receiver], arguments, local_pointers),
     );
     state.frame_stack.push(frame);
-    let address = Some(method.code.start());
+    let address = Some(method.code_range.start());
     Ok(address)
 }
 
@@ -670,7 +670,7 @@ pub fn eval_call_function(
     state.instruction_pointer.bump(program);
     let frame = Frame::from(state.instruction_pointer.get(), veccat!(arguments, local_pointers));
     state.frame_stack.push(frame);
-    let address = function.code.start();
+    let address = function.code_range.start();
     // state.instruction_pointer.set(Some(*function.code.start()));
 
     Ok((function_index, address))
