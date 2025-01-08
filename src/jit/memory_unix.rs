@@ -1,3 +1,5 @@
+//! Executable memory implementation for Unix with proper page allocation and W^X protection.
+
 use libc::{c_int, c_void, PROT_EXEC, PROT_READ, PROT_WRITE};
 
 /// Note this can't be tested by miri
