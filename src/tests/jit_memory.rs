@@ -251,7 +251,7 @@ fn add_squares_jit_asm() {
 
 #[test]
 fn call_square_sysv64() {
-    // Call a function definedin Rust
+    // Call a function defined in Rust
 
     #[rustfmt::skip]
     let mut code = [

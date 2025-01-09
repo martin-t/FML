@@ -114,9 +114,8 @@ macro_rules! fn_to_addr {
 ///
 /// Note that this macro is not marked unsafe but incorrect usage
 /// can still lead to UB. This is because of the nature of a JIT compiler.
-/// Any bug anywhere in the assembler or compiler can lead to UB
-/// so everything would have to be marked unsafe
-/// and at that point, it loses its meaning.
+/// Any bug anywhere in the assembler or compiler can lead to UB.
+/// Unsafe infects the entire module, sometimes even more.
 #[macro_export]
 macro_rules! jit_fn {
     // There's no way to take the whole fn signature like `$f:ty`
@@ -362,7 +361,8 @@ where
                             is.push(PushR(Rax));
                         }
                         "%" => {
-                            // LATER(martin-t) This is wrong for negative numbers:
+                            // LATER(martin-t) This is wrong for negative numbers
+                            // (likely because the interpreter uses 32-bit integers but we use 64-bit registers):
                             // function rem2(a1, a2) -> a1 % a2;
                             // print("~\n", rem2(26, 10));
                             // print("~\n", rem2(-26, 10));
@@ -872,7 +872,7 @@ extern "sysv64" fn jit_call_function(
     arity: Arity,
     jit_state: &JitState,
 ) -> usize {
-    // The goal here is to check if the functiont to be called
+    // The goal here is to check if the function to be called
     // has an optimized jitted version
     // and if that version can be used (e.g. if the arguments are all integers).
     // However, this is supposed to be a cheap check

@@ -141,7 +141,7 @@ fn factorial_godbolt_no_rsp(reg: Reg) {
     // This means another register needs to be used and later restored
     // without being overwritten by the recursive calls.
     // Additionally if the register used is nonvolatile,
-    // we also have to
+    // we also have to save and restore it around the recursive call.
     // The outer function passes this register's original value back into Rust
     // so we can check it was restored properly.
     // Of course, if it's not restored the whole program can crash before

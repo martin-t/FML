@@ -69,6 +69,35 @@ const IMMS64: [i64; 17] = [
     i64::MIN,
 ];
 
+/// An example how the intermediate Encoding representation
+/// can be used to help understand the individual parts of the binary encoding.
+///
+/// This works both when starting from an Instr and from already encoded machine code.
+///
+/// Run using: cargo test -- --nocapture example_print_encoding
+#[test]
+fn example_print_encoding() {
+    let instr = Instr::AddRM(
+        Reg::Eax,
+        Mem {
+            base: Some(Reg::Rbx),
+            index: Some(Reg::Rcx),
+            scale: 4,
+            disp: 100,
+        },
+    );
+
+    let encoded = instr.encode();
+    println!("{}", encoded);
+
+    let hex = encoded.serialize_to_vec();
+    print_asm(&hex);
+    println!();
+
+    let decoded = Encoding::deserialize(&hex);
+    println!("{}", decoded.0);
+}
+
 #[test]
 fn test_simple() {
     let instrs = vec![
