@@ -96,6 +96,8 @@ fn example_print_encoding() {
 
     let decoded = Encoding::deserialize(&hex);
     println!("{}", decoded.0);
+
+    assert_eq!(encoded, decoded.0);
 }
 
 #[test]
