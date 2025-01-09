@@ -293,8 +293,8 @@ fn add_squares_square_sysv64() {
         // RSP must be aligned here.
         // Might have to sub 8 if adding/removing push instructions
         //0x48, 0x83, 0xec, 0x08, // sub rsp, 8
-        // Also change monkeypatch offset if changing this
 
+        // Also change monkeypatch offset if changing this
         0x49, 0xbc, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, // mov r12, 0x6666666666666666
 
         // Save args into nonvalatile registers
